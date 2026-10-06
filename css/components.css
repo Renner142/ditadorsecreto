@@ -122,6 +122,9 @@ input {
 .vote-yes { color: var(--color-yes); border-color: var(--color-yes) !important; }
 .vote-no { color: var(--color-no); border-color: var(--color-no) !important; }
 
+.btn.policy { min-height: 72px; font-weight: 700; }
+.btn.policy-a { background: var(--color-team-a); }
+.btn.policy-b { background: var(--color-team-b); }
 
 #seats { pointer-events: none; }
 .seat { pointer-events: auto; }

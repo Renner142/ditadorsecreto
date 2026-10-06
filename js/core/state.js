@@ -9,10 +9,10 @@ export function splitState(s) {
     pub: clean({
       phase: s.phase, order: s.order, presidentIdx: s.presidentIdx, dead: s.dead,
       tracks: s.tracks, electionTracker: s.electionTracker, candidate: s.candidate,
-      lastGov: s.lastGov, lastVote: s.lastVote, confirmedNotLeader: s.confirmedNotLeader,
-      winner: s.winner, voted,
+      lastGov: s.lastGov, lastVote: s.lastVote, lastEnacted: s.lastEnacted,
+      confirmedNotLeader: s.confirmedNotLeader, winner: s.winner, voted,
     }),
-    host: clean({ roles: s.roles, deck: s.deck, discard: s.discard, votes: s.votes }),
+    host: clean({ roles: s.roles, deck: s.deck, discard: s.discard, votes: s.votes, hand: s.hand }),
   };
 }
 
@@ -28,11 +28,13 @@ export function joinState(pub, host) {
     candidate: pub.candidate ?? null,
     lastGov: pub.lastGov ?? null,
     lastVote: pub.lastVote ?? null,
+    lastEnacted: pub.lastEnacted ?? null,
     confirmedNotLeader: pub.confirmedNotLeader || [],
     winner: pub.winner ?? null,
     roles: host.roles,
     deck: host.deck || [],
     discard: host.discard || [],
     votes: host.votes || {},
+    hand: host.hand ?? null,
   };
 }

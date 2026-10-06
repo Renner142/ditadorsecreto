@@ -77,5 +77,13 @@
   "winner": "Fim de jogo: {team} vencem!",
   "reason_policies": "Por políticas promulgadas.",
   "reason_leader_elected": "{leader} foi eleito Chanceler."
+},
+"leg": {
+  "policy": "Política: {team}",
+  "president_pick": "Você é o Presidente. Descarte UMA política (as outras 2 vão para o Chanceler):",
+  "chancellor_pick": "Você é o Chanceler. Escolha a política que será PROMULGADA:",
+  "president_waiting": "{president} está escolhendo as políticas em segredo...",
+  "chancellor_waiting": "{chancellor} está decidindo qual política promulgar...",
+  "enacted": "Política de {team} promulgada por {president} e {chancellor}."
 }
 }

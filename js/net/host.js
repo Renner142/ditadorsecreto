@@ -4,9 +4,10 @@ import { RULES } from "../config/game-config.js";
 import { reduce } from "../core/engine.js";
 import { joinState } from "../core/state.js";
 import { stateToUpdates } from "./game.js";
+import { stateToUpdates, handUpdates } from "./game.js";
 
 // só estas ações podem vir dos jogadores
-const PLAYER_ACTIONS = new Set(["nominate", "vote"]);
+const PLAYER_ACTIONS = new Set(["nominate", "vote", "discard", "enact"]);
 let started = false;
 
 export async function startHost(code) {
@@ -29,7 +30,7 @@ export async function startHost(code) {
           return;
         }
         state = next;
-        await update(ref(db), stateToUpdates(code, state));
+        await update(ref(db), { ...stateToUpdates(code, state), ...handUpdates(code, state) });
       })
       .catch((err) => console.error("[host] erro:", err));
   };

@@ -7,16 +7,26 @@ import { eligibleChancellors } from "../core/engine.js";
 import { watchRoom } from "../net/room.js";
 import { sendAction } from "../net/actions.js";
 import { show } from "./router.js";
+import { watchPrivate } from "../net/game.js";
 
 const $ = (id) => document.getElementById(id);
 
 export function showBoard(user, code, info) {
   show("board");
   renderSelf(info);
+
+  let myHand = null;
+  let latest = null;
+
+  // suas cartas (só você recebe a sua mão)
+  watchPrivate(code, user.uid, (p) => {
+    myHand = p?.hand || null;
+    if (latest) renderAction(user, code, latest.s, latest.players, myHand);
+  });
+
   watchRoom(code, (room) => {
     const pub = room.public;
     if (!pub || !pub.order) return;
-    // o Firebase remove objetos/listas vazios, então normalizamos
     const s = {
       ...pub,
       dead: pub.dead || {},
@@ -24,10 +34,11 @@ export function showBoard(user, code, info) {
       lastGov: pub.lastGov || null,
       confirmedNotLeader: pub.confirmedNotLeader || [],
     };
+    latest = { s, players: room.players };
     renderTracks(s);
     renderTracker(s);
     renderSeats(user, info, s, room.players);
-    renderAction(user, code, s, room.players);
+    renderAction(user, code, s, room.players, myHand);
     renderLastVote(s, room.players);
   });
 }
@@ -126,7 +137,7 @@ function renderSeats(user, info, s, players) {
       }
       if (i === presidentIdx) addTag(seat, t("board.president"), "president");
       if (uid === s.candidate && s.phase === "vote") addTag(seat, t("board.candidate"), "president");
-      if (uid === s.candidate && s.phase === "legislative") addTag(seat, t("board.chancellor"), "president");
+      if (uid === s.candidate && s.phase.startsWith("leg_")) addTag(seat, t("board.chancellor"), "president");
       if (s.phase === "vote" && s.voted[uid]) addTag(seat, t("board.voted"));
       if (s.confirmedNotLeader.includes(uid)) addTag(seat, t("board.not_leader", { leader: themeGet("teams.leader.name") }));
 
@@ -134,7 +145,7 @@ function renderSeats(user, info, s, players) {
     });
 }
 
-function renderAction(user, code, s, players) {
+function renderAction(user, code, s, players, myHand) {
   const box = $("action");
   box.innerHTML = "";
   const name = (uid) => players[uid]?.name ?? "?";
@@ -163,6 +174,18 @@ function renderAction(user, code, s, players) {
     return b;
   };
   const send = (type, payload) => () => sendAction(code, user.uid, type, payload);
+  const policyButtons = (type) =>
+    myHand.map((card, index) =>
+      button(t("leg.policy", { team: themeGet(`teams.${card}.name`) }),
+        send(type, { index }), `policy policy-${card}`));
+
+  if (s.lastEnacted && (s.phase === "nominate" || s.phase === "vote")) {
+    text(t("leg.enacted", {
+      team: themeGet(`teams.${s.lastEnacted.policy}.name`),
+      president: name(s.lastEnacted.president),
+      chancellor: name(s.lastEnacted.chancellor),
+    }), "hint");
+  }
 
   switch (s.phase) {
     case "role_reveal":
@@ -191,8 +214,22 @@ function renderAction(user, code, s, players) {
       }
       break;
 
-    case "legislative":
-      text(t("legislative.soon", { president: name(president), chancellor: name(s.candidate) }), "hint");
+    case "leg_president":
+      if (president === user.uid && myHand) {
+        text(t("leg.president_pick"));
+        row(policyButtons("discard"));
+      } else {
+        text(t("leg.president_waiting", { president: name(president) }), "hint");
+      }
+      break;
+
+    case "leg_chancellor":
+      if (s.candidate === user.uid && myHand) {
+        text(t("leg.chancellor_pick"));
+        row(policyButtons("enact"));
+      } else {
+        text(t("leg.chancellor_waiting", { chancellor: name(s.candidate) }), "hint");
+      }
       break;
 
     case "ended":

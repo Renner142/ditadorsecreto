@@ -31,3 +31,13 @@ export async function startGame(code, players) {
 export function watchPrivate(code, uid, callback) {
   return onValue(ref(db, `rooms/${code}/private/${uid}`), (s) => callback(s.val()));
 }
+
+// entrega as cartas só ao dono da mão atual (os outros ficam sem "hand")
+export function handUpdates(code, state) {
+  const updates = {};
+  for (const uid of state.order) {
+    updates[`rooms/${code}/private/${uid}/hand`] =
+      state.hand && state.hand.uid === uid ? state.hand.cards : null;
+  }
+  return updates;
+}

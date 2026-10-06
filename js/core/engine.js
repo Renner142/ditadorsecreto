@@ -12,9 +12,11 @@ export function initialState(uids, roles, rules) {
     candidate: null,
     lastGov: null,
     lastVote: null,
+    lastEnacted: null,
     confirmedNotLeader: [],
     winner: null,
     votes: {},
+    hand: null,
     roles,
     deck: buildDeck(rules),
     discard: [],
@@ -49,6 +51,12 @@ function refillDeck(s) {
   }
 }
 
+function endTurn(s) {
+  s.presidentIdx = nextPresidentIdx(s);
+  s.candidate = null;
+  s.phase = "nominate";
+}
+
 function chaos(s, rules) {
   const policy = s.deck.shift(); // poder da política é ignorado
   s.tracks[policy] += 1;
@@ -60,12 +68,18 @@ function chaos(s, rules) {
   if (win) { s.winner = win; s.phase = "ended"; }
 }
 
+function startLegislation(s) {
+  s.hand = { uid: s.order[s.presidentIdx], cards: s.deck.splice(0, 3) };
+  s.phase = "leg_president";
+}
+
 function resolveVote(s, rules) {
   const alive = aliveUids(s);
   const yes = alive.filter((u) => s.votes[u]).length;
   const passed = yes > alive.length / 2; // empate = rejeitado
   const president = s.order[s.presidentIdx];
 
+  s.lastEnacted = null;
   s.lastVote = { president, chancellor: s.candidate, votes: { ...s.votes }, passed, chaos: null };
   s.votes = {};
 
@@ -79,17 +93,13 @@ function resolveVote(s, rules) {
       }
       if (!s.confirmedNotLeader.includes(s.candidate)) s.confirmedNotLeader.push(s.candidate);
     }
-    s.phase = "legislative";
+    startLegislation(s);
     return;
   }
 
   s.electionTracker += 1;
   if (s.electionTracker >= rules.failedElectionsLimit) chaos(s, rules);
-  if (!s.winner) {
-    s.presidentIdx = nextPresidentIdx(s);
-    s.candidate = null;
-    s.phase = "nominate";
-  }
+  if (!s.winner) endTurn(s);
 }
 
 function apply(s, a, rules) {
@@ -118,6 +128,32 @@ function apply(s, a, rules) {
       s.votes[a.uid] = a.vote;
       if (Object.keys(s.votes).length === aliveUids(s).length) resolveVote(s, rules);
       return true;
+
+    case "discard": { // presidente descarta 1 das 3
+      if (s.phase !== "leg_president" || a.uid !== president || !s.hand) return false;
+      if (!Number.isInteger(a.index) || a.index < 0 || a.index >= s.hand.cards.length) return false;
+      const [out] = s.hand.cards.splice(a.index, 1);
+      s.discard.push(out);
+      s.hand = { uid: s.candidate, cards: s.hand.cards };
+      s.phase = "leg_chancellor";
+      return true;
+    }
+
+    case "enact": { // chanceler promulga 1 das 2
+      if (s.phase !== "leg_chancellor" || a.uid !== s.candidate || !s.hand) return false;
+      if (!Number.isInteger(a.index) || a.index < 0 || a.index >= s.hand.cards.length) return false;
+      const [policy] = s.hand.cards.splice(a.index, 1);
+      s.discard.push(...s.hand.cards);
+      s.hand = null;
+      s.tracks[policy] += 1;
+      s.lastEnacted = { policy, president, chancellor: s.candidate };
+      s.electionTracker = 0;
+      refillDeck(s);
+      const win = checkPolicyVictory(s.tracks, rules);
+      if (win) { s.winner = win; s.phase = "ended"; }
+      else endTurn(s); // poderes presidenciais entram no próximo bloco
+      return true;
+    }
   }
   return false;
 }
