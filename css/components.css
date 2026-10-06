@@ -121,3 +121,8 @@ input {
 .vote-list li { padding: 4px 10px; border-radius: 999px; font-size: 13px; border: 1px solid #ffffff22; }
 .vote-yes { color: var(--color-yes); border-color: var(--color-yes) !important; }
 .vote-no { color: var(--color-no); border-color: var(--color-no) !important; }
+
+
+#seats { pointer-events: none; }
+.seat { pointer-events: auto; }
+.action-panel { position: relative; z-index: 10; }
