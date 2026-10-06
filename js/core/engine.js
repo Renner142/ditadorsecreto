@@ -1,5 +1,7 @@
 import { shuffle, buildDeck } from "./deck.js";
 import { checkPolicyVictory } from "./victory.js";
+import { partyOf } from "./roles.js";
+import { powerTrack } from "./powers.js";
 
 export function initialState(uids, roles, rules) {
   return {
@@ -13,10 +15,17 @@ export function initialState(uids, roles, rules) {
     lastGov: null,
     lastVote: null,
     lastEnacted: null,
+    lastPower: null,
     confirmedNotLeader: [],
+    investigated: [],
+    specialReturn: null,
+    vetoDenied: false,
+    power: null,
     winner: null,
     votes: {},
     hand: null,
+    peek: null,
+    intel: {},
     roles,
     deck: buildDeck(rules),
     discard: [],
@@ -52,6 +61,11 @@ function refillDeck(s) {
 }
 
 function endTurn(s) {
+  // depois de uma eleição especial, a ordem volta de onde estava
+  if (s.specialReturn != null) {
+    s.presidentIdx = s.specialReturn;
+    s.specialReturn = null;
+  }
   s.presidentIdx = nextPresidentIdx(s);
   s.candidate = null;
   s.phase = "nominate";
@@ -70,7 +84,24 @@ function chaos(s, rules) {
 
 function startLegislation(s) {
   s.hand = { uid: s.order[s.presidentIdx], cards: s.deck.splice(0, 3) };
+  s.vetoDenied = false;
   s.phase = "leg_president";
+}
+
+function startPower(s, type) {
+  s.power = type;
+  s.phase = "power";
+  if (type === "peek") {
+    const president = s.order[s.presidentIdx];
+    s.peek = { uid: president, cards: s.deck.slice(0, 3) };
+    s.lastPower = { type: "peek", president };
+  }
+}
+
+function finishPower(s) {
+  s.power = null;
+  s.peek = null;
+  endTurn(s);
 }
 
 function resolveVote(s, rules) {
@@ -80,6 +111,7 @@ function resolveVote(s, rules) {
   const president = s.order[s.presidentIdx];
 
   s.lastEnacted = null;
+  s.lastPower = null;
   s.lastVote = { president, chancellor: s.candidate, votes: { ...s.votes }, passed, chaos: null };
   s.votes = {};
 
@@ -150,10 +182,74 @@ function apply(s, a, rules) {
       s.electionTracker = 0;
       refillDeck(s);
       const win = checkPolicyVictory(s.tracks, rules);
-      if (win) { s.winner = win; s.phase = "ended"; }
-      else endTurn(s); // poderes presidenciais entram no próximo bloco
+      if (win) { s.winner = win; s.phase = "ended"; return true; }
+      const power = policy === "b" ? powerTrack(rules, s.order.length)[s.tracks.b - 1] : null;
+      if (power) startPower(s, power);
+      else endTurn(s);
       return true;
     }
+
+    case "veto_request":
+      if (s.phase !== "leg_chancellor" || a.uid !== s.candidate || !s.hand) return false;
+      if (s.tracks.b < rules.vetoAfter || s.vetoDenied) return false;
+      s.phase = "leg_veto";
+      return true;
+
+    case "veto_answer": {
+      if (s.phase !== "leg_veto" || a.uid !== president || typeof a.agree !== "boolean") return false;
+      if (!a.agree) { s.vetoDenied = true; s.phase = "leg_chancellor"; return true; }
+      s.discard.push(...s.hand.cards);
+      s.hand = null;
+      s.lastEnacted = { veto: true, president, chancellor: s.candidate };
+      s.electionTracker += 1;
+      refillDeck(s);
+      if (s.electionTracker >= rules.failedElectionsLimit) chaos(s, rules);
+      if (!s.winner) endTurn(s);
+      return true;
+    }
+
+    case "investigate": {
+      if (s.phase !== "power" || s.power !== "investigate" || a.uid !== president) return false;
+      if (!aliveUids(s).includes(a.target) || a.target === president) return false;
+      if (s.investigated.includes(a.target)) return false;
+      s.investigated.push(a.target);
+      (s.intel[president] ||= []).push({ target: a.target, party: partyOf(s.roles[a.target]) });
+      s.lastPower = { type: "investigate", president, target: a.target };
+      finishPower(s);
+      return true;
+    }
+
+    case "special_election": {
+      if (s.phase !== "power" || s.power !== "special_election" || a.uid !== president) return false;
+      if (!aliveUids(s).includes(a.target) || a.target === president) return false;
+      s.lastPower = { type: "special_election", president, target: a.target };
+      if (s.specialReturn == null) s.specialReturn = s.presidentIdx;
+      s.presidentIdx = s.order.indexOf(a.target);
+      s.power = null;
+      s.candidate = null;
+      s.phase = "nominate";
+      return true;
+    }
+
+    case "execute": {
+      if (s.phase !== "power" || s.power !== "execute" || a.uid !== president) return false;
+      if (!aliveUids(s).includes(a.target) || a.target === president) return false;
+      s.dead[a.target] = true;
+      s.lastPower = { type: "execute", president, target: a.target };
+      if (s.roles[a.target] === "leader") {
+        s.winner = { team: "a", reason: "leader_killed" };
+        s.phase = "ended";
+        s.power = null;
+        return true;
+      }
+      finishPower(s);
+      return true;
+    }
+
+    case "ack": // presidente terminou de ver as cartas espiadas
+      if (s.phase !== "power" || s.power !== "peek" || a.uid !== president) return false;
+      finishPower(s);
+      return true;
   }
   return false;
 }

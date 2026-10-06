@@ -6,7 +6,11 @@ import { joinState } from "../core/state.js";
 import { stateToUpdates, handUpdates } from "./game.js";
 
 // só estas ações podem vir dos jogadores
-const PLAYER_ACTIONS = new Set(["nominate", "vote", "discard", "enact"]);
+const PLAYER_ACTIONS = new Set([
+  "nominate", "vote", "discard", "enact",
+  "investigate", "special_election", "execute", "ack",
+  "veto_request", "veto_answer",
+]);
 let started = false;
 
 export async function startHost(code) {

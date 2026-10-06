@@ -53,7 +53,9 @@
   "candidate": "Candidato",
   "chancellor": "Chanceler",
   "voted": "votou",
-  "not_leader": "não é {leader}"
+  "not_leader": "não é {leader}", 
+  "dead": "executado",
+  "you_dead": "Você foi executado. Não pode mais falar, votar nem ser eleito."
 },
 
 "nominate": {
@@ -76,7 +78,8 @@
 "end": {
   "winner": "Fim de jogo: {team} vencem!",
   "reason_policies": "Por políticas promulgadas.",
-  "reason_leader_elected": "{leader} foi eleito Chanceler."
+  "reason_leader_elected": "{leader} foi eleito Chanceler.",
+  "reason_leader_killed": "{leader} foi executado."
 },
 "leg": {
   "policy": "Política: {team}",
@@ -85,5 +88,29 @@
   "president_waiting": "{president} está escolhendo as políticas em segredo...",
   "chancellor_waiting": "{chancellor} está decidindo qual política promulgar...",
   "enacted": "Política de {team} promulgada por {president} e {chancellor}."
+},
+"power": {
+  "waiting": "{president} está usando o poder: {power}...",
+  "pick_investigate": "Escolha um jogador para investigar o partido:",
+  "pick_special_election": "Escolha quem será o próximo Presidente:",
+  "pick_execute": "Escolha quem será executado:",
+  "peek_title": "As próximas 3 políticas do baralho, em ordem:",
+  "ack": "Entendi",
+  "confirm_execute": "Executar {target}? Isso não pode ser desfeito.",
+  "did_investigate": "{president} investigou {target}.",
+  "did_special_election": "{president} convocou uma eleição especial: {target} é o novo Presidente.",
+  "did_peek": "{president} espiou as próximas políticas.",
+  "did_execute": "{president} executou {target}."
+},
+"veto": {
+  "request": "Propor veto",
+  "ask": "{chancellor} propõe vetar esta pauta. Você aceita?",
+  "agree": "Aceitar o veto",
+  "refuse": "Recusar",
+  "waiting": "Veto proposto. Aguardando a resposta do Presidente...",
+  "done": "Veto aprovado por {president} e {chancellor}: nenhuma política foi promulgada."
+},
+"intel": {
+  "title": "Suas investigações (partido)"
 }
 }

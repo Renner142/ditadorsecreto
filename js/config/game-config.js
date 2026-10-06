@@ -16,11 +16,11 @@ export const RULES = {
   leaderElectionAfter: 3, // líder eleito chanceler após 3 políticas de b = b vence
   // poder liberado por cada política de b (1ª a 5ª), por faixa de jogadores
   powers: {
-    "5-6":  [null, null, "peek", "execute", "execute"],
+    "5-6": ["investigate", "special_election", "peek", "execute", "execute"],
     "7-8":  [null, "investigate", "special_election", "execute", "execute"],
     "9-10": ["investigate", "investigate", "special_election", "execute", "execute"],
   },
-  vetoAfter: 5,
+  vetoAfter: 1,
   failedElectionsLimit: 3,
   lastPresidentEligibleAt: 5, // com 5 ou menos vivos, o último presidente pode ser nomeado
 

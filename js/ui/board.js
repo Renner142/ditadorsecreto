@@ -3,11 +3,11 @@ import { themeGet } from "../theme/loader.js";
 import { RULES } from "../config/game-config.js";
 import { powerTrack } from "../core/powers.js";
 import { partyOf } from "../core/roles.js";
-import { eligibleChancellors } from "../core/engine.js";
+import { eligibleChancellors, aliveUids } from "../core/engine.js";
 import { watchRoom } from "../net/room.js";
+import { watchPrivate } from "../net/game.js";
 import { sendAction } from "../net/actions.js";
 import { show } from "./router.js";
-import { watchPrivate } from "../net/game.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -15,30 +15,40 @@ export function showBoard(user, code, info) {
   show("board");
   renderSelf(info);
 
-  let myHand = null;
+  const mine = { hand: null, peek: null, intel: [] };
   let latest = null;
 
-  // suas cartas (só você recebe a sua mão)
+  const draw = () => {
+    if (!latest) return;
+    renderAction(user, code, latest.s, latest.players, mine);
+    renderIntel(latest.players, mine.intel);
+  };
+
+  // só você recebe sua mão, suas cartas espiadas e suas investigações
   watchPrivate(code, user.uid, (p) => {
-    myHand = p?.hand || null;
-    if (latest) renderAction(user, code, latest.s, latest.players, myHand);
+    mine.hand = p?.hand || null;
+    mine.peek = p?.peek || null;
+    mine.intel = p?.intel || [];
+    draw();
   });
 
   watchRoom(code, (room) => {
     const pub = room.public;
     if (!pub || !pub.order) return;
+    // o Firebase remove objetos/listas vazios, então normalizamos
     const s = {
       ...pub,
       dead: pub.dead || {},
       voted: pub.voted || {},
       lastGov: pub.lastGov || null,
       confirmedNotLeader: pub.confirmedNotLeader || [],
+      investigated: pub.investigated || [],
     };
     latest = { s, players: room.players };
     renderTracks(s);
     renderTracker(s);
     renderSeats(user, info, s, room.players);
-    renderAction(user, code, s, room.players, myHand);
+    draw();
     renderLastVote(s, room.players);
   });
 }
@@ -114,6 +124,7 @@ function renderSeats(user, info, s, players) {
   const { order, presidentIdx } = s;
   const me = order.indexOf(user.uid);
   const known = Object.fromEntries((info.known || []).map((k) => [k.uid, k.role]));
+  const inGov = s.phase.startsWith("leg_") || s.phase === "power";
   const box = $("seats");
   box.innerHTML = "";
 
@@ -122,7 +133,7 @@ function renderSeats(user, info, s, players) {
     .sort((x, y) => x.k - y.k)
     .forEach(({ uid, i, k }) => {
       const seat = document.createElement("div");
-      seat.className = "seat" + (uid === user.uid ? " me" : "");
+      seat.className = "seat" + (uid === user.uid ? " me" : "") + (s.dead[uid] ? " dead" : "");
       seat.style.setProperty("--a", `${90 + (k * 360) / order.length}deg`);
 
       const name = document.createElement("strong");
@@ -130,14 +141,15 @@ function renderSeats(user, info, s, players) {
       seat.append(name);
 
       if (uid === user.uid) addTag(seat, t("board.you"));
+      if (s.dead[uid]) addTag(seat, t("board.dead"));
       if (known[uid]) {
         seat.dataset.team = partyOf(known[uid]);
         seat.dataset.role = known[uid];
         addTag(seat, themeGet(`teams.${known[uid]}.name`));
       }
-      if (i === presidentIdx) addTag(seat, t("board.president"), "president");
+      if (i === presidentIdx && !s.dead[uid]) addTag(seat, t("board.president"), "president");
       if (uid === s.candidate && s.phase === "vote") addTag(seat, t("board.candidate"), "president");
-      if (uid === s.candidate && s.phase.startsWith("leg_")) addTag(seat, t("board.chancellor"), "president");
+      if (uid === s.candidate && inGov) addTag(seat, t("board.chancellor"), "president");
       if (s.phase === "vote" && s.voted[uid]) addTag(seat, t("board.voted"));
       if (s.confirmedNotLeader.includes(uid)) addTag(seat, t("board.not_leader", { leader: themeGet("teams.leader.name") }));
 
@@ -145,7 +157,24 @@ function renderSeats(user, info, s, players) {
     });
 }
 
-function renderAction(user, code, s, players, myHand) {
+function renderIntel(players, intel) {
+  const box = $("intel");
+  box.innerHTML = "";
+  if (!intel.length) return;
+  const title = document.createElement("p");
+  title.className = "label";
+  title.textContent = t("intel.title");
+  const ul = document.createElement("ul");
+  ul.className = "vote-list";
+  intel.forEach((r) => {
+    const li = document.createElement("li");
+    li.textContent = `${players[r.target]?.name ?? "?"}: ${themeGet(`teams.${r.party}.name`)}`;
+    ul.append(li);
+  });
+  box.append(title, ul);
+}
+
+function renderAction(user, code, s, players, mine) {
   const box = $("action");
   box.innerHTML = "";
   const name = (uid) => players[uid]?.name ?? "?";
@@ -163,11 +192,12 @@ function renderAction(user, code, s, players, myHand) {
     d.append(...buttons);
     box.append(d);
   };
-  const button = (label, onClick, cls = "") => {
+  const button = (label, onClick, cls = "", ask = null) => {
     const b = document.createElement("button");
     b.className = `btn ${cls}`.trim();
     b.textContent = label;
     b.addEventListener("click", () => {
+      if (ask && !window.confirm(ask)) return;
       box.querySelectorAll("button").forEach((x) => (x.disabled = true));
       onClick().catch(console.error);
     });
@@ -175,17 +205,28 @@ function renderAction(user, code, s, players, myHand) {
   };
   const send = (type, payload) => () => sendAction(code, user.uid, type, payload);
   const policyButtons = (type) =>
-    myHand.map((card, index) =>
+    mine.hand.map((card, index) =>
       button(t("leg.policy", { team: themeGet(`teams.${card}.name`) }),
         send(type, { index }), `policy policy-${card}`));
 
-  if (s.lastEnacted && (s.phase === "nominate" || s.phase === "vote")) {
-    text(t("leg.enacted", {
-      team: themeGet(`teams.${s.lastEnacted.policy}.name`),
-      president: name(s.lastEnacted.president),
-      chancellor: name(s.lastEnacted.chancellor),
+  // o que acabou de acontecer
+  if (s.lastEnacted) {
+    const e = s.lastEnacted;
+    text(e.veto
+      ? t("veto.done", { president: name(e.president), chancellor: name(e.chancellor) })
+      : t("leg.enacted", {
+          team: themeGet(`teams.${e.policy}.name`),
+          president: name(e.president),
+          chancellor: name(e.chancellor),
+        }), "hint");
+  }
+  if (s.lastPower) {
+    text(t(`power.did_${s.lastPower.type}`, {
+      president: name(s.lastPower.president),
+      target: name(s.lastPower.target),
     }), "hint");
   }
+  if (s.dead[user.uid]) text(t("board.you_dead"), "hint");
 
   switch (s.phase) {
     case "role_reveal":
@@ -215,7 +256,7 @@ function renderAction(user, code, s, players, myHand) {
       break;
 
     case "leg_president":
-      if (president === user.uid && myHand) {
+      if (president === user.uid && mine.hand) {
         text(t("leg.president_pick"));
         row(policyButtons("discard"));
       } else {
@@ -224,17 +265,72 @@ function renderAction(user, code, s, players, myHand) {
       break;
 
     case "leg_chancellor":
-      if (s.candidate === user.uid && myHand) {
+      if (s.candidate === user.uid && mine.hand) {
         text(t("leg.chancellor_pick"));
         row(policyButtons("enact"));
+        if (s.tracks.b >= RULES.vetoAfter && !s.vetoDenied) {
+          row([button(t("veto.request"), send("veto_request"), "btn-secondary")]);
+        }
       } else {
         text(t("leg.chancellor_waiting", { chancellor: name(s.candidate) }), "hint");
       }
       break;
 
+    case "leg_veto":
+      if (president === user.uid) {
+        text(t("veto.ask", { chancellor: name(s.candidate) }));
+        row([
+          button(t("veto.agree"), send("veto_answer", { agree: true }), "btn-yes"),
+          button(t("veto.refuse"), send("veto_answer", { agree: false }), "btn-no"),
+        ]);
+      } else {
+        text(t("veto.waiting"), "hint");
+      }
+      break;
+
+    case "power": {
+      const powerName = themeGet(`powers.${s.power}.name`);
+      if (president !== user.uid) {
+        text(t("power.waiting", { president: name(president), power: powerName }), "hint");
+        break;
+      }
+      if (s.power === "peek") {
+        text(t("power.peek_title"));
+        const chips = document.createElement("div");
+        chips.className = "chips";
+        (mine.peek || []).forEach((card) => {
+          const c = document.createElement("div");
+          c.className = `chip chip-${card}`;
+          c.textContent = themeGet(`teams.${card}.name`);
+          chips.append(c);
+        });
+        box.append(chips);
+        row([button(t("power.ack"), send("ack"))]);
+        break;
+      }
+      let targets = aliveUids(s).filter((u) => u !== user.uid);
+      if (s.power === "investigate") targets = targets.filter((u) => !s.investigated.includes(u));
+      const deadly = s.power === "execute";
+      text(t(`power.pick_${s.power}`));
+      row(targets.map((uid) =>
+        button(name(uid), send(s.power, { target: uid }), deadly ? "btn-no" : "",
+          deadly ? t("power.confirm_execute", { target: name(uid) }) : null)));
+      break;
+    }
+
     case "ended":
       text(t("end.winner", { team: themeGet(`teams.${s.winner.team}.name`) }), "end-title");
       text(t(`end.reason_${s.winner.reason}`, { leader: themeGet("teams.leader.name") }), "hint");
+      if (s.finalRoles) {
+        const ul = document.createElement("ul");
+        ul.className = "vote-list";
+        s.order.forEach((uid) => {
+          const li = document.createElement("li");
+          li.textContent = `${name(uid)}: ${themeGet(`teams.${s.finalRoles[uid]}.name`)}`;
+          ul.append(li);
+        });
+        box.append(ul);
+      }
       break;
   }
 }

@@ -10,9 +10,15 @@ export function splitState(s) {
       phase: s.phase, order: s.order, presidentIdx: s.presidentIdx, dead: s.dead,
       tracks: s.tracks, electionTracker: s.electionTracker, candidate: s.candidate,
       lastGov: s.lastGov, lastVote: s.lastVote, lastEnacted: s.lastEnacted,
+      lastPower: s.lastPower, power: s.power, investigated: s.investigated,
+      specialReturn: s.specialReturn, vetoDenied: s.vetoDenied,
       confirmedNotLeader: s.confirmedNotLeader, winner: s.winner, voted,
+      finalRoles: s.winner ? s.roles : null, // só aparece quando o jogo acaba
     }),
-    host: clean({ roles: s.roles, deck: s.deck, discard: s.discard, votes: s.votes, hand: s.hand }),
+    host: clean({
+      roles: s.roles, deck: s.deck, discard: s.discard, votes: s.votes,
+      hand: s.hand, peek: s.peek, intel: s.intel,
+    }),
   };
 }
 
@@ -29,6 +35,11 @@ export function joinState(pub, host) {
     lastGov: pub.lastGov ?? null,
     lastVote: pub.lastVote ?? null,
     lastEnacted: pub.lastEnacted ?? null,
+    lastPower: pub.lastPower ?? null,
+    power: pub.power ?? null,
+    investigated: pub.investigated || [],
+    specialReturn: pub.specialReturn ?? null,
+    vetoDenied: !!pub.vetoDenied,
     confirmedNotLeader: pub.confirmedNotLeader || [],
     winner: pub.winner ?? null,
     roles: host.roles,
@@ -36,5 +47,7 @@ export function joinState(pub, host) {
     discard: host.discard || [],
     votes: host.votes || {},
     hand: host.hand ?? null,
+    peek: host.peek ?? null,
+    intel: host.intel || {},
   };
 }
