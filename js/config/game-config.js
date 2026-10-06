@@ -28,4 +28,5 @@ export const RULES = {
 
 
     holdToReveal: false, // true = papel só aparece enquanto segura o botão
+    roleRevealSeconds: 5,
 };

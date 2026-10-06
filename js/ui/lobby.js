@@ -4,6 +4,7 @@ import { createRoom, joinRoom, leaveRoom, watchRoom, releaseDisconnect } from ".
 import { startGame } from "../net/game.js";
 import { showRole } from "./role.js";
 import { show } from "./router.js";
+import { showBoard } from "./board.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -55,7 +56,7 @@ function render(user, room) {
     if (!gameShown) {
       gameShown = true;
       releaseDisconnect(currentCode, user);
-      showRole(user, currentCode, room.players);
+      showRole(user, currentCode, room.players, (info) => showBoard(user, currentCode, info));
     }
     return;
   }

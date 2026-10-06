@@ -6,6 +6,7 @@
   --color-team-b: #c0392b;
   --radius: 12px;
   --gap: 12px;
+  -color-accent: #e0b341;
 }
 
 * { box-sizing: border-box; }

@@ -1,13 +1,13 @@
 import { t } from "../i18n/i18n.js";
 import { themeGet } from "../theme/loader.js";
+import { RULES } from "../config/game-config.js";
 import { watchPrivate } from "../net/game.js";
 import { show } from "./router.js";
-import { RULES } from "../config/game-config.js";
 
 const $ = (id) => document.getElementById(id);
 let started = false;
 
-export function showRole(user, code, players) {
+export function showRole(user, code, players, onDone) {
   if (started) return;
   started = true;
   show("role");
@@ -26,7 +26,30 @@ export function showRole(user, code, players) {
     content.hidden = false;
   }
 
-  watchPrivate(code, user.uid, (info) => info && render(info, players));
+  let counting = false;
+  let stop = () => {};
+  stop = watchPrivate(code, user.uid, (info) => {
+    if (!info) return;
+    render(info, players);
+    if (counting) return;
+    counting = true; // a contagem só começa quando o papel já chegou
+    countdown(RULES.roleRevealSeconds, () => {
+      stop();
+      onDone(info);
+    });
+  });
+}
+
+function countdown(seconds, done) {
+  let left = seconds;
+  const label = $("role-countdown");
+  const tick = () => {
+    label.textContent = t("role.countdown", { s: left });
+    if (left <= 0) return done();
+    left--;
+    setTimeout(tick, 1000);
+  };
+  tick();
 }
 
 function render(info, players) {

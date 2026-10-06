@@ -38,6 +38,17 @@
   "hint_b": "Estes são seus aliados. Proteja o Ditador e finja ser Democrata.",
   "hint_leader_blind": "Você não conhece seus aliados. Pareça o mais Democrata possível.",
   "hint_leader_known": "Estes são seus aliados. Pareça o mais Democrata possível.",
-  "waiting": "A eleição começa no próximo passo."
+  "countdown": "A partida começa em {s}s..."
+},
+
+"board": {
+  "track": "Trilha: {team}",
+  "win": "Vitória",
+  "tracker": "Eleições recusadas",
+  "you": "você",
+  "president": "Presidente",
+  "legend_leader": "Depois da {n}ª política ({team}): se {leader} for eleito Chanceler, eles vencem.",
+  "legend_veto": "Depois da {n}ª política ({team}): Presidente e Chanceler podem vetar uma pauta.",
+  "coming_soon": "Em breve: eleição do Chanceler."
 }
 }

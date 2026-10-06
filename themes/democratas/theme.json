@@ -6,7 +6,8 @@
     "color-surface": "#1d222d",
     "color-text": "#eef1f6",
     "color-team-a": "#2f6fdb",
-    "color-team-b": "#c0392b"
+    "color-team-b": "#c0392b",
+    "color-accent": "#e0b341"
   },
   "teams": {
     "a": { "name": "Democratas" },

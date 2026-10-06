@@ -6,7 +6,7 @@
   <title>Jogo</title>
 
   <link rel="icon" href="data:,">
-  
+
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
 </head>
@@ -48,7 +48,31 @@
     <ul id="role-known" class="player-list"></ul>
     <p id="role-hint" class="hint"></p>
   </div>
-  <p class="hint" data-i18n="role.waiting"></p>
+  <p id="role-countdown" class="hint"></p>
+</section>
+
+<section class="screen screen-wide" id="screen-board" hidden>
+  <div id="self-badge" class="self-badge">
+    <strong id="self-role"></strong>
+    <span id="self-party"></span>
+  </div>
+
+  <div class="table">
+    <div class="board">
+      <h3 id="track-a-title" class="track-title"></h3>
+      <div id="track-a" class="track" data-team="a"></div>
+      <h3 id="track-b-title" class="track-title"></h3>
+      <div id="track-b" class="track" data-team="b"></div>
+      <p id="legend-leader" class="hint"></p>
+      <p id="legend-veto" class="hint"></p>
+      <div class="tracker">
+        <span data-i18n="board.tracker"></span>
+        <span id="tracker-dots"></span>
+      </div>
+      <p class="hint" data-i18n="board.coming_soon"></p>
+    </div>
+    <div id="seats"></div>
+  </div>
 </section>
 
 

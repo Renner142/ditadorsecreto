@@ -40,3 +40,67 @@ input {
 #role-content { display: flex; flex-direction: column; gap: var(--gap); }
 #role-content[hidden] { display: none; }
 #btn-peek { touch-action: none; user-select: none; }
+
+
+
+
+.screen-wide { width: min(820px, 100%); }
+
+.self-badge {
+  display: flex; gap: 10px; align-items: baseline; justify-content: center;
+  padding: 10px 14px; border-radius: var(--radius);
+  background: var(--color-surface); border: 2px solid #ffffff22;
+}
+.self-badge[data-team="a"] { border-color: var(--color-team-a); }
+.self-badge[data-team="b"] { border-color: var(--color-team-b); }
+#self-party { opacity: 0.7; font-size: 14px; }
+
+.table { position: relative; width: 100%; aspect-ratio: 1 / 1; }
+.board {
+  position: absolute; inset: 20%;
+  display: flex; flex-direction: column; justify-content: center; gap: 8px;
+}
+#seats { position: absolute; inset: 0; }
+
+.seat {
+  position: absolute;
+  left: calc(50% + 43% * cos(var(--a)));
+  top: calc(50% + 43% * sin(var(--a)));
+  transform: translate(-50%, -50%);
+  min-width: 96px; max-width: 140px; padding: 8px 10px;
+  display: flex; flex-direction: column; gap: 2px; text-align: center; font-size: 14px;
+  background: var(--color-surface); border: 2px solid #ffffff22; border-radius: var(--radius);
+}
+.seat.me { border-color: #ffffff99; }
+.seat[data-team="b"] { border-color: var(--color-team-b); }
+.seat[data-role="leader"] { box-shadow: 0 0 0 3px var(--color-team-b); }
+.seat-tag { font-size: 11px; opacity: 0.85; }
+.seat-tag.president { color: var(--color-accent); opacity: 1; font-weight: 700; }
+
+.track-title { margin: 0; font-size: 14px; }
+.track { display: flex; gap: 6px; }
+.slot {
+  flex: 1; min-width: 0; min-height: 64px; padding: 6px 2px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  text-align: center; font-size: 11px; line-height: 1.2;
+  background: var(--color-surface); border: 2px dashed #ffffff33; border-radius: 10px;
+}
+.slot-num { font-size: 16px; font-weight: 700; opacity: 0.6; }
+.track[data-team="a"] .slot { border-color: color-mix(in srgb, var(--color-team-a) 60%, transparent); }
+.track[data-team="b"] .slot { border-color: color-mix(in srgb, var(--color-team-b) 60%, transparent); }
+.track[data-team="a"] .slot.filled { background: var(--color-team-a); border-style: solid; }
+.track[data-team="b"] .slot.filled { background: var(--color-team-b); border-style: solid; }
+.slot.filled .slot-num { opacity: 1; }
+
+.tracker { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; }
+#tracker-dots { display: flex; gap: 6px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #ffffff55; }
+.dot.on { background: var(--color-accent); border-color: var(--color-accent); }
+
+/* celular: sem círculo, jogadores em fileira */
+@media (max-width: 720px) {
+  .table { aspect-ratio: auto; display: flex; flex-direction: column; gap: 16px; }
+  .board { position: static; }
+  #seats { position: static; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .seat { position: static; transform: none; }
+}
