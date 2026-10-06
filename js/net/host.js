@@ -3,7 +3,6 @@ import { db } from "./auth.js";
 import { RULES } from "../config/game-config.js";
 import { reduce } from "../core/engine.js";
 import { joinState } from "../core/state.js";
-import { stateToUpdates } from "./game.js";
 import { stateToUpdates, handUpdates } from "./game.js";
 
 // só estas ações podem vir dos jogadores
