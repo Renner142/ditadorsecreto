@@ -24,15 +24,19 @@ export async function startHost(code) {
     queue = queue
       .then(async () => {
         const next = reduce(state, action, RULES);
-        if (next === state) return;
+        if (next === state) {
+          console.warn("[host] ação recusada:", action, "fase:", state.phase);
+          return;
+        }
         state = next;
         await update(ref(db), stateToUpdates(code, state));
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("[host] erro:", err));
   };
 
   onChildAdded(ref(db, `rooms/${code}/inbox`), (snap) => {
     const action = snap.val();
+    console.log("[host] recebi:", action);
     remove(snap.ref);
     if (action && PLAYER_ACTIONS.has(action.type)) dispatch(action);
   });
