@@ -4,6 +4,7 @@ import { login } from "./net/auth.js";
 import { show } from "./ui/router.js";
 import { initLobby } from "./ui/lobby.js";
 import { initAudio, playLobby } from "./audio/audio.js";
+import { initSfx } from "./audio/sfx.js";
 
 const THEME_ID = "democratas";
 const LOCALE = "pt-BR";
@@ -15,6 +16,7 @@ async function start() {
     applyI18n();
     applyTheme();
     initAudio();
+    initSfx();
     playLobby();
 
     const user = await login();

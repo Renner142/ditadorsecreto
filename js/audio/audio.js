@@ -1,20 +1,24 @@
 import { themeGet, themeAsset } from "../theme/loader.js";
+import { getSetting, setSettings, onSettingsChange } from "../settings/settings.js";
 import { t } from "../i18n/i18n.js";
 
 let el = null;
 let currentPath = null;
 let wantPlaying = false;
-let muted = false;
-try { muted = localStorage.getItem("muted") === "1"; } catch {}
+let unlockBound = false;
+
+function applyVolume() {
+  if (!el) return;
+  el.volume = getSetting("musicVolume");
+  el.muted = getSetting("musicMuted");
+}
 
 // um único player reaproveitado: se o navegador liberar o som uma vez, libera pra todas as faixas
 function player() {
-  if (!el) { el = new Audio(); el.preload = "auto"; el.volume = 0.6; }
-  el.muted = muted;
+  if (!el) { el = new Audio(); el.preload = "auto"; }
+  applyVolume();
   return el;
 }
-
-let unlockBound = false;
 
 function bindUnlock() {
   if (unlockBound) return;
@@ -33,16 +37,12 @@ function bindUnlock() {
 function tryPlay() {
   if (!wantPlaying) return;
   player().play().catch((err) => {
-    console.warn("[audio] não tocou:", err.name, "-", currentPath);
     if (err.name === "NotAllowedError") bindUnlock();
   });
 }
 
 function play(path, loop) {
-  if (!path) {
-    console.warn("[audio] caminho vazio: confira o bloco 'audio' do theme.json");
-    return stopAudio();
-  }
+  if (!path) return stopAudio();
   const a = player();
   if (currentPath === path && !a.paused) return;
   currentPath = path;
@@ -51,7 +51,6 @@ function play(path, loop) {
   a.loop = loop;
   a.currentTime = 0;
   wantPlaying = true;
-  console.log("[audio] tocando:", a.src);
   tryPlay();
 }
 
@@ -71,15 +70,19 @@ export function playAmbient(party) {
 export function playVictory(team) { play(themeGet(`audio.victory.${team}`), false); }
 
 export function initAudio() {
+  onSettingsChange(applyVolume);
+
+  // botão provisório: liga/desliga música E efeitos juntos.
+  // Quando o menu existir, é só remover este botão: o menu usa setSettings direto.
   const btn = document.getElementById("btn-mute");
   if (!btn) return;
-  const paint = () => { btn.textContent = muted ? "🔇" : "🔊"; };
+  const allMuted = () => getSetting("musicMuted") && getSetting("sfxMuted");
+  const paint = () => { btn.textContent = allMuted() ? "🔇" : "🔊"; };
   btn.title = t("audio.toggle");
-  paint();
   btn.addEventListener("click", () => {
-    muted = !muted;
-    try { localStorage.setItem("muted", muted ? "1" : "0"); } catch {}
-    if (el) el.muted = muted;
-    paint();
+    const mute = !allMuted();
+    setSettings({ musicMuted: mute, sfxMuted: mute });
   });
+  onSettingsChange(paint);
+  paint();
 }
