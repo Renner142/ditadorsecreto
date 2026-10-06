@@ -22,6 +22,8 @@ export const RULES = {
   },
   vetoAfter: 5,
   failedElectionsLimit: 3,
+  lastPresidentEligibleAt: 5, // com 5 ou menos vivos, o último presidente pode ser nomeado
+
 
   leaderKnowsAllies: false, // true = o Ditador conhece os Autoritários
 

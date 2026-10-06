@@ -5,6 +5,7 @@ import { startGame } from "../net/game.js";
 import { showRole } from "./role.js";
 import { show } from "./router.js";
 import { showBoard } from "./board.js";
+import { startHost } from "../net/host.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -56,6 +57,7 @@ function render(user, room) {
     if (!gameShown) {
       gameShown = true;
       releaseDisconnect(currentCode, user);
+      if (room.public.hostUid === user.uid) startHost(currentCode);
       showRole(user, currentCode, room.players, (info) => showBoard(user, currentCode, info));
     }
     return;

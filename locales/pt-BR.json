@@ -49,6 +49,33 @@
   "president": "Presidente",
   "legend_leader": "Depois da {n}ª política ({team}): se {leader} for eleito Chanceler, eles vencem.",
   "legend_veto": "Depois da {n}ª política ({team}): Presidente e Chanceler podem vetar uma pauta.",
-  "coming_soon": "Em breve: eleição do Chanceler."
+  "coming_soon": "Em breve: eleição do Chanceler.",
+  "candidate": "Candidato",
+  "chancellor": "Chanceler",
+  "voted": "votou",
+  "not_leader": "não é {leader}"
+},
+
+"nominate": {
+  "starting": "A partida está começando...",
+  "pick": "Você é o Presidente. Escolha seu Chanceler:",
+  "waiting": "{president} está escolhendo o Chanceler..."
+},
+"vote": {
+  "yes": "Sim",
+  "no": "Não",
+  "ask": "{president} propõe {chancellor} como Chanceler. Seu voto?",
+  "waiting": "Voto registrado. Aguardando os outros...",
+  "passed": "Governo aprovado: {president} e {chancellor}",
+  "failed": "Governo rejeitado: {president} e {chancellor}",
+  "chaos": "Três governos rejeitados: o povo promulgou uma política de {team}."
+},
+"legislative": {
+  "soon": "Governo eleito! Presidente {president}, Chanceler {chancellor}. A legislação entra no próximo passo."
+},
+"end": {
+  "winner": "Fim de jogo: {team} vencem!",
+  "reason_policies": "Por políticas promulgadas.",
+  "reason_leader_elected": "{leader} foi eleito Chanceler."
 }
 }

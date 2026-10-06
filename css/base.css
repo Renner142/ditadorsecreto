@@ -6,7 +6,9 @@
   --color-team-b: #c0392b;
   --radius: 12px;
   --gap: 12px;
-  -color-accent: #e0b341;
+  --color-accent: #e0b341;
+  --color-yes: #2e9e5b;
+  --color-no: #c0392b;
 }
 
 * { box-sizing: border-box; }
