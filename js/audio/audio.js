@@ -16,23 +16,31 @@ function player() {
 
 function tryPlay() {
   if (!wantPlaying) return;
-  player().play().catch(() => {
-    // o navegador bloqueou o som automático: tenta de novo no próximo toque
-    const retry = () => tryPlay();
-    document.addEventListener("pointerdown", retry, { once: true });
-    document.addEventListener("keydown", retry, { once: true });
+  player().play().catch((err) => {
+    console.warn("[audio] não tocou:", err.name, "-", currentPath);
+    if (err.name === "NotAllowedError") {
+      // o navegador bloqueou o som automático: tenta de novo no próximo toque
+      const retry = () => tryPlay();
+      document.addEventListener("pointerdown", retry, { once: true });
+      document.addEventListener("keydown", retry, { once: true });
+    }
   });
 }
 
 function play(path, loop) {
-  if (!path) return stopAudio();
+  if (!path) {
+    console.warn("[audio] caminho vazio: confira o bloco 'audio' do theme.json");
+    return stopAudio();
+  }
   const a = player();
   if (currentPath === path && !a.paused) return;
   currentPath = path;
+  a.onerror = () => console.error("[audio] arquivo não carregou (404 ou formato):", a.src);
   a.src = themeAsset(path);
   a.loop = loop;
   a.currentTime = 0;
   wantPlaying = true;
+  console.log("[audio] tocando:", a.src);
   tryPlay();
 }
 
