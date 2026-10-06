@@ -3,6 +3,7 @@ import { loadLocale, applyI18n } from "./i18n/i18n.js";
 import { login } from "./net/auth.js";
 import { show } from "./ui/router.js";
 import { initLobby } from "./ui/lobby.js";
+import { initAudio } from "./audio/audio.js";
 
 const THEME_ID = "democratas";
 const LOCALE = "pt-BR";

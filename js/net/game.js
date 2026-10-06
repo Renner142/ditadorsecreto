@@ -32,12 +32,13 @@ export function watchPrivate(code, uid, callback) {
   return onValue(ref(db, `rooms/${code}/private/${uid}`), (s) => callback(s.val()));
 }
 
-// entrega as cartas só ao dono da mão atual (os outros ficam sem "hand")
 export function handUpdates(code, state) {
   const updates = {};
   for (const uid of state.order) {
-    updates[`rooms/${code}/private/${uid}/hand`] =
-      state.hand && state.hand.uid === uid ? state.hand.cards : null;
+    const base = `rooms/${code}/private/${uid}`;
+    updates[`${base}/hand`] = state.hand && state.hand.uid === uid ? state.hand.cards : null;
+    updates[`${base}/peek`] = state.peek && state.peek.uid === uid ? state.peek.cards : null;
+    updates[`${base}/intel`] = state.intel[uid] || null;
   }
   return updates;
 }

@@ -55,7 +55,8 @@
   "voted": "votou",
   "not_leader": "não é {leader}", 
   "dead": "executado",
-  "you_dead": "Você foi executado. Não pode mais falar, votar nem ser eleito."
+  "you_dead": "Você foi executado. Não pode mais falar, votar nem ser eleito.",
+  "investigated_as": "investigado: {party}"
 },
 
 "nominate": {
@@ -112,5 +113,6 @@
 },
 "intel": {
   "title": "Suas investigações (partido)"
-}
+},
+"audio": { "toggle": "Ligar ou desligar o som" }
 }

@@ -19,5 +19,15 @@
     "special_election": { "name": "Eleição especial" },
     "peek": { "name": "Espiar políticas" },
     "execute": { "name": "Execução" }
-  }
+  },
+  "audio": {
+  "lobby": "audio/lobby-theme.mp3",
+  "ambient": {
+    "mode": "per_team",
+    "a": "audio/demo-music.mp3",
+    "b": "audio/auth-music.mp3",
+    "neutral": "audio/lobby-theme.mp3"
+  },
+  "victory": { "a": "audio/demo-win.mp3", "b": "audio/auth-win.mp3" }
+}
 }

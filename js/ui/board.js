@@ -8,6 +8,7 @@ import { watchRoom } from "../net/room.js";
 import { watchPrivate } from "../net/game.js";
 import { sendAction } from "../net/actions.js";
 import { show } from "./router.js";
+import { playVictory } from "../audio/audio.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -17,25 +18,27 @@ export function showBoard(user, code, info) {
 
   const mine = { hand: null, peek: null, intel: [] };
   let latest = null;
+  let victoryPlayed = false;
 
   const draw = () => {
     if (!latest) return;
+    renderSeats(user, info, latest.s, latest.players, mine.intel);
     renderAction(user, code, latest.s, latest.players, mine);
     renderIntel(latest.players, mine.intel);
   };
 
   // só você recebe sua mão, suas cartas espiadas e suas investigações
   watchPrivate(code, user.uid, (p) => {
+    console.log("[privado]", p); // pode apagar depois de testar
     mine.hand = p?.hand || null;
     mine.peek = p?.peek || null;
-    mine.intel = p?.intel || [];
+    mine.intel = Array.isArray(p?.intel) ? p.intel : Object.values(p?.intel || {});
     draw();
   });
 
   watchRoom(code, (room) => {
     const pub = room.public;
     if (!pub || !pub.order) return;
-    // o Firebase remove objetos/listas vazios, então normalizamos
     const s = {
       ...pub,
       dead: pub.dead || {},
@@ -45,9 +48,14 @@ export function showBoard(user, code, info) {
       investigated: pub.investigated || [],
     };
     latest = { s, players: room.players };
+
+    if (s.winner && !victoryPlayed) { // toca uma vez só
+      victoryPlayed = true;
+      playVictory(s.winner.team);
+    }
+
     renderTracks(s);
     renderTracker(s);
-    renderSeats(user, info, s, room.players);
     draw();
     renderLastVote(s, room.players);
   });
@@ -120,10 +128,11 @@ function addTag(seat, text, cls = "") {
   seat.append(el);
 }
 
-function renderSeats(user, info, s, players) {
+function renderSeats(user, info, s, players, intel) {
   const { order, presidentIdx } = s;
   const me = order.indexOf(user.uid);
   const known = Object.fromEntries((info.known || []).map((k) => [k.uid, k.role]));
+  const seen = Object.fromEntries(intel.map((r) => [r.target, r.party]));
   const inGov = s.phase.startsWith("leg_") || s.phase === "power";
   const box = $("seats");
   box.innerHTML = "";
@@ -142,11 +151,22 @@ function renderSeats(user, info, s, players) {
 
       if (uid === user.uid) addTag(seat, t("board.you"));
       if (s.dead[uid]) addTag(seat, t("board.dead"));
-      if (known[uid]) {
+
+      const finalRole = s.finalRoles?.[uid];
+      if (finalRole) { // fim de jogo: todo mundo revelado, na cor do partido
+        seat.classList.add("revealed");
+        seat.dataset.team = partyOf(finalRole);
+        seat.dataset.role = finalRole;
+        addTag(seat, themeGet(`teams.${finalRole}.name`));
+      } else if (known[uid]) { // aliados dos Autoritários
         seat.dataset.team = partyOf(known[uid]);
         seat.dataset.role = known[uid];
         addTag(seat, themeGet(`teams.${known[uid]}.name`));
+      } else if (seen[uid]) { // investigado por você
+        seat.dataset.team = seen[uid];
+        addTag(seat, t("board.investigated_as", { party: themeGet(`teams.${seen[uid]}.name`) }));
       }
+
       if (i === presidentIdx && !s.dead[uid]) addTag(seat, t("board.president"), "president");
       if (uid === s.candidate && s.phase === "vote") addTag(seat, t("board.candidate"), "president");
       if (uid === s.candidate && inGov) addTag(seat, t("board.chancellor"), "president");

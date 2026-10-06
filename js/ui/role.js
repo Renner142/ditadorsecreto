@@ -3,6 +3,7 @@ import { themeGet } from "../theme/loader.js";
 import { RULES } from "../config/game-config.js";
 import { watchPrivate } from "../net/game.js";
 import { show } from "./router.js";
+import { playAmbient } from "../audio/audio.js";
 
 const $ = (id) => document.getElementById(id);
 let started = false;
@@ -33,6 +34,7 @@ export function showRole(user, code, players, onDone) {
     render(info, players);
     if (counting) return;
     counting = true; // a contagem só começa quando o papel já chegou
+    playAmbient(info.party);
     countdown(RULES.roleRevealSeconds, () => {
       stop();
       onDone(info);
