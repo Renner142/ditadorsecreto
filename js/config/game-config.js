@@ -24,4 +24,8 @@ export const RULES = {
   failedElectionsLimit: 3,
 
   leaderKnowsAllies: false, // true = o Ditador conhece os Autoritários
+
+
+
+    holdToReveal: false, // true = papel só aparece enquanto segura o botão
 };

@@ -2,6 +2,7 @@ import { t } from "../i18n/i18n.js";
 import { themeGet } from "../theme/loader.js";
 import { watchPrivate } from "../net/game.js";
 import { show } from "./router.js";
+import { RULES } from "../config/game-config.js";
 
 const $ = (id) => document.getElementById(id);
 let started = false;
@@ -13,11 +14,17 @@ export function showRole(user, code, players) {
 
   const content = $("role-content");
   const peek = $("btn-peek");
-  const open = () => (content.hidden = false);
-  const close = () => (content.hidden = true);
-  peek.addEventListener("pointerdown", open);
-  ["pointerup", "pointerleave", "pointercancel"].forEach((e) => peek.addEventListener(e, close));
-  peek.addEventListener("contextmenu", (e) => e.preventDefault());
+
+  if (RULES.holdToReveal) {
+    const open = () => (content.hidden = false);
+    const close = () => (content.hidden = true);
+    peek.addEventListener("pointerdown", open);
+    ["pointerup", "pointerleave", "pointercancel"].forEach((e) => peek.addEventListener(e, close));
+    peek.addEventListener("contextmenu", (e) => e.preventDefault());
+  } else {
+    peek.hidden = true;
+    content.hidden = false;
+  }
 
   watchPrivate(code, user.uid, (info) => info && render(info, players));
 }
