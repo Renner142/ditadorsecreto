@@ -1,0 +1,22 @@
+{
+  "id": "democratas",
+  "title": "Democracia em Jogo",
+  "colors": {
+    "color-bg": "#12151c",
+    "color-surface": "#1d222d",
+    "color-text": "#eef1f6",
+    "color-team-a": "#2f6fdb",
+    "color-team-b": "#c0392b"
+  },
+  "teams": {
+    "a": { "name": "Democratas" },
+    "b": { "name": "Autoritários" },
+    "leader": { "name": "O Ditador" }
+  },
+  "powers": {
+    "investigate": { "name": "Investigar lealdade" },
+    "special_election": { "name": "Eleição especial" },
+    "peek": { "name": "Espiar políticas" },
+    "execute": { "name": "Execução" }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Algo deu errado. Abra o console (F12) para ver o erro."
+  },
+  "home": {
+    "nickname": "Seu apelido",
+    "create": "Criar sala",
+    "join": "Entrar na sala",
+    "code": "Código da sala"
+  },
+  "lobby": {
+    "code_label": "Código da sala",
+    "players": "Jogadores",
+    "host": "anfitrião",
+    "start": "Iniciar partida",
+    "need_players": "Mínimo de {min} jogadores para começar.",
+    "leave": "Sair da sala"
+  },
+  "errors": {
+    "nickname_required": "Digite um apelido.",
+    "code_required": "Digite o código da sala.",
+    "room_not_found": "Sala não encontrada.",
+    "room_started": "Essa partida já começou.",
+    "room_full": "A sala está cheia.",
+    "room_closed": "O anfitrião fechou a sala.",
+    "try_again": "Não consegui criar a sala, tente de novo."
+  },
+  "footer": {
+    "credit": "Baseado em Secret Hitler, de Mike Boxleiter, Tommy Maranges e Mac Schubert (secrethitler.com), licença CC BY-NC-SA 4.0. Mudanças: novo tema, nomes, imagens e regras configuráveis."
+  }
+}

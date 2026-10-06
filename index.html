@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jogo</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <main id="app">
+    <section class="screen" id="screen-loading">
+      <p data-i18n="common.loading"></p>
+    </section>
+
+    <section class="screen" id="screen-error" hidden>
+      <p data-i18n="common.error"></p>
+    </section>
+
+    <section class="screen" id="screen-home" hidden>
+  <h1 data-theme-text="title"></h1>
+  <input id="nickname" data-i18n-placeholder="home.nickname" maxlength="16">
+  <button id="btn-create" class="btn" data-i18n="home.create"></button>
+  <input id="room-code" data-i18n-placeholder="home.code" maxlength="6">
+  <button id="btn-join" class="btn" data-i18n="home.join"></button>
+  <p id="home-error" class="error"></p>
+</section>
+
+<section class="screen" id="screen-lobby" hidden>
+  <p class="label" data-i18n="lobby.code_label"></p>
+  <p id="lobby-code" class="code-display"></p>
+  <h2 data-i18n="lobby.players"></h2>
+  <ul id="player-list" class="player-list"></ul>
+  <p id="lobby-hint" class="hint"></p>
+  <button id="btn-start" class="btn" data-i18n="lobby.start" hidden></button>
+  <button id="btn-leave" class="btn btn-secondary" data-i18n="lobby.leave"></button>
+</section>
+  </main>
+
+  <footer class="credits" data-i18n="footer.credit"></footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
