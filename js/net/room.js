@@ -66,3 +66,7 @@ export function watchRoom(code, onChange) {
   const offPlayers = onValue(ref(db, `rooms/${code}/players`), (s) => { players = s.val(); emit(); });
   return () => { offPub(); offPlayers(); };
 }
+
+export function releaseDisconnect(code, user) {
+  return onDisconnect(ref(db, `rooms/${code}/players/${user.uid}`)).cancel();
+}

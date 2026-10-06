@@ -33,3 +33,10 @@ input {
 
 .player-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .player-list li { background: var(--color-surface); padding: 12px; border-radius: var(--radius); }
+
+.role-name { font-size: 32px; margin: 8px 0; text-align: center; }
+.role-name[data-team="a"] { color: var(--color-team-a); }
+.role-name[data-team="b"] { color: var(--color-team-b); }
+#role-content { display: flex; flex-direction: column; gap: var(--gap); }
+#role-content[hidden] { display: none; }
+#btn-peek { touch-action: none; user-select: none; }

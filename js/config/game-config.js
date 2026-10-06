@@ -1,7 +1,9 @@
 export const RULES = {
-  players: { min: 5, max: 10 },
+  players: { min: 3, max: 10 },
+
   // a = time majoritário, b = time minoritário, leader = líder do time b
   roleTable: {
+    3: { a: 1, b: 1, leader: 1 },
     5:  { a: 3, b: 1, leader: 1 },
     6:  { a: 4, b: 1, leader: 1 },
     7:  { a: 4, b: 2, leader: 1 },
@@ -20,4 +22,6 @@ export const RULES = {
   },
   vetoAfter: 5,
   failedElectionsLimit: 3,
+
+  leaderKnowsAllies: false, // true = o Ditador conhece os Autoritários
 };

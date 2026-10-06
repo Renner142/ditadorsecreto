@@ -35,6 +35,20 @@
   <button id="btn-start" class="btn" data-i18n="lobby.start" hidden></button>
   <button id="btn-leave" class="btn btn-secondary" data-i18n="lobby.leave"></button>
 </section>
+
+<section class="screen" id="screen-role" hidden>
+  <p class="label" data-i18n="role.you_are"></p>
+  <button id="btn-peek" class="btn" data-i18n="role.hold"></button>
+  <div id="role-content" hidden>
+    <h2 id="role-name" class="role-name"></h2>
+    <p id="role-party" class="label"></p>
+    <ul id="role-known" class="player-list"></ul>
+    <p id="role-hint" class="hint"></p>
+  </div>
+  <p class="hint" data-i18n="role.waiting"></p>
+</section>
+
+
   </main>
 
   <footer class="credits" data-i18n="footer.credit"></footer>

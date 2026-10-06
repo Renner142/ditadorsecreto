@@ -1,6 +1,8 @@
 import { t } from "../i18n/i18n.js";
 import { RULES } from "../config/game-config.js";
-import { createRoom, joinRoom, leaveRoom, watchRoom } from "../net/room.js";
+import { createRoom, joinRoom, leaveRoom, watchRoom, releaseDisconnect } from "../net/room.js";
+import { startGame } from "../net/game.js";
+import { showRole } from "./role.js";
 import { show } from "./router.js";
 
 const $ = (id) => document.getElementById(id);
@@ -8,6 +10,8 @@ const $ = (id) => document.getElementById(id);
 let stopWatching = null;
 let currentCode = null;
 let isHost = false;
+let latestRoom = null;
+let gameShown = false;
 
 function showError(err) {
   const known = typeof err?.message === "string" && err.message.startsWith("errors.");
@@ -21,8 +25,9 @@ function getNickname() {
   return nick;
 }
 
-function enterLobby(user, code, themeId) {
+function enterLobby(user, code) {
   currentCode = code;
+  gameShown = false;
   $("lobby-code").textContent = code;
   show("lobby");
   stopWatching = watchRoom(code, (room) => render(user, room));
@@ -37,9 +42,21 @@ function exitLobby() {
 }
 
 function render(user, room) {
+  latestRoom = room;
+
   if (!room.public || room.public.phase === "closed") {
     exitLobby();
     $("home-error").textContent = t("errors.room_closed");
+    return;
+  }
+
+  // a partida começou: sai do lobby e mostra o papel
+  if (room.public.phase !== "lobby") {
+    if (!gameShown) {
+      gameShown = true;
+      releaseDisconnect(currentCode, user);
+      showRole(user, currentCode, room.players);
+    }
     return;
   }
 
@@ -91,5 +108,13 @@ export function initLobby(user, themeId) {
     await leaveRoom(user, code, host);
   });
 
-  // btn-start: a gente liga no próximo passo (distribuir papéis)
+  $("btn-start").addEventListener("click", async () => {
+    $("lobby-hint").textContent = "";
+    try {
+      await startGame(currentCode, latestRoom.players);
+    } catch (err) {
+      console.error(err);
+      $("lobby-hint").textContent = t("common.error");
+    }
+  });
 }

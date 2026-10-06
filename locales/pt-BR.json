@@ -24,9 +24,20 @@
     "room_started": "Essa partida já começou.",
     "room_full": "A sala está cheia.",
     "room_closed": "O anfitrião fechou a sala.",
-    "try_again": "Não consegui criar a sala, tente de novo."
+    "try_again": "Não consegui criar a sala, tente de novo.",
+    "bad_player_count": "Quantidade de jogadores inválida."
   },
   "footer": {
     "credit": "Baseado em Secret Hitler, de Mike Boxleiter, Tommy Maranges e Mac Schubert (secrethitler.com), licença CC BY-NC-SA 4.0. Mudanças: novo tema, nomes, imagens e regras configuráveis."
-  }
+  },
+  "role": {
+  "you_are": "Seu papel nesta partida",
+  "hold": "Segure para ver",
+  "party": "Partido: {party}",
+  "hint_a": "Você não sabe quem é quem. Descubra quem são os Autoritários.",
+  "hint_b": "Estes são seus aliados. Proteja o Ditador e finja ser Democrata.",
+  "hint_leader_blind": "Você não conhece seus aliados. Pareça o mais Democrata possível.",
+  "hint_leader_known": "Estes são seus aliados. Pareça o mais Democrata possível.",
+  "waiting": "A eleição começa no próximo passo."
+}
 }
