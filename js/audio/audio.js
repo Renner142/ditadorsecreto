@@ -14,16 +14,27 @@ function player() {
   return el;
 }
 
+let unlockBound = false;
+
+function bindUnlock() {
+  if (unlockBound) return;
+  unlockBound = true;
+  const events = ["click", "touchend", "keydown"];
+  const unlock = () => {
+    if (!wantPlaying) return;
+    player().play().then(() => {
+      events.forEach((e) => document.removeEventListener(e, unlock, true));
+      unlockBound = false;
+    }).catch(() => {}); // continua escutando até um gesto válido
+  };
+  events.forEach((e) => document.addEventListener(e, unlock, true));
+}
+
 function tryPlay() {
   if (!wantPlaying) return;
   player().play().catch((err) => {
     console.warn("[audio] não tocou:", err.name, "-", currentPath);
-    if (err.name === "NotAllowedError") {
-      // o navegador bloqueou o som automático: tenta de novo no próximo toque
-      const retry = () => tryPlay();
-      document.addEventListener("pointerdown", retry, { once: true });
-      document.addEventListener("keydown", retry, { once: true });
-    }
+    if (err.name === "NotAllowedError") bindUnlock();
   });
 }
 
