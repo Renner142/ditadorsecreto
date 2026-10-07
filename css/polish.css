@@ -1,0 +1,115 @@
+:root {
+  --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+  --shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+}
+
+body {
+  background:
+    radial-gradient(1100px 600px at 50% -10%, color-mix(in srgb, var(--color-team-a) 20%, transparent), transparent 65%),
+    radial-gradient(900px 500px at 100% 110%, color-mix(in srgb, var(--color-team-b) 18%, transparent), transparent 65%),
+    var(--color-bg);
+  background-attachment: fixed;
+}
+
+h1, h2, .role-name, .end-title, .code-display { font-family: var(--font-display); }
+
+h1 {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: clamp(28px, 7vw, 46px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--color-team-a), var(--color-accent), var(--color-team-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* telas entram suavemente */
+.screen:not([hidden]) { animation: fadeUp 0.35s ease both; }
+@keyframes fadeUp { from { opacity: 0; translate: 0 12px; } }
+
+/* campos e botões */
+input { transition: border-color 0.15s, box-shadow 0.15s; }
+input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.btn {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 3px 0 rgb(0 0 0 / 0.35);
+  transition: transform 0.12s, filter 0.15s, box-shadow 0.12s;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+
+/* cartões */
+.action-panel, .last-vote, .intel, .self-badge {
+  border: 1px solid #ffffff1f;
+  box-shadow: var(--shadow);
+}
+.player-list li {
+  border: 1px solid #ffffff1a;
+  animation: fadeUp 0.25s ease both;
+}
+.code-display {
+  color: var(--color-accent);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+/* papel revelado */
+#role-content:not([hidden]) { animation: reveal 0.6s ease both; }
+@keyframes reveal { from { opacity: 0; scale: 0.85; filter: blur(6px); } }
+.role-name { font-size: 40px; text-shadow: 0 0 24px currentColor; }
+
+/* assentos */
+.seat {
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.seat:has(.president) {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+.seat.me { background: color-mix(in srgb, var(--color-surface) 80%, white); }
+
+/* trilhas */
+.slot { transition: background 0.3s, border-color 0.3s; }
+.slot.filled { box-shadow: inset 0 0 14px rgb(0 0 0 / 0.3); }
+.slot.stamp { animation: stamp 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+@keyframes stamp {
+  0% { scale: 1.8; opacity: 0; rotate: -8deg; }
+  60% { scale: 0.92; opacity: 1; rotate: 2deg; }
+  100% { scale: 1; rotate: 0deg; }
+}
+.dot { transition: background 0.25s, scale 0.25s; }
+.dot.on { scale: 1.15; }
+
+/* painel de ação pulsa quando é a sua vez */
+.action-panel.your-turn {
+  border-color: var(--color-accent);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: var(--shadow), 0 0 0 0 color-mix(in srgb, var(--color-accent) 55%, transparent); }
+  50% { box-shadow: var(--shadow), 0 0 0 8px transparent; }
+}
+
+/* cartas de política */
+.btn.policy {
+  min-height: 110px;
+  border: 2px solid #ffffff55;
+  font-family: var(--font-display);
+  font-size: 15px;
+}
+
+/* votos revelados */
+.vote-list li { animation: fadeUp 0.3s ease both; }
+
+/* quem tem aversão a movimento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
