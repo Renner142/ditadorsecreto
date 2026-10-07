@@ -1,21 +1,43 @@
 import { themeGet, themeAsset } from "../theme/loader.js";
-import { getSetting, setSettings, onSettingsChange } from "../settings/settings.js";
-import { t } from "../i18n/i18n.js";
+import { getSetting, onSettingsChange } from "../settings/settings.js";
+import { getCtx } from "./ctx.js";
 
 let el = null;
+let musicGain = null;
 let currentPath = null;
 let wantPlaying = false;
 let unlockBound = false;
 
 function applyVolume() {
   if (!el) return;
-  el.volume = getSetting("musicVolume");
-  el.muted = getSetting("musicMuted");
+  const vol = getSetting("musicVolume");
+  const muted = getSetting("musicMuted");
+  if (musicGain) {
+    musicGain.gain.value = muted ? 0 : vol; // pode passar de 1 (até 200%)
+  } else {
+    el.volume = Math.min(1, vol); // reserva, sem amplificador
+    el.muted = muted;
+  }
 }
 
 // um único player reaproveitado: se o navegador liberar o som uma vez, libera pra todas as faixas
 function player() {
-  if (!el) { el = new Audio(); el.preload = "auto"; }
+  if (!el) {
+    el = new Audio();
+    el.preload = "auto";
+    const c = getCtx();
+    if (c) {
+      try {
+        const src = c.createMediaElementSource(el);
+        musicGain = c.createGain();
+        src.connect(musicGain);
+        musicGain.connect(c.destination);
+      } catch (err) {
+        console.warn("[audio] sem amplificador:", err);
+        musicGain = null;
+      }
+    }
+  }
   applyVolume();
   return el;
 }
@@ -24,20 +46,27 @@ function bindUnlock() {
   if (unlockBound) return;
   unlockBound = true;
   const events = ["click", "touchend", "keydown"];
-  const unlock = () => {
+  const unlock = async () => {
+    const c = getCtx();
+    try { await c?.resume(); } catch {}
     if (!wantPlaying) return;
-    player().play().then(() => {
+    try { await player().play(); } catch { return; } // continua escutando até um gesto válido
+    if (!c || c.state === "running") {
       events.forEach((e) => document.removeEventListener(e, unlock, true));
       unlockBound = false;
-    }).catch(() => {}); // continua escutando até um gesto válido
+    }
   };
   events.forEach((e) => document.addEventListener(e, unlock, true));
 }
 
 function tryPlay() {
   if (!wantPlaying) return;
-  player().play().catch((err) => {
+  player().play().then(() => {
+    const c = getCtx();
+    if (c && c.state !== "running") bindUnlock();
+  }).catch((err) => {
     if (err.name === "NotAllowedError") bindUnlock();
+    else console.warn("[audio] não tocou:", err.name, "-", currentPath);
   });
 }
 
@@ -71,18 +100,4 @@ export function playVictory(team) { play(themeGet(`audio.victory.${team}`), fals
 
 export function initAudio() {
   onSettingsChange(applyVolume);
-
-  // botão provisório: liga/desliga música E efeitos juntos.
-  // Quando o menu existir, é só remover este botão: o menu usa setSettings direto.
-  const btn = document.getElementById("btn-mute");
-  if (!btn) return;
-  const allMuted = () => getSetting("musicMuted") && getSetting("sfxMuted");
-  const paint = () => { btn.textContent = allMuted() ? "🔇" : "🔊"; };
-  btn.title = t("audio.toggle");
-  btn.addEventListener("click", () => {
-    const mute = !allMuted();
-    setSettings({ musicMuted: mute, sfxMuted: mute });
-  });
-  onSettingsChange(paint);
-  paint();
 }

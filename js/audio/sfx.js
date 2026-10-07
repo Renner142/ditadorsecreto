@@ -1,8 +1,9 @@
 import { themeGet, themeAsset } from "../theme/loader.js";
-import { getSetting } from "../settings/settings.js";
+import { getSetting, onSettingsChange } from "../settings/settings.js";
+import { getCtx } from "./ctx.js";
 
-const files = {}; // nome -> Audio carregado (undefined/false = usa o som sintetizado)
-let ctx = null;
+const buffers = {}; // nome -> AudioBuffer (undefined/false = usa o som sintetizado)
+let sfxGain = null;
 
 // sons sintetizados (reserva): [frequência, início(s), duração(s), tipo, volume]
 // "noise" = ruído (a frequência vira o corte do filtro)
@@ -25,23 +26,26 @@ const SYNTH = {
   power_execute: [[80, 0, 0.5, "sine", 0.6], [500, 0, 0.25, "noise", 0.35]],
 };
 
-function getCtx() {
-  if (!ctx) {
-    const C = window.AudioContext || window.webkitAudioContext;
-    if (!C) return null;
-    ctx = new C();
-  }
-  if (ctx.state === "suspended") ctx.resume();
-  return ctx;
+function applyGain() {
+  if (sfxGain) sfxGain.gain.value = getSetting("sfxMuted") ? 0 : getSetting("sfxVolume");
 }
 
-function synth(name, volume) {
+// saída única de todos os efeitos: é aqui que o volume (0 a 200%) é aplicado
+function output() {
+  const c = getCtx();
+  if (!c) return null;
+  if (!sfxGain) {
+    sfxGain = c.createGain();
+    sfxGain.connect(c.destination);
+    applyGain();
+  }
+  return sfxGain;
+}
+
+function synth(name, dest) {
   const notes = SYNTH[name];
   const c = getCtx();
   if (!notes || !c) return;
-  const master = c.createGain(); // o volume dos efeitos vale pros sons sintetizados também
-  master.gain.value = volume;
-  master.connect(c.destination);
   const now = c.currentTime;
   for (const [freq, at, dur, type, vol] of notes) {
     const gain = c.createGain();
@@ -65,7 +69,7 @@ function synth(name, volume) {
       src.frequency.value = freq;
       src.connect(gain);
     }
-    gain.connect(master);
+    gain.connect(dest);
     src.start(now + at);
     src.stop(now + at + dur + 0.05);
   }
@@ -73,31 +77,38 @@ function synth(name, volume) {
 
 export function playSfx(name, delayMs = 0) {
   if (delayMs) return void setTimeout(() => playSfx(name), delayMs);
-  if (getSetting("sfxMuted")) return;
-  const volume = getSetting("sfxVolume");
-  if (volume <= 0) return;
-  const file = files[name];
-  if (file) {
-    const a = file.cloneNode();
-    a.volume = volume;
-    a.play().catch(() => {});
+  if (getSetting("sfxMuted") || getSetting("sfxVolume") <= 0) return;
+  const dest = output();
+  if (!dest) return;
+  const buf = buffers[name];
+  if (buf) {
+    const src = getCtx().createBufferSource();
+    src.buffer = buf;
+    src.connect(dest);
+    src.start();
   } else {
-    synth(name, volume);
+    synth(name, dest);
   }
 }
 
 export function initSfx() {
-  // pré-carrega os arquivos que o tema declarar; se falhar, usa o som sintetizado
+  onSettingsChange(applyGain);
+
+  // carrega os arquivos que o tema declarar; se falhar, usa o som sintetizado
+  const c = getCtx();
   for (const [name, path] of Object.entries(themeGet("sfx") || {})) {
-    const a = new Audio(themeAsset(path));
-    a.preload = "auto";
-    a.addEventListener("canplaythrough", () => { files[name] = a; }, { once: true });
-    a.addEventListener("error", () => { files[name] = false; });
+    if (!c) break;
+    fetch(themeAsset(path))
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then((data) => c.decodeAudioData(data))
+      .then((buf) => { buffers[name] = buf; })
+      .catch(() => { buffers[name] = false; });
   }
+
   // todo botão faz "click", ou o som que declarar em data-sfx
   document.addEventListener("click", (e) => {
     const b = e.target.closest("button");
-    if (!b || b.disabled || b.id === "btn-mute") return;
+    if (!b || b.disabled) return;
     playSfx(b.dataset.sfx || "click");
   }, true);
 }

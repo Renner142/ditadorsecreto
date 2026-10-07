@@ -1,9 +1,10 @@
-const KEY = "settings";
-const DEFAULTS = { musicVolume: 0.6, musicMuted: false, sfxVolume: 0.8, sfxMuted: false };
+const KEY = "settings.v2";
+const DEFAULTS = { musicVolume: 0.3, musicMuted: false, sfxVolume: 1, sfxMuted: false };
+const MAX = 2; // 200%
 const listeners = new Set();
 let current = { ...DEFAULTS };
 
-const clamp = (n) => Math.min(1, Math.max(0, Number(n) || 0));
+const clamp = (n) => Math.min(MAX, Math.max(0, Number(n) || 0));
 
 try {
   const saved = JSON.parse(localStorage.getItem(KEY));

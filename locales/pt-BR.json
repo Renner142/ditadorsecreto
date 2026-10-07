@@ -9,7 +9,8 @@
     "nickname": "Seu apelido",
     "create": "Criar sala",
     "join": "Entrar na sala",
-    "code": "Código da sala"
+    "code": "Código da sala",
+    "back": "Voltar"
   },
   "lobby": {
     "code_label": "Código da sala",
@@ -109,7 +110,16 @@
     "reason_leader_elected": "{leader} foi eleito Chanceler.",
     "reason_leader_killed": "{leader} foi executado."
   },
-  "audio": {
-    "toggle": "Ligar ou desligar o som"
+  "title": {
+  "play": "Jogar",
+  "options": "Opções"
+  },
+  "options": {
+    "title": "Opções",
+    "music": "Música",
+    "sfx": "Efeitos sonoros",
+    "mute": "Mudo",
+    "open": "Opções",
+    "close": "Fechar"
   }
 }
