@@ -1,0 +1,43 @@
+/* tela do jogo mais larga e sem posições absolutas */
+.screen-wide { width: min(1120px, 100%); }
+#app { align-items: start; }
+
+.game {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+.game-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.game-side {
+  display: flex; flex-direction: column; gap: 12px;
+  min-width: 0;
+  position: sticky; top: 12px;
+}
+
+/* jogadores: fileira que quebra linha, sem círculo */
+#seats {
+  position: static; inset: auto;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+}
+.seat {
+  position: static; transform: none; left: auto; top: auto;
+  flex: 0 1 150px; min-width: 110px; max-width: none;
+  overflow-wrap: anywhere;
+}
+
+/* tabuleiro vira um cartão normal */
+.board {
+  position: static; inset: auto;
+  padding: 16px; gap: 10px;
+  background: var(--color-surface);
+  border: 1px solid #ffffff1f;
+  border-radius: var(--radius);
+}
+.slot { min-height: 76px; }
+
+/* celular e telas estreitas: tudo em uma coluna, ação primeiro */
+@media (max-width: 900px) {
+  .game { grid-template-columns: 1fr; }
+  .game-side { position: static; order: -1; }
+}

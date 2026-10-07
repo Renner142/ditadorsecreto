@@ -9,6 +9,8 @@
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/board.css">
+  
 </head>
 <body>
   <main id="app">
@@ -57,25 +59,29 @@
     <span id="self-party"></span>
   </div>
 
-  <div class="table">
-    <div class="board">
-      <h3 id="track-a-title" class="track-title"></h3>
-      <div id="track-a" class="track" data-team="a"></div>
-      <h3 id="track-b-title" class="track-title"></h3>
-      <div id="track-b" class="track" data-team="b"></div>
-      <p id="legend-leader" class="hint"></p>
-      <p id="legend-veto" class="hint"></p>
-      <div class="tracker">
-        <span data-i18n="board.tracker"></span>
-        <span id="tracker-dots"></span>
+  <div class="game">
+    <div class="game-main">
+      <div id="seats"></div>
+
+      <div class="board">
+        <h3 id="track-a-title" class="track-title"></h3>
+        <div id="track-a" class="track" data-team="a"></div>
+        <h3 id="track-b-title" class="track-title"></h3>
+        <div id="track-b" class="track" data-team="b"></div>
+        <p id="legend-leader" class="hint"></p>
+        <p id="legend-veto" class="hint"></p>
+        <div class="tracker">
+          <span data-i18n="board.tracker"></span>
+          <span id="tracker-dots"></span>
+        </div>
       </div>
     </div>
-    <div id="seats"></div>
 
-    <div id="action" class="action-panel"></div>
-    <div id="last-vote" class="last-vote"></div>
-    <div id="intel" class="intel"></div>
-
+    <aside class="game-side">
+      <div id="action" class="action-panel"></div>
+      <div id="intel" class="intel"></div>
+      <div id="last-vote" class="last-vote"></div>
+    </aside>
   </div>
 </section>
 
