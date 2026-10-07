@@ -11,6 +11,7 @@ import { playVictory } from "../audio/audio.js";
 import { playSfx } from "../audio/sfx.js";
 import { confirmDialog } from "./modal.js";
 import { show } from "./router.js";
+import { stageExecution, stageLeaderElected, stagePolicyWin } from "./stage.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -22,11 +23,11 @@ export function showBoard(user, code, info) {
   renderSelf(info);
 
   const mine = { hand: null, peek: null, intel: [] };
-  const ui = { end: null }; // fim de jogo: null | "holding" | "revealing" | "done"
-  const dyingAt = {};       // uid -> momento em que morreu (pra animar uma vez só)
+  const ui = { end: null }; // end: null | "holding" (cerimônia rolando) | "done"
+  const dyingAt = {};       // fica vazio: a execução agora é animada pelo palco (stage.js)
   let latest = null;
-  let knownDead = null;
   let lastTurnKey = "";
+  let chain = Promise.resolve(); // as cerimônias rodam uma de cada vez
   const seen = {};
 
   const draw = () => {
@@ -51,20 +52,21 @@ export function showBoard(user, code, info) {
     return did;
   };
 
-  function cues(s) {
+  function cues(s, powerChanged, execNow) {
     let cued = false;
+    const winByPolicies = s.winner?.reason === "policies"; // esse som fica pro palco
     if (changed("vote", s.lastVote) && s.lastVote) {
       cued = true;
       playSfx(s.lastVote.passed ? "vote_pass" : "vote_fail");
-      if (s.lastVote.chaos) playSfx(`policy_${s.lastVote.chaos}`, 700);
+      if (s.lastVote.chaos && !winByPolicies) playSfx(`policy_${s.lastVote.chaos}`, 700);
     }
     if (changed("enacted", s.lastEnacted) && s.lastEnacted) {
       cued = true;
-      playSfx(s.lastEnacted.veto ? "veto" : `policy_${s.lastEnacted.policy}`, 400);
+      if (!winByPolicies) playSfx(s.lastEnacted.veto ? "veto" : `policy_${s.lastEnacted.policy}`, 400);
     }
-    if (changed("power", s.lastPower) && s.lastPower) {
+    if (powerChanged && s.lastPower) {
       cued = true;
-      playSfx(`power_${s.lastPower.type}`, POWER_SFX_DELAY);
+      if (s.lastPower.type !== "execute") playSfx(`power_${s.lastPower.type}`, POWER_SFX_DELAY);
     }
 
     const me = user.uid;
@@ -77,40 +79,43 @@ export function showBoard(user, code, info) {
       (s.phase === "leg_veto" && pres === me) ||
       (s.phase === "power" && pres === me);
     const key = myTurn ? `${s.phase}:${s.presidentIdx}:${s.tracks.a}:${s.tracks.b}:${s.electionTracker}` : "";
-    if (key && key !== lastTurnKey) playSfx("turn", cued ? 1500 : 0);
+    if (key && key !== lastTurnKey) playSfx("turn", execNow ? 4600 : cued ? 1500 : 0);
     lastTurnKey = key;
     $("action").classList.toggle("your-turn", myTurn);
   }
 
-  function watchEnd(s) {
-    if (!s.winner || ui.end) return;
+  // cerimônias na frente da tela: execução, Ditador eleito e política decisiva
+  function ceremony(s, players, execNow, endNow) {
     const w = s.winner;
-    if (w.reason !== "leader_killed") {
-      ui.end = "done";
-      playVictory(w.team);
-      return;
-    }
-    // o Ditador foi executado: morte -> revelação -> só então o fim
-    const { deathMs, revealMs } = RULES.endSequence;
-    ui.end = "holding";
-    setTimeout(() => { ui.end = "revealing"; playSfx("reveal"); draw(); }, POWER_SFX_DELAY + deathMs);
-    setTimeout(() => { ui.end = "done"; playVictory(w.team); draw(); }, POWER_SFX_DELAY + deathMs + revealMs);
-  }
-
-  function watchDeaths(s) {
-    const now = Object.keys(s.dead);
-    if (knownDead === null) { knownDead = new Set(now); return; } // 1ª leitura: sem animar
-    for (const uid of now) {
-      if (knownDead.has(uid)) continue;
-      knownDead.add(uid);
-      dyingAt[uid] = Date.now();
-      setTimeout(draw, POWER_SFX_DELAY + RULES.endSequence.deathMs + 60); // fecha a animação
-    }
+    const nm = (uid) => players[uid]?.name ?? "?";
+    chain = chain.then(async () => {
+      try {
+        if (execNow) {
+          await stageExecution({
+            president: nm(execNow.president),
+            target: nm(execNow.target),
+            reveal: !!endNow && w.reason === "leader_killed",
+          });
+        } else if (endNow && w.reason === "leader_elected") {
+          await stageLeaderElected({ name: nm(s.candidate) });
+        } else if (endNow && w.reason === "policies") {
+          await stagePolicyWin({ team: w.team });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      if (endNow) { // só agora os papéis são revelados e a música de vitória toca
+        ui.end = "done";
+        playVictory(w.team);
+        draw();
+      }
+    });
   }
 
   watchRoom(code, (room) => {
     const pub = room.public;
     if (!pub || !pub.order) return;
+    // o Firebase remove objetos/listas vazios, então normalizamos
     const s = {
       ...pub,
       dead: pub.dead || {},
@@ -120,9 +125,13 @@ export function showBoard(user, code, info) {
     };
     latest = { s, players: room.players };
 
-    watchDeaths(s);
-    watchEnd(s);
-    cues(s);
+    const powerChanged = changed("power", s.lastPower);
+    const execNow = powerChanged && s.lastPower?.type === "execute" ? s.lastPower : null;
+    const endNow = !!s.winner && ui.end === null;
+    if (endNow) ui.end = "holding";
+
+    cues(s, powerChanged, execNow);
+    if (execNow || endNow) ceremony(s, room.players, execNow, endNow);
     renderTracks(s);
     renderTracker(s);
     draw();
@@ -449,12 +458,9 @@ function renderAction(user, code, s, players, mine, ui) {
       break;
     }
 
-    case "ended": {
-      const target = s.lastPower?.target;
-      if (ui.end !== "done") { // suspense: execução do Ditador ainda em andamento
-        text(ui.end === "revealing"
-          ? t("end.revealing", { target: name(target), leader: themeGet("teams.leader.name") })
-          : t("end.executing", { target: name(target) }), "end-title");
+        case "ended": {
+      if (ui.end !== "done") { // a cerimônia de fim ainda está rolando
+        text(t("end.ending"), "end-title");
         break;
       }
       text(t("end.winner", { team: themeGet(`teams.${s.winner.team}.name`) }), "end-title");

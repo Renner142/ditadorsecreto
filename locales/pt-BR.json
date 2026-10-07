@@ -108,7 +108,8 @@
     "winner": "Fim de jogo: {team} vencem!",
     "reason_policies": "Por políticas promulgadas.",
     "reason_leader_elected": "{leader} foi eleito Chanceler.",
-    "reason_leader_killed": "{leader} foi executado."
+    "reason_leader_killed": "{leader} foi executado.",
+    "ending": "A partida está terminando..."
   },
   "title": {
   "play": "Jogar",
@@ -121,5 +122,12 @@
     "mute": "Mudo",
     "open": "Opções",
     "close": "Fechar"
-  }
+  },
+  "stage": {
+  "execution": "{president} executa {target}",
+  "elected": "{name} foi eleito Chanceler...",
+  "last_policy": "A política decisiva...",
+  "policy_wins": "{team} vencem pela política!",
+  "skip": "Toque para pular"
+}
 }

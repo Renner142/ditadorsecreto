@@ -110,3 +110,77 @@
   14%  { opacity: 1; scale: 1; }
   100% { opacity: 1; scale: 1; }
 }
+
+/* ---- palco: cerimônias na frente de tudo ---- */
+.stage {
+  position: fixed; inset: 0; z-index: 90;
+  display: grid; place-items: center; padding: 24px;
+  background:
+    radial-gradient(900px 500px at 50% 40%, rgb(70 20 20 / 0.45), transparent 70%),
+    rgb(8 6 6 / 0.95);
+  cursor: pointer;
+}
+.stage[hidden] { display: none; }
+.stage::after {
+  content: attr(data-skip);
+  position: absolute; bottom: 16px; left: 0; right: 0;
+  text-align: center; font-size: 12px; opacity: 0.4;
+}
+.stage.flash { animation: stg-flash 0.45s ease-out; }
+@keyframes stg-flash { 0% { background-color: #fff; } }
+
+.stage-inner { display: flex; flex-direction: column; align-items: center; gap: 32px; text-align: center; max-width: 760px; }
+.stage-title { margin: 0; font-family: var(--font-display, inherit); font-size: clamp(20px, 4.5vw, 32px); text-shadow: 0 2px 12px #000; }
+.stage-row { display: flex; align-items: center; justify-content: center; gap: clamp(14px, 6vw, 56px); }
+.stage-vs { font-size: 36px; opacity: 0.75; }
+
+.stage-card {
+  position: relative; min-width: 150px; padding: 18px 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: var(--color-surface);
+  border: 2px solid #ffffff33; border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.6);
+}
+.stage-card strong { font-size: 22px; overflow-wrap: anywhere; }
+.stage-tag { font-size: 13px; opacity: 0.85; }
+.stage-card.president {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--color-accent) 50%, transparent);
+}
+.stage-card[data-team="a"] { border-color: var(--color-team-a); background: color-mix(in srgb, var(--color-team-a) 40%, var(--color-surface)); }
+.stage-card[data-team="b"] { border-color: var(--color-team-b); background: color-mix(in srgb, var(--color-team-b) 40%, var(--color-surface)); }
+.stage-card.big { scale: 1.35; margin: 16px; animation: stg-rise 0.6s ease both; }
+.stage-card.policy-card { min-width: 180px; min-height: 250px; justify-content: center; animation: stg-rise 0.6s ease both; }
+.stage-card.policy-card strong { font-size: 26px; font-family: var(--font-display, inherit); }
+
+.stage-card.from-left { animation: stg-in-l 0.5s ease both; }
+.stage-card.from-right { animation: stg-in-r 0.5s ease both; }
+.stage-card.shot { animation: stg-shake 0.5s ease; border-color: var(--color-no); }
+.stage-card.flip { animation: stg-flip 0.8s ease both; }
+
+.stage-card.dead { filter: grayscale(0.85) brightness(0.7); }
+.stage-card.dead::after {
+  content: "☠";
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-size: 64px; color: #fff;
+  background: rgb(10 8 8 / 0.85); border-radius: inherit;
+  text-shadow: 0 0 20px var(--color-no);
+  animation: stg-skull 0.5s ease-out both;
+}
+
+@keyframes stg-in-l { from { opacity: 0; translate: -80px 0; } }
+@keyframes stg-in-r { from { opacity: 0; translate: 80px 0; } }
+@keyframes stg-rise { from { opacity: 0; translate: 0 40px; } }
+@keyframes stg-shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -10px 0; }
+  40% { translate: 10px 0; }
+  60% { translate: -6px 0; }
+  80% { translate: 4px 0; }
+}
+@keyframes stg-skull { from { opacity: 0; scale: 1.8; } }
+@keyframes stg-flip {
+  from { transform: perspective(600px) rotateY(90deg); filter: brightness(2.5); }
+  to   { transform: perspective(600px) rotateY(0deg); filter: none; }
+}
