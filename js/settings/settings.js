@@ -1,5 +1,5 @@
-const KEY = "settings.v2";
-const DEFAULTS = { musicVolume: 0.3, musicMuted: false, sfxVolume: 1, sfxMuted: false };
+const KEY = "settings.v3";
+const DEFAULTS = { musicVolume: 0.3, musicMuted: false, sfxVolume: 2, sfxMuted: false };
 const MAX = 2; // 200%
 const listeners = new Set();
 let current = { ...DEFAULTS };

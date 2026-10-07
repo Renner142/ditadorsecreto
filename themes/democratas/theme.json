@@ -1,13 +1,15 @@
 {
   "id": "democratas",
   "title": "Ditador Secreto",
-  "colors": {
-    "color-bg": "#12151c",
-    "color-surface": "#1d222d",
-    "color-text": "#eef1f6",
-    "color-team-a": "#2f6fdb",
-    "color-team-b": "#c0392b",
-    "color-accent": "#e0b341"
+"colors": {
+  "color-bg": "#14110f",
+  "color-surface": "#231d18",
+  "color-text": "#f3ead8",
+  "color-team-a": "#2c7bb6",
+  "color-team-b": "#b3202a",
+  "color-accent": "#d9a53f",
+  "color-yes": "#4f9d69",
+  "color-no": "#c0392b"
   },
   "teams": {
     "a": { "name": "Democratas" },

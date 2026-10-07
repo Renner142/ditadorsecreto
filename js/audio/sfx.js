@@ -23,7 +23,13 @@ const SYNTH = {
   power_investigate: [[1000, 0, 0.08, "sine", 0.2], [1300, 0.1, 0.08, "sine", 0.2], [1000, 0.2, 0.08, "sine", 0.2], [1500, 0.3, 0.2, "sine", 0.2]],
   power_peek: [[600, 0, 0.4, "noise", 0.12], [880, 0.05, 0.25, "sine", 0.12]],
   power_special_election: [[440, 0, 0.1, "square", 0.1], [554, 0.1, 0.1, "square", 0.1], [659, 0.2, 0.1, "square", 0.1], [880, 0.3, 0.3, "square", 0.1]],
-  power_execute: [[80, 0, 0.5, "sine", 0.6], [500, 0, 0.25, "noise", 0.35]],
+    power_execute: [
+    [7000, 0, 0.04, "noise", 0.5],     // estalo seco
+    [2200, 0, 0.16, "noise", 0.45],    // corpo do disparo
+    [140, 0, 0.22, "sine", 0.6],       // pancada grave
+    [900, 0.03, 0.55, "noise", 0.16],  // eco
+    [400, 0.12, 0.7, "noise", 0.08],   // cauda
+  ],
 };
 
 function applyGain() {
