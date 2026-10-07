@@ -1,5 +1,5 @@
 export const RULES = {
-  players: { min: 3, max: 10 },
+  players: { min: 5, max: 10 },
 
   // a = time majoritário, b = time minoritário, leader = líder do time b
   roleTable: {
