@@ -31,4 +31,5 @@ export const RULES = {
 
     holdToReveal: false, // true = papel só aparece enquanto segura o botão
     roleRevealSeconds: 5,
+    endSequence: { deathMs: 2400, revealMs: 2600 }, // pausa da execução do Ditador antes do fim
 };

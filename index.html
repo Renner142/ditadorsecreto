@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/polish.css">
+  <link rel="stylesheet" href="css/effects.css">
 
 </head>
 <body>
@@ -84,7 +85,6 @@
 
     <aside class="game-side">
       <div id="action" class="action-panel"></div>
-      <div id="intel" class="intel"></div>
       <div id="last-vote" class="last-vote"></div>
     </aside>
   </div>
@@ -96,6 +96,17 @@
   <footer class="credits" data-i18n="footer.credit"></footer>
   
   <button id="btn-mute" class="mute-btn"></button>
+
+  <div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <h3 id="modal-title"></h3>
+      <p id="modal-message"></p>
+      <div class="action-row">
+        <button id="modal-cancel" class="btn btn-secondary"></button>
+        <button id="modal-ok" class="btn"></button>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="js/main.js"></script>
 </body>

@@ -1,7 +1,9 @@
 {
   "common": {
     "loading": "Carregando...",
-    "error": "Algo deu errado. Abra o console (F12) para ver o erro."
+    "error": "Algo deu errado. Abra o console (F12) para ver o erro.",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar"
   },
   "home": {
     "nickname": "Seu apelido",
@@ -31,88 +33,83 @@
     "credit": "Baseado em Secret Hitler, de Mike Boxleiter, Tommy Maranges e Mac Schubert (secrethitler.com), licença CC BY-NC-SA 4.0. Mudanças: novo tema, nomes, imagens e regras configuráveis."
   },
   "role": {
-  "you_are": "Seu papel nesta partida",
-  "hold": "Segure para ver",
-  "party": "Partido: {party}",
-  "hint_a": "Você não sabe quem é quem. Descubra quem são os Autoritários.",
-  "hint_b": "Estes são seus aliados. Proteja o Ditador e finja ser Democrata.",
-  "hint_leader_blind": "Você não conhece seus aliados. Pareça o mais Democrata possível.",
-  "hint_leader_known": "Estes são seus aliados. Pareça o mais Democrata possível.",
-  "countdown": "A partida começa em {s}s..."
-},
-
-"board": {
-  "track": "Trilha: {team}",
-  "win": "Vitória",
-  "tracker": "Eleições recusadas",
-  "you": "você",
-  "president": "Presidente",
-  "legend_leader": "Depois da {n}ª política ({team}): se {leader} for eleito Chanceler, eles vencem.",
-  "legend_veto": "Depois da {n}ª política ({team}): Presidente e Chanceler podem vetar uma pauta.",
-  "coming_soon": "Em breve: eleição do Chanceler.",
-  "candidate": "Candidato",
-  "chancellor": "Chanceler",
-  "voted": "votou",
-  "not_leader": "não é {leader}", 
-  "dead": "executado",
-  "you_dead": "Você foi executado. Não pode mais falar, votar nem ser eleito.",
-  "investigated_as": "investigado: {party}"
-},
-
-"nominate": {
-  "starting": "A partida está começando...",
-  "pick": "Você é o Presidente. Escolha seu Chanceler:",
-  "waiting": "{president} está escolhendo o Chanceler..."
-},
-"vote": {
-  "yes": "Sim",
-  "no": "Não",
-  "ask": "{president} propõe {chancellor} como Chanceler. Seu voto?",
-  "waiting": "Voto registrado. Aguardando os outros...",
-  "passed": "Governo aprovado: {president} e {chancellor}",
-  "failed": "Governo rejeitado: {president} e {chancellor}",
-  "chaos": "Três governos rejeitados: o povo promulgou uma política de {team}."
-},
-"legislative": {
-  "soon": "Governo eleito! Presidente {president}, Chanceler {chancellor}. A legislação entra no próximo passo."
-},
-"end": {
-  "winner": "Fim de jogo: {team} vencem!",
-  "reason_policies": "Por políticas promulgadas.",
-  "reason_leader_elected": "{leader} foi eleito Chanceler.",
-  "reason_leader_killed": "{leader} foi executado."
-},
-"leg": {
-  "policy": "Política: {team}",
-  "president_pick": "Você é o Presidente. Descarte UMA política (as outras 2 vão para o Chanceler):",
-  "chancellor_pick": "Você é o Chanceler. Escolha a política que será PROMULGADA:",
-  "president_waiting": "{president} está escolhendo as políticas em segredo...",
-  "chancellor_waiting": "{chancellor} está decidindo qual política promulgar...",
-  "enacted": "Política de {team} promulgada por {president} e {chancellor}."
-},
-"power": {
-  "waiting": "{president} está usando o poder: {power}...",
-  "pick_investigate": "Escolha um jogador para investigar o partido:",
-  "pick_special_election": "Escolha quem será o próximo Presidente:",
-  "pick_execute": "Escolha quem será executado:",
-  "peek_title": "As próximas 3 políticas do baralho, em ordem:",
-  "ack": "Entendi",
-  "confirm_execute": "Executar {target}? Isso não pode ser desfeito.",
-  "did_investigate": "{president} investigou {target}.",
-  "did_special_election": "{president} convocou uma eleição especial: {target} é o novo Presidente.",
-  "did_peek": "{president} espiou as próximas políticas.",
-  "did_execute": "{president} executou {target}."
-},
-"veto": {
-  "request": "Propor veto",
-  "ask": "{chancellor} propõe vetar esta pauta. Você aceita?",
-  "agree": "Aceitar o veto",
-  "refuse": "Recusar",
-  "waiting": "Veto proposto. Aguardando a resposta do Presidente...",
-  "done": "Veto aprovado por {president} e {chancellor}: nenhuma política foi promulgada."
-},
-"intel": {
-  "title": "Suas investigações (partido)"
-},
-"audio": { "toggle": "Ligar ou desligar o som" }
+    "you_are": "Seu papel nesta partida",
+    "hold": "Segure para ver",
+    "party": "Partido: {party}",
+    "hint_a": "Você não sabe quem é quem. Descubra quem são os Autoritários.",
+    "hint_b": "Estes são seus aliados. Proteja o Ditador e finja ser Democrata.",
+    "hint_leader_blind": "Você não conhece seus aliados. Pareça o mais Democrata possível.",
+    "hint_leader_known": "Estes são seus aliados. Pareça o mais Democrata possível.",
+    "countdown": "A partida começa em {s}s..."
+  },
+  "board": {
+    "track": "Trilha: {team}",
+    "win": "Vitória",
+    "tracker": "Eleições recusadas",
+    "you": "você",
+    "president": "Presidente",
+    "candidate": "Candidato",
+    "chancellor": "Chanceler",
+    "voted": "votou",
+    "dead": "executado",
+    "you_dead": "Você foi executado. Não pode mais falar, votar nem ser eleito.",
+    "legend_leader": "Depois da {n}ª política ({team}): se {leader} for eleito Chanceler, eles vencem.",
+    "legend_veto": "Depois da {n}ª política ({team}): Presidente e Chanceler podem vetar uma pauta."
+  },
+  "nominate": {
+    "starting": "A partida está começando...",
+    "pick": "Você é o Presidente. Escolha seu Chanceler:",
+    "waiting": "{president} está escolhendo o Chanceler..."
+  },
+  "vote": {
+    "yes": "Sim",
+    "no": "Não",
+    "ask": "{president} propõe {chancellor} como Chanceler. Seu voto?",
+    "waiting": "Voto registrado. Aguardando os outros...",
+    "passed": "Governo aprovado: {president} e {chancellor}",
+    "failed": "Governo rejeitado: {president} e {chancellor}",
+    "chaos": "Três governos rejeitados: o povo promulgou uma política de {team}."
+  },
+  "leg": {
+    "policy": "Política: {team}",
+    "president_pick": "Você é o Presidente. Descarte UMA política (as outras 2 vão para o Chanceler):",
+    "chancellor_pick": "Você é o Chanceler. Escolha a política que será PROMULGADA:",
+    "president_waiting": "{president} está escolhendo as políticas em segredo...",
+    "chancellor_waiting": "{chancellor} está decidindo qual política promulgar...",
+    "enacted": "Política de {team} promulgada por {president} e {chancellor}."
+  },
+  "power": {
+    "waiting": "{president} está usando o poder: {power}...",
+    "pick_investigate": "Escolha um jogador para investigar o partido:",
+    "pick_special_election": "Escolha quem será o próximo Presidente:",
+    "pick_execute": "Escolha quem será executado:",
+    "peek_title": "As próximas 3 políticas do baralho, em ordem:",
+    "ack": "Entendi",
+    "confirm_title": "Confirmar execução",
+    "confirm_execute": "Executar {target}? Isso não pode ser desfeito.",
+    "confirm_yes": "Executar",
+    "did_investigate": "{president} investigou {target}.",
+    "did_special_election": "{president} convocou uma eleição especial: {target} é o novo Presidente.",
+    "did_peek": "{president} espiou as próximas políticas.",
+    "did_execute": "{president} executou {target}."
+  },
+  "veto": {
+    "request": "Propor veto",
+    "ask": "{chancellor} propõe vetar esta pauta. Você aceita?",
+    "agree": "Aceitar o veto",
+    "refuse": "Recusar",
+    "waiting": "Veto proposto. Aguardando a resposta do Presidente...",
+    "done": "Veto aprovado por {president} e {chancellor}: nenhuma política foi promulgada."
+  },
+  "end": {
+    "executing": "{target} está sendo executado...",
+    "revealing": "{target} era {leader}!",
+    "winner": "Fim de jogo: {team} vencem!",
+    "reason_policies": "Por políticas promulgadas.",
+    "reason_leader_elected": "{leader} foi eleito Chanceler.",
+    "reason_leader_killed": "{leader} foi executado."
+  },
+  "audio": {
+    "toggle": "Ligar ou desligar o som"
+  }
 }

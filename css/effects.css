@@ -1,0 +1,75 @@
+/* partido revelado: borda e fundo na cor do partido */
+.seat[data-team="a"] { border-color: var(--color-team-a); }
+.seat[data-team="b"] { border-color: var(--color-team-b); }
+.seat.revealed[data-team="a"] { background: color-mix(in srgb, var(--color-team-a) 40%, var(--color-surface)); }
+.seat.revealed[data-team="b"] { background: color-mix(in srgb, var(--color-team-b) 40%, var(--color-surface)); }
+
+/* presidente e chanceler: borda amarela, mesmo com o partido conhecido */
+.seat.gov, .seat.gov[data-team] {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+
+.seat.dead.revealed { opacity: 0.8; }
+
+/* morte: pisca, treme, caveira e esmaece */
+.seat.dying {
+  position: relative;
+  animation: dying var(--death-ms, 2400ms) ease-out var(--death-delay, 0ms) both;
+}
+.seat.dying::after {
+  content: "☠";
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-size: 46px; color: #fff;
+  text-shadow: 0 0 18px var(--color-no);
+  pointer-events: none;
+  animation: skull var(--death-ms, 2400ms) ease-out var(--death-delay, 0ms) both;
+}
+@keyframes dying {
+  0%   { opacity: 1; filter: none; scale: 1; translate: 0 0; }
+  6%   { filter: brightness(2.4) saturate(2.5); scale: 1.14; }
+  14%  { translate: -7px 0; }
+  22%  { translate: 7px 0; }
+  30%  { translate: -5px 0; }
+  38%  { translate: 4px 0; }
+  46%  { translate: 0 0; filter: none; scale: 1; }
+  100% { opacity: 0.35; filter: grayscale(0.9); scale: 0.96; translate: 0 0; }
+}
+@keyframes skull {
+  0%   { opacity: 0; scale: 2; }
+  12%  { opacity: 1; scale: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* papel do executado sendo revelado */
+.seat.reveal-flip {
+  animation: flip 0.9s ease both;
+  box-shadow: 0 0 28px color-mix(in srgb, var(--color-team-b) 70%, transparent);
+}
+@keyframes flip {
+  0%   { transform: perspective(500px) rotateY(90deg); filter: brightness(2.5); }
+  100% { transform: perspective(500px) rotateY(0deg); filter: none; }
+}
+
+/* janela de confirmação dentro do jogo */
+.modal {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-items: center; padding: 24px;
+  background: rgb(0 0 0 / 0.65);
+  backdrop-filter: blur(3px);
+}
+.modal[hidden] { display: none; }
+.modal-card {
+  width: min(380px, 100%);
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 20px;
+  background: var(--color-surface);
+  border: 1px solid #ffffff33;
+  border-radius: var(--radius);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.55);
+  animation: fadeUp 0.2s ease both;
+}
+.modal-card h3 { margin: 0; font-family: var(--font-display, inherit); }
+.modal-card p { margin: 0; opacity: 0.85; }

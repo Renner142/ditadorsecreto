@@ -7,34 +7,106 @@ import { eligibleChancellors, aliveUids } from "../core/engine.js";
 import { watchRoom } from "../net/room.js";
 import { watchPrivate } from "../net/game.js";
 import { sendAction } from "../net/actions.js";
-import { show } from "./router.js";
 import { playVictory } from "../audio/audio.js";
+import { playSfx } from "../audio/sfx.js";
+import { confirmDialog } from "./modal.js";
+import { show } from "./router.js";
 
 const $ = (id) => document.getElementById(id);
+
+// o som do poder toca depois do som da política; a animação da morte espera o mesmo tempo
+const POWER_SFX_DELAY = 900;
 
 export function showBoard(user, code, info) {
   show("board");
   renderSelf(info);
 
   const mine = { hand: null, peek: null, intel: [] };
+  const ui = { end: null }; // fim de jogo: null | "holding" | "revealing" | "done"
+  const dyingAt = {};       // uid -> momento em que morreu (pra animar uma vez só)
   let latest = null;
-  let victoryPlayed = false;
+  let knownDead = null;
+  let lastTurnKey = "";
+  const seen = {};
 
   const draw = () => {
     if (!latest) return;
-    renderSeats(user, info, latest.s, latest.players, mine.intel);
-    renderAction(user, code, latest.s, latest.players, mine);
-    renderIntel(latest.players, mine.intel);
+    renderSeats(user, info, latest.s, latest.players, mine.intel, ui, dyingAt);
+    renderAction(user, code, latest.s, latest.players, mine, ui);
   };
 
   // só você recebe sua mão, suas cartas espiadas e suas investigações
   watchPrivate(code, user.uid, (p) => {
-    console.log("[privado]", p); // pode apagar depois de testar
     mine.hand = p?.hand || null;
     mine.peek = p?.peek || null;
     mine.intel = Array.isArray(p?.intel) ? p.intel : Object.values(p?.intel || {});
     draw();
   });
+
+  // true quando o valor mudou desde a última vez (a 1ª leitura nunca conta)
+  const changed = (key, value) => {
+    const j = JSON.stringify(value ?? null);
+    const did = seen[key] !== undefined && seen[key] !== j;
+    seen[key] = j;
+    return did;
+  };
+
+  function cues(s) {
+    let cued = false;
+    if (changed("vote", s.lastVote) && s.lastVote) {
+      cued = true;
+      playSfx(s.lastVote.passed ? "vote_pass" : "vote_fail");
+      if (s.lastVote.chaos) playSfx(`policy_${s.lastVote.chaos}`, 700);
+    }
+    if (changed("enacted", s.lastEnacted) && s.lastEnacted) {
+      cued = true;
+      playSfx(s.lastEnacted.veto ? "veto" : `policy_${s.lastEnacted.policy}`, 400);
+    }
+    if (changed("power", s.lastPower) && s.lastPower) {
+      cued = true;
+      playSfx(`power_${s.lastPower.type}`, POWER_SFX_DELAY);
+    }
+
+    const me = user.uid;
+    const pres = s.order[s.presidentIdx];
+    const myTurn =
+      (s.phase === "nominate" && pres === me) ||
+      (s.phase === "vote" && !s.voted[me] && !s.dead[me]) ||
+      (s.phase === "leg_president" && pres === me) ||
+      (s.phase === "leg_chancellor" && s.candidate === me) ||
+      (s.phase === "leg_veto" && pres === me) ||
+      (s.phase === "power" && pres === me);
+    const key = myTurn ? `${s.phase}:${s.presidentIdx}:${s.tracks.a}:${s.tracks.b}:${s.electionTracker}` : "";
+    if (key && key !== lastTurnKey) playSfx("turn", cued ? 1500 : 0);
+    lastTurnKey = key;
+    $("action").classList.toggle("your-turn", myTurn);
+  }
+
+  function watchEnd(s) {
+    if (!s.winner || ui.end) return;
+    const w = s.winner;
+    if (w.reason !== "leader_killed") {
+      ui.end = "done";
+      playVictory(w.team);
+      return;
+    }
+    // o Ditador foi executado: morte -> revelação -> só então o fim
+    const { deathMs, revealMs } = RULES.endSequence;
+    ui.end = "holding";
+    setTimeout(() => { ui.end = "revealing"; playSfx("reveal"); draw(); }, POWER_SFX_DELAY + deathMs);
+    setTimeout(() => { ui.end = "done"; playVictory(w.team); draw(); }, POWER_SFX_DELAY + deathMs + revealMs);
+  }
+
+  function watchDeaths(s) {
+    const now = Object.keys(s.dead);
+    if (knownDead === null) { knownDead = new Set(now); return; } // 1ª leitura: sem animar
+    for (const uid of now) {
+      if (knownDead.has(uid)) continue;
+      knownDead.add(uid);
+      dyingAt[uid] = Date.now();
+      setTimeout(draw, POWER_SFX_DELAY + RULES.endSequence.deathMs + 60); // fecha a animação
+    }
+  }
 
   watchRoom(code, (room) => {
     const pub = room.public;
@@ -44,16 +116,13 @@ export function showBoard(user, code, info) {
       dead: pub.dead || {},
       voted: pub.voted || {},
       lastGov: pub.lastGov || null,
-      confirmedNotLeader: pub.confirmedNotLeader || [],
       investigated: pub.investigated || [],
     };
     latest = { s, players: room.players };
 
-    if (s.winner && !victoryPlayed) { // toca uma vez só
-      victoryPlayed = true;
-      playVictory(s.winner.team);
-    }
-
+    watchDeaths(s);
+    watchEnd(s);
+    cues(s);
     renderTracks(s);
     renderTracker(s);
     draw();
@@ -67,9 +136,9 @@ function renderSelf(info) {
   $("self-party").textContent = t("role.party", { party: themeGet(`teams.${info.party}.name`) });
 }
 
-function makeSlot(num, filled, label) {
+function makeSlot(num, filled, label, fresh = false) {
   const el = document.createElement("div");
-  el.className = "slot" + (filled ? " filled" : "");
+  el.className = "slot" + (filled ? " filled" : "") + (fresh ? " stamp" : "");
   const n = document.createElement("span");
   n.className = "slot-num";
   n.textContent = num;
@@ -79,6 +148,8 @@ function makeSlot(num, filled, label) {
   el.append(n, l);
   return el;
 }
+
+let prevTracks = null;
 
 function renderTracks(s) {
   const powers = powerTrack(RULES, s.order.length);
@@ -93,7 +164,8 @@ function renderTracks(s) {
   a.innerHTML = "";
   for (let i = 0; i < RULES.winPolicies.a; i++) {
     const isWin = i === RULES.winPolicies.a - 1;
-    a.append(makeSlot(i + 1, i < s.tracks.a, isWin ? t("board.win") : ""));
+    a.append(makeSlot(i + 1, i < s.tracks.a, isWin ? t("board.win") : "",
+      !!prevTracks && i < s.tracks.a && i >= prevTracks.a));
   }
 
   const b = $("track-b");
@@ -102,13 +174,15 @@ function renderTracks(s) {
     const isWin = i === RULES.winPolicies.b - 1;
     const powerId = powers[i];
     const label = isWin ? t("board.win") : powerId ? themeGet(`powers.${powerId}.name`) : "—";
-    b.append(makeSlot(i + 1, i < s.tracks.b, label));
+    b.append(makeSlot(i + 1, i < s.tracks.b, label,
+      !!prevTracks && i < s.tracks.b && i >= prevTracks.b));
   }
 
   $("legend-leader").textContent = t("board.legend_leader", {
     n: RULES.leaderElectionAfter, team: teamB, leader,
   });
   $("legend-veto").textContent = t("board.legend_veto", { n: RULES.vetoAfter, team: teamB });
+  prevTracks = { a: s.tracks.a, b: s.tracks.b };
 }
 
 function renderTracker(s) {
@@ -128,33 +202,50 @@ function addTag(seat, text, cls = "") {
   seat.append(el);
 }
 
-function renderSeats(user, info, s, players, intel) {
+function renderSeats(user, info, s, players, intel, ui, dyingAt) {
   const { order, presidentIdx } = s;
   const me = order.indexOf(user.uid);
   const known = Object.fromEntries((info.known || []).map((k) => [k.uid, k.role]));
-  const seen = Object.fromEntries(intel.map((r) => [r.target, r.party]));
+  const investigated = Object.fromEntries(intel.map((r) => [r.target, r.party]));
   const inGov = s.phase.startsWith("leg_") || s.phase === "power";
+  const { deathMs } = RULES.endSequence;
+  const target = s.lastPower?.target;
   const box = $("seats");
   box.innerHTML = "";
 
   order
     .map((uid, i) => ({ uid, i, k: (i - me + order.length) % order.length }))
-    .sort((x, y) => x.k - y.k)
-    .forEach(({ uid, i, k }) => {
+    .sort((x, y) => x.k - y.k) // você primeiro, depois no sentido horário
+    .forEach(({ uid, i }) => {
       const seat = document.createElement("div");
-      seat.className = "seat" + (uid === user.uid ? " me" : "") + (s.dead[uid] ? " dead" : "");
-      seat.style.setProperty("--a", `${90 + (k * 360) / order.length}deg`);
+      seat.className = "seat" + (uid === user.uid ? " me" : "");
+
+      // morte: a animação roda uma vez e continua de onde parou se a tela redesenhar
+      const elapsed = uid in dyingAt ? Date.now() - dyingAt[uid] : Infinity;
+      const dying = !!s.dead[uid] && elapsed < POWER_SFX_DELAY + deathMs;
+      if (dying) {
+        seat.classList.add("dying");
+        seat.style.setProperty("--death-ms", `${deathMs}ms`);
+        seat.style.setProperty("--death-delay", `${POWER_SFX_DELAY - elapsed}ms`);
+      } else if (s.dead[uid]) {
+        seat.classList.add("dead");
+      }
 
       const name = document.createElement("strong");
       name.textContent = players[uid]?.name ?? "?";
       seat.append(name);
 
       if (uid === user.uid) addTag(seat, t("board.you"));
-      if (s.dead[uid]) addTag(seat, t("board.dead"));
+      if (s.dead[uid] && !dying) addTag(seat, t("board.dead"));
 
-      const finalRole = s.finalRoles?.[uid];
-      if (finalRole) { // fim de jogo: todo mundo revelado, na cor do partido
+      // papel de todos no fim; no fim por execução, só o executado e só na hora da revelação
+      const showAll = ui.end === "done";
+      const showOne = ui.end === "revealing" && uid === target;
+      const finalRole = showAll || showOne ? s.finalRoles?.[uid] : null;
+
+      if (finalRole) {
         seat.classList.add("revealed");
+        if (showOne) seat.classList.add("reveal-flip");
         seat.dataset.team = partyOf(finalRole);
         seat.dataset.role = finalRole;
         addTag(seat, themeGet(`teams.${finalRole}.name`));
@@ -162,39 +253,26 @@ function renderSeats(user, info, s, players, intel) {
         seat.dataset.team = partyOf(known[uid]);
         seat.dataset.role = known[uid];
         addTag(seat, themeGet(`teams.${known[uid]}.name`));
-      } else if (seen[uid]) { // investigado por você
-        seat.dataset.team = seen[uid];
-        addTag(seat, t("board.investigated_as", { party: themeGet(`teams.${seen[uid]}.name`) }));
+      } else if (investigated[uid]) { // investigado por você: só o partido
+        seat.classList.add("revealed");
+        seat.dataset.team = investigated[uid];
+        addTag(seat, themeGet(`teams.${investigated[uid]}.name`));
       }
 
-      if (i === presidentIdx && !s.dead[uid]) addTag(seat, t("board.president"), "president");
-      if (uid === s.candidate && s.phase === "vote") addTag(seat, t("board.candidate"), "president");
-      if (uid === s.candidate && inGov) addTag(seat, t("board.chancellor"), "president");
+      const isPres = i === presidentIdx && !s.dead[uid];
+      const isCand = uid === s.candidate && s.phase === "vote";
+      const isChan = uid === s.candidate && inGov;
+      if (isPres) addTag(seat, t("board.president"), "president");
+      if (isCand) addTag(seat, t("board.candidate"), "president");
+      if (isChan) addTag(seat, t("board.chancellor"), "president");
+      if (isPres || isCand || isChan) seat.classList.add("gov"); // borda amarela
       if (s.phase === "vote" && s.voted[uid]) addTag(seat, t("board.voted"));
-      if (s.confirmedNotLeader.includes(uid)) addTag(seat, t("board.not_leader", { leader: themeGet("teams.leader.name") }));
 
       box.append(seat);
     });
 }
 
-function renderIntel(players, intel) {
-  const box = $("intel");
-  box.innerHTML = "";
-  if (!intel.length) return;
-  const title = document.createElement("p");
-  title.className = "label";
-  title.textContent = t("intel.title");
-  const ul = document.createElement("ul");
-  ul.className = "vote-list";
-  intel.forEach((r) => {
-    const li = document.createElement("li");
-    li.textContent = `${players[r.target]?.name ?? "?"}: ${themeGet(`teams.${r.party}.name`)}`;
-    ul.append(li);
-  });
-  box.append(title, ul);
-}
-
-function renderAction(user, code, s, players, mine) {
+function renderAction(user, code, s, players, mine, ui) {
   const box = $("action");
   box.innerHTML = "";
   const name = (uid) => players[uid]?.name ?? "?";
@@ -212,12 +290,14 @@ function renderAction(user, code, s, players, mine) {
     d.append(...buttons);
     box.append(d);
   };
-  const button = (label, onClick, cls = "", ask = null) => {
+  // ask: { title, message, confirm, danger } abre a confirmação dentro do jogo
+  const button = (label, onClick, cls = "", ask = null, sfx = null) => {
     const b = document.createElement("button");
     b.className = `btn ${cls}`.trim();
     b.textContent = label;
-    b.addEventListener("click", () => {
-      if (ask && !window.confirm(ask)) return;
+    if (sfx) b.dataset.sfx = sfx;
+    b.addEventListener("click", async () => {
+      if (ask && !(await confirmDialog(ask))) return;
       box.querySelectorAll("button").forEach((x) => (x.disabled = true));
       onClick().catch(console.error);
     });
@@ -227,7 +307,8 @@ function renderAction(user, code, s, players, mine) {
   const policyButtons = (type) =>
     mine.hand.map((card, index) =>
       button(t("leg.policy", { team: themeGet(`teams.${card}.name`) }),
-        send(type, { index }), `policy policy-${card}`));
+        send(type, { index }), `policy policy-${card}`, null,
+        type === "enact" ? "stamp" : "discard"));
 
   // o que acabou de acontecer
   if (s.lastEnacted) {
@@ -269,8 +350,8 @@ function renderAction(user, code, s, players, mine) {
         text(t("vote.waiting"), "hint");
       } else if (!s.dead[user.uid]) {
         row([
-          button(t("vote.yes"), send("vote", { vote: true }), "btn-yes"),
-          button(t("vote.no"), send("vote", { vote: false }), "btn-no"),
+          button(t("vote.yes"), send("vote", { vote: true }), "btn-yes", null, "vote_yes"),
+          button(t("vote.no"), send("vote", { vote: false }), "btn-no", null, "vote_no"),
         ]);
       }
       break;
@@ -289,7 +370,7 @@ function renderAction(user, code, s, players, mine) {
         text(t("leg.chancellor_pick"));
         row(policyButtons("enact"));
         if (s.tracks.b >= RULES.vetoAfter && !s.vetoDenied) {
-          row([button(t("veto.request"), send("veto_request"), "btn-secondary")]);
+          row([button(t("veto.request"), send("veto_request"), "btn-secondary", null, "veto")]);
         }
       } else {
         text(t("leg.chancellor_waiting", { chancellor: name(s.candidate) }), "hint");
@@ -300,8 +381,8 @@ function renderAction(user, code, s, players, mine) {
       if (president === user.uid) {
         text(t("veto.ask", { chancellor: name(s.candidate) }));
         row([
-          button(t("veto.agree"), send("veto_answer", { agree: true }), "btn-yes"),
-          button(t("veto.refuse"), send("veto_answer", { agree: false }), "btn-no"),
+          button(t("veto.agree"), send("veto_answer", { agree: true }), "btn-yes", null, "vote_yes"),
+          button(t("veto.refuse"), send("veto_answer", { agree: false }), "btn-no", null, "vote_no"),
         ]);
       } else {
         text(t("veto.waiting"), "hint");
@@ -334,11 +415,25 @@ function renderAction(user, code, s, players, mine) {
       text(t(`power.pick_${s.power}`));
       row(targets.map((uid) =>
         button(name(uid), send(s.power, { target: uid }), deadly ? "btn-no" : "",
-          deadly ? t("power.confirm_execute", { target: name(uid) }) : null)));
+          deadly
+            ? {
+                title: t("power.confirm_title"),
+                message: t("power.confirm_execute", { target: name(uid) }),
+                confirm: t("power.confirm_yes"),
+                danger: true,
+              }
+            : null)));
       break;
     }
 
-    case "ended":
+    case "ended": {
+      const target = s.lastPower?.target;
+      if (ui.end !== "done") { // suspense: execução do Ditador ainda em andamento
+        text(ui.end === "revealing"
+          ? t("end.revealing", { target: name(target), leader: themeGet("teams.leader.name") })
+          : t("end.executing", { target: name(target) }), "end-title");
+        break;
+      }
       text(t("end.winner", { team: themeGet(`teams.${s.winner.team}.name`) }), "end-title");
       text(t(`end.reason_${s.winner.reason}`, { leader: themeGet("teams.leader.name") }), "hint");
       if (s.finalRoles) {
@@ -352,6 +447,7 @@ function renderAction(user, code, s, players, mine) {
         box.append(ul);
       }
       break;
+    }
   }
 }
 
