@@ -211,6 +211,7 @@ function renderSeats(user, info, s, players, intel, ui, dyingAt) {
   const { deathMs } = RULES.endSequence;
   const target = s.lastPower?.target;
   const box = $("seats");
+  if (!box) return;
   box.innerHTML = "";
 
   order
@@ -219,6 +220,12 @@ function renderSeats(user, info, s, players, intel, ui, dyingAt) {
     .forEach(({ uid, i }) => {
       const seat = document.createElement("div");
       seat.className = "seat" + (uid === user.uid ? " me" : "");
+      const playerName = players[uid]?.name ?? "?";
+
+      // papel de todos no fim; no fim por execução, só o executado e só na hora da revelação
+      const showAll = ui.end === "done";
+      const showOne = ui.end === "revealing" && uid === target;
+      const finalRole = showAll || showOne ? s.finalRoles?.[uid] : null;
 
       // morte: a animação roda uma vez e continua de onde parou se a tela redesenhar
       const elapsed = uid in dyingAt ? Date.now() - dyingAt[uid] : Infinity;
@@ -232,24 +239,36 @@ function renderSeats(user, info, s, players, intel, ui, dyingAt) {
       }
 
       const name = document.createElement("strong");
-      name.textContent = players[uid]?.name ?? "?";
+      name.textContent = playerName;
       seat.append(name);
 
+      // o morto fica coberto por uma caveira, sem revelar o papel, até o fim da partida
+      if (s.dead[uid] && !finalRole) {
+        const cover = document.createElement("div");
+        cover.className = "skull-cover";
+        const skull = document.createElement("span");
+        skull.className = "skull";
+        skull.textContent = "☠";
+        const label = document.createElement("span");
+        label.className = "skull-name";
+        label.textContent = playerName;
+        cover.append(skull, label);
+        seat.append(cover);
+        box.append(seat);
+        return;
+      }
+
       if (uid === user.uid) addTag(seat, t("board.you"));
-      if (s.dead[uid] && !dying) addTag(seat, t("board.dead"));
+      if (s.dead[uid]) addTag(seat, t("board.dead"));
 
-      // papel de todos no fim; no fim por execução, só o executado e só na hora da revelação
-      const showAll = ui.end === "done";
-      const showOne = ui.end === "revealing" && uid === target;
-      const finalRole = showAll || showOne ? s.finalRoles?.[uid] : null;
-
-      if (finalRole) {
+      if (finalRole) { // fim de jogo: papel revelado, na cor do partido
         seat.classList.add("revealed");
         if (showOne) seat.classList.add("reveal-flip");
         seat.dataset.team = partyOf(finalRole);
         seat.dataset.role = finalRole;
         addTag(seat, themeGet(`teams.${finalRole}.name`));
-      } else if (known[uid]) { // aliados dos Autoritários
+      } else if (known[uid]) { // aliados dos Autoritários (e o Ditador), em vermelho
+        seat.classList.add("revealed");
         seat.dataset.team = partyOf(known[uid]);
         seat.dataset.role = known[uid];
         addTag(seat, themeGet(`teams.${known[uid]}.name`));
@@ -257,6 +276,10 @@ function renderSeats(user, info, s, players, intel, ui, dyingAt) {
         seat.classList.add("revealed");
         seat.dataset.team = investigated[uid];
         addTag(seat, themeGet(`teams.${investigated[uid]}.name`));
+      } else if (uid === user.uid) { // o seu assento, na cor do seu partido
+        seat.classList.add("revealed");
+        seat.dataset.team = info.party;
+        seat.dataset.role = info.role;
       }
 
       const isPres = i === presidentIdx && !s.dead[uid];

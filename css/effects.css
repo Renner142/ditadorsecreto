@@ -72,4 +72,41 @@
   animation: fadeUp 0.2s ease both;
 }
 .modal-card h3 { margin: 0; font-family: var(--font-display, inherit); }
-.modal-card p { margin: 0; opacity: 0.85; }
+.modal-card p { margin: 0; opacity: 0.85; }   
+
+
+/* ---- caveira: o morto fica coberto até o fim da partida ---- */
+.seat.dead, .seat.dying { position: relative; opacity: 1; min-height: 96px; }
+.seat.dead.revealed { opacity: 0.85; }
+.seat.dead strong { text-decoration: none; }
+.seat.dead:has(.skull-cover) > strong { visibility: hidden; }
+
+.skull-cover {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border-radius: inherit;
+  background: rgb(10 8 8 / 0.92);
+  color: var(--color-text);
+}
+.skull-cover .skull { font-size: 38px; line-height: 1; text-shadow: 0 0 14px var(--color-no); }
+.skull-cover .skull-name { font-size: 12px; opacity: 0.75; max-width: 90%; overflow-wrap: anywhere; text-align: center; }
+
+/* na execução: o assento treme no tiro e a caveira cai por cima */
+.seat.dying::after { content: none; animation: none; }
+@keyframes dying {
+  0%   { filter: none; scale: 1; translate: 0 0; }
+  6%   { filter: brightness(2.4) saturate(2.5); scale: 1.14; }
+  14%  { translate: -7px 0; }
+  22%  { translate: 7px 0; }
+  30%  { translate: -5px 0; }
+  38%  { translate: 4px 0; }
+  46%, 100% { translate: 0 0; filter: none; scale: 1; }
+}
+.seat.dying .skull-cover {
+  animation: cover-in var(--death-ms, 2400ms) ease-out var(--death-delay, 0ms) both;
+}
+@keyframes cover-in {
+  0%   { opacity: 0; scale: 1.6; }
+  14%  { opacity: 1; scale: 1; }
+  100% { opacity: 1; scale: 1; }
+}
