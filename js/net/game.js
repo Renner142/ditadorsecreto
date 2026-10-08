@@ -42,3 +42,22 @@ export function handUpdates(code, state) {
   }
   return updates;
 }
+
+const GAME_FIELDS = [
+  "order", "presidentIdx", "dead", "tracks", "electionTracker", "candidate",
+  "lastGov", "lastVote", "lastEnacted", "lastPower", "power", "investigated",
+  "specialReturn", "vetoDenied", "confirmedNotLeader", "winner", "voted", "finalRoles",
+];
+
+// leva a sala de volta ao lobby: apaga a partida e a lista de jogadores
+// (cada jogador que ainda estiver com o site aberto se inclui de novo sozinho)
+export async function resetRoom(code, playerUids) {
+  const base = `rooms/${code}`;
+  const updates = { [`${base}/host`]: null, [`${base}/public/phase`]: "lobby" };
+  for (const f of GAME_FIELDS) updates[`${base}/public/${f}`] = null;
+  for (const uid of playerUids) {
+    updates[`${base}/private/${uid}`] = null;
+    updates[`${base}/players/${uid}`] = null;
+  }
+  await update(ref(db), updates);
+}

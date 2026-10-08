@@ -1,13 +1,13 @@
 import { t } from "../i18n/i18n.js";
 import { RULES } from "../config/game-config.js";
-import { createRoom, joinRoom, leaveRoom, watchRoom, releaseDisconnect } from "../net/room.js";
+import { createRoom, joinRoom, leaveRoom, watchRoom, releaseDisconnect, addPlayer } from "../net/room.js";
 import { startGame } from "../net/game.js";
-import { showRole } from "./role.js";
-import { show } from "./router.js";
-import { showBoard } from "./board.js";
-import { startHost } from "../net/host.js";
+import { startHost, stopHost } from "../net/host.js";
 import { playLobby, stopAudio } from "../audio/audio.js";
+import { showRole, resetRole } from "./role.js";
+import { showBoard, stopBoard } from "./board.js";
 import { setBackground } from "./background.js";
+import { show } from "./router.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -16,6 +16,7 @@ let currentCode = null;
 let isHost = false;
 let latestRoom = null;
 let gameShown = false;
+let myNickname = "";
 
 function showError(err) {
   const known = typeof err?.message === "string" && err.message.startsWith("errors.");
@@ -29,20 +30,49 @@ function getNickname() {
   return nick;
 }
 
-function enterLobby(user, code) {
+function enterLobby(user, code, nickname) {
   currentCode = code;
+  myNickname = nickname;
   gameShown = false;
   $("lobby-code").textContent = code;
   show("lobby");
+  playLobby();
   stopWatching = watchRoom(code, (room) => render(user, room));
+}
+
+// desliga tudo o que pertence a uma partida
+function clearGame() {
+  stopBoard();
+  stopHost();
+  resetRole();
+  gameShown = false;
 }
 
 function exitLobby() {
   if (stopWatching) stopWatching();
   stopWatching = null;
+  clearGame();
   currentCode = null;
   isHost = false;
+  setBackground();
+  playLobby();
   show("home");
+}
+
+// a partida acabou e o anfitrião levou todo mundo de volta para a sala
+function backToLobby(user) {
+  clearGame();
+  setBackground();
+  playLobby();
+  show("lobby");
+  addPlayer(currentCode, user, myNickname).catch(console.error); // entra de novo na lista
+}
+
+async function leave(user) {
+  const code = currentCode;
+  const host = isHost;
+  exitLobby();
+  await leaveRoom(user, code, host);
 }
 
 function render(user, room) {
@@ -54,18 +84,22 @@ function render(user, room) {
     return;
   }
 
+  isHost = room.public.hostUid === user.uid;
+
   // a partida começou: sai do lobby e mostra o papel
   if (room.public.phase !== "lobby") {
     if (!gameShown) {
       gameShown = true;
+      stopAudio();
       releaseDisconnect(currentCode, user);
-      if (room.public.hostUid === user.uid) startHost(currentCode);
-      showRole(user, currentCode, room.players, (info) => showBoard(user, currentCode, info));
+      if (isHost) startHost(currentCode);
+      showRole(user, currentCode, room.players, (info) =>
+        showBoard(user, currentCode, info, { onLeave: () => leave(user) }));
     }
     return;
   }
 
-  isHost = room.public.hostUid === user.uid;
+  if (gameShown) backToLobby(user);
 
   const list = $("player-list");
   list.innerHTML = "";
@@ -90,8 +124,9 @@ export function initLobby(user, themeId) {
   $("btn-create").addEventListener("click", async () => {
     $("home-error").textContent = "";
     try {
-      const code = await createRoom(user, getNickname(), themeId);
-      enterLobby(user, code);
+      const nick = getNickname();
+      const code = await createRoom(user, nick, themeId);
+      enterLobby(user, code, nick);
     } catch (err) { showError(err); }
   });
 
@@ -102,16 +137,11 @@ export function initLobby(user, themeId) {
       const code = $("room-code").value.trim().toUpperCase();
       if (!code) throw new Error("errors.code_required");
       await joinRoom(user, code, nick);
-      enterLobby(user, code);
+      enterLobby(user, code, nick);
     } catch (err) { showError(err); }
   });
 
-  $("btn-leave").addEventListener("click", async () => {
-    const code = currentCode;
-    const host = isHost;
-    exitLobby();
-    await leaveRoom(user, code, host);
-  });
+  $("btn-leave").addEventListener("click", () => leave(user));
 
   $("btn-start").addEventListener("click", async () => {
     $("lobby-hint").textContent = "";

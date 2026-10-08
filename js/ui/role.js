@@ -2,12 +2,24 @@ import { t } from "../i18n/i18n.js";
 import { themeGet } from "../theme/loader.js";
 import { RULES } from "../config/game-config.js";
 import { watchPrivate } from "../net/game.js";
-import { show } from "./router.js";
 import { playAmbient } from "../audio/audio.js";
+import { playSfx } from "../audio/sfx.js";
 import { setBackground } from "./background.js";
+import { show } from "./router.js";
 
 const $ = (id) => document.getElementById(id);
 let started = false;
+let stop = null;
+let timer = null;
+let peekBound = false;
+
+// chamado ao voltar para a sala, pra a próxima partida começar do zero
+export function resetRole() {
+  started = false;
+  if (stop) stop();
+  stop = null;
+  clearTimeout(timer);
+}
 
 export function showRole(user, code, players, onDone) {
   if (started) return;
@@ -18,18 +30,22 @@ export function showRole(user, code, players, onDone) {
   const peek = $("btn-peek");
 
   if (RULES.holdToReveal) {
-    const open = () => (content.hidden = false);
-    const close = () => (content.hidden = true);
-    peek.addEventListener("pointerdown", open);
-    ["pointerup", "pointerleave", "pointercancel"].forEach((e) => peek.addEventListener(e, close));
-    peek.addEventListener("contextmenu", (e) => e.preventDefault());
+    peek.hidden = false;
+    content.hidden = true;
+    if (!peekBound) {
+      peekBound = true;
+      const open = () => (content.hidden = false);
+      const close = () => (content.hidden = true);
+      peek.addEventListener("pointerdown", open);
+      ["pointerup", "pointerleave", "pointercancel"].forEach((e) => peek.addEventListener(e, close));
+      peek.addEventListener("contextmenu", (e) => e.preventDefault());
+    }
   } else {
     peek.hidden = true;
     content.hidden = false;
   }
 
   let counting = false;
-  let stop = () => {};
   stop = watchPrivate(code, user.uid, (info) => {
     if (!info) return;
     render(info, players);
@@ -37,8 +53,10 @@ export function showRole(user, code, players, onDone) {
     if (counting) return;
     counting = true; // a contagem só começa quando o papel já chegou
     playAmbient(info.party);
+    playSfx("reveal");
     countdown(RULES.roleRevealSeconds, () => {
-      stop();
+      if (stop) stop();
+      stop = null;
       onDone(info);
     });
   });
@@ -51,7 +69,7 @@ function countdown(seconds, done) {
     label.textContent = t("role.countdown", { s: left });
     if (left <= 0) return done();
     left--;
-    setTimeout(tick, 1000);
+    timer = setTimeout(tick, 1000);
   };
   tick();
 }

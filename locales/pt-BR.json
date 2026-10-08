@@ -31,7 +31,7 @@
     "bad_player_count": "Quantidade de jogadores inválida."
   },
   "footer": {
-    "credit": "Baseado em Secret Hitler, de Mike Boxleiter, Tommy Maranges e Mac Schubert (secrethitler.com), licença CC BY-NC-SA 4.0. Mudanças: novo tema, nomes, imagens e regras configuráveis."
+    "credit": "Baseado em Secret Hitler, de Mike Boxleiter, Tommy Maranges e Mac Schubert (secrethitler.com), licença CC BY-NC-SA 4.0. Mudanças: novo tema, nomes, imagens e regras configuráveis. Músicas geradas com Suno AI, fora da licença CC."
   },
   "role": {
     "you_are": "Seu papel nesta partida",
@@ -109,7 +109,12 @@
     "reason_policies": "Por políticas promulgadas.",
     "reason_leader_elected": "{leader} foi eleito Chanceler.",
     "reason_leader_killed": "{leader} foi executado.",
-    "ending": "A partida está terminando..."
+    "ending": "A partida está terminando...",
+    "back_to_room": "Voltar para a sala",
+    "view_table": "Ver a mesa",
+    "leave": "Sair",
+    "waiting_host": "Aguardando o anfitrião levar todos de volta para a sala...",
+    "open_result": "Abrir resultado"
   },
   "title": {
   "play": "Jogar",

@@ -5,45 +5,89 @@ import { powerTrack } from "../core/powers.js";
 import { partyOf } from "../core/roles.js";
 import { eligibleChancellors, aliveUids } from "../core/engine.js";
 import { watchRoom } from "../net/room.js";
-import { watchPrivate } from "../net/game.js";
+import { watchPrivate, resetRoom } from "../net/game.js";
 import { sendAction } from "../net/actions.js";
 import { playVictory } from "../audio/audio.js";
 import { playSfx } from "../audio/sfx.js";
 import { confirmDialog } from "./modal.js";
 import { show } from "./router.js";
-import { stageExecution, stageLeaderElected, stagePolicyWin } from "./stage.js";
 import { setBackground } from "./background.js";
+import { stageExecution, stageLeaderElected, stagePolicyWin } from "./stage.js";
+import { showEndScreen, hideEndScreen } from "./endscreen.js";
 
 const $ = (id) => document.getElementById(id);
 
-// o som do poder toca depois do som da política; a animação da morte espera o mesmo tempo
-const POWER_SFX_DELAY = 900;
+const POWER_SFX_DELAY = 900;  // o som do poder toca depois do som da política
+const END_PAUSE_MS = 1300;    // pausa entre o fundo varrido e a tela de resultado
 
-export function showBoard(user, code, info) {
+let unsubs = [];
+let timers = [];
+let prevTracks = null;
+
+const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+
+// desliga os ouvintes e os temporizadores da partida (usado ao voltar para a sala)
+export function stopBoard() {
+  unsubs.forEach((fn) => { try { fn(); } catch {} });
+  unsubs = [];
+  timers.forEach(clearTimeout);
+  timers = [];
+  prevTracks = null;
+  hideEndScreen();
+}
+
+export function showBoard(user, code, info, hooks = {}) {
+  stopBoard();
   show("board");
   renderSelf(info);
 
   const mine = { hand: null, peek: null, intel: [] };
   const ui = { end: null }; // end: null | "holding" (cerimônia rolando) | "done"
-  const dyingAt = {};       // fica vazio: a execução agora é animada pelo palco (stage.js)
   let latest = null;
   let lastTurnKey = "";
   let chain = Promise.resolve(); // as cerimônias rodam uma de cada vez
   const seen = {};
 
-  const draw = () => {
+  function draw() {
     if (!latest) return;
-    renderSeats(user, info, latest.s, latest.players, mine.intel, ui, dyingAt);
-    renderAction(user, code, latest.s, latest.players, mine, ui);
-  };
+    renderSeats(user, info, latest.s, latest.players, mine.intel, ui);
+    renderAction(user, code, latest.s, latest.players, mine, ui, openEnd);
+  }
+
+  // tela de resultado: vencedor, motivo, papel de todos e botões
+  function openEnd() {
+    if (!latest || ui.end !== "done" || !latest.s.winner) return;
+    const { s, players } = latest;
+    showEndScreen({
+      title: t("end.winner", { team: themeGet(`teams.${s.winner.team}.name`) }),
+      team: s.winner.team,
+      reason: t(`end.reason_${s.winner.reason}`, { leader: themeGet("teams.leader.name") }),
+      rows: s.order.map((uid) => {
+        const role = s.finalRoles?.[uid];
+        return {
+          name: players[uid]?.name ?? "?",
+          label: role ? themeGet(`teams.${role}.name`) : "?",
+          team: role ? partyOf(role) : null,
+          dead: !!s.dead[uid],
+        };
+      }),
+      isHost: s.hostUid === user.uid,
+      onBack: () => {
+        const uids = [...new Set([...Object.keys(players), ...s.order])];
+        return resetRoom(code, uids);
+      },
+      onView: () => hideEndScreen(),
+      onLeave: () => hooks.onLeave?.(),
+    });
+  }
 
   // só você recebe sua mão, suas cartas espiadas e suas investigações
-  watchPrivate(code, user.uid, (p) => {
+  unsubs.push(watchPrivate(code, user.uid, (p) => {
     mine.hand = p?.hand || null;
     mine.peek = p?.peek || null;
     mine.intel = Array.isArray(p?.intel) ? p.intel : Object.values(p?.intel || {});
     draw();
-  });
+  }));
 
   // true quando o valor mudou desde a última vez (a 1ª leitura nunca conta)
   const changed = (key, value) => {
@@ -105,16 +149,17 @@ export function showBoard(user, code, info) {
       } catch (err) {
         console.error(err);
       }
-      if (endNow) { // só agora os papéis são revelados e a música de vitória toca
+      if (endNow) { // só agora os papéis são revelados, o fundo é tomado e a música toca
         ui.end = "done";
         playVictory(w.team);
         setBackground({ win: w.team });
         draw();
+        later(openEnd, END_PAUSE_MS);
       }
     });
   }
 
-  watchRoom(code, (room) => {
+  unsubs.push(watchRoom(code, (room) => {
     const pub = room.public;
     if (!pub || !pub.order) return;
     // o Firebase remove objetos/listas vazios, então normalizamos
@@ -138,7 +183,7 @@ export function showBoard(user, code, info) {
     renderTracker(s);
     draw();
     renderLastVote(s, room.players);
-  });
+  }));
 }
 
 function renderSelf(info) {
@@ -159,8 +204,6 @@ function makeSlot(num, filled, label, fresh = false) {
   el.append(n, l);
   return el;
 }
-
-let prevTracks = null;
 
 function renderTracks(s) {
   const powers = powerTrack(RULES, s.order.length);
@@ -213,14 +256,12 @@ function addTag(seat, text, cls = "") {
   seat.append(el);
 }
 
-function renderSeats(user, info, s, players, intel, ui, dyingAt) {
+function renderSeats(user, info, s, players, intel, ui) {
   const { order, presidentIdx } = s;
   const me = order.indexOf(user.uid);
   const known = Object.fromEntries((info.known || []).map((k) => [k.uid, k.role]));
   const investigated = Object.fromEntries(intel.map((r) => [r.target, r.party]));
   const inGov = s.phase.startsWith("leg_") || s.phase === "power";
-  const { deathMs } = RULES.endSequence;
-  const target = s.lastPower?.target;
   const box = $("seats");
   if (!box) return;
   box.innerHTML = "";
@@ -232,22 +273,9 @@ function renderSeats(user, info, s, players, intel, ui, dyingAt) {
       const seat = document.createElement("div");
       seat.className = "seat" + (uid === user.uid ? " me" : "");
       const playerName = players[uid]?.name ?? "?";
+      const finalRole = ui.end === "done" ? s.finalRoles?.[uid] : null; // papéis só no fim
 
-      // papel de todos no fim; no fim por execução, só o executado e só na hora da revelação
-      const showAll = ui.end === "done";
-      const showOne = ui.end === "revealing" && uid === target;
-      const finalRole = showAll || showOne ? s.finalRoles?.[uid] : null;
-
-      // morte: a animação roda uma vez e continua de onde parou se a tela redesenhar
-      const elapsed = uid in dyingAt ? Date.now() - dyingAt[uid] : Infinity;
-      const dying = !!s.dead[uid] && elapsed < POWER_SFX_DELAY + deathMs;
-      if (dying) {
-        seat.classList.add("dying");
-        seat.style.setProperty("--death-ms", `${deathMs}ms`);
-        seat.style.setProperty("--death-delay", `${POWER_SFX_DELAY - elapsed}ms`);
-      } else if (s.dead[uid]) {
-        seat.classList.add("dead");
-      }
+      if (s.dead[uid]) seat.classList.add("dead");
 
       const name = document.createElement("strong");
       name.textContent = playerName;
@@ -274,7 +302,6 @@ function renderSeats(user, info, s, players, intel, ui, dyingAt) {
 
       if (finalRole) { // fim de jogo: papel revelado, na cor do partido
         seat.classList.add("revealed");
-        if (showOne) seat.classList.add("reveal-flip");
         seat.dataset.team = partyOf(finalRole);
         seat.dataset.role = finalRole;
         addTag(seat, themeGet(`teams.${finalRole}.name`));
@@ -306,7 +333,7 @@ function renderSeats(user, info, s, players, intel, ui, dyingAt) {
     });
 }
 
-function renderAction(user, code, s, players, mine, ui) {
+function renderAction(user, code, s, players, mine, ui, openEnd) {
   const box = $("action");
   box.innerHTML = "";
   const name = (uid) => players[uid]?.name ?? "?";
@@ -460,23 +487,19 @@ function renderAction(user, code, s, players, mine, ui) {
       break;
     }
 
-        case "ended": {
+    case "ended": {
       if (ui.end !== "done") { // a cerimônia de fim ainda está rolando
         text(t("end.ending"), "end-title");
         break;
       }
       text(t("end.winner", { team: themeGet(`teams.${s.winner.team}.name`) }), "end-title");
       text(t(`end.reason_${s.winner.reason}`, { leader: themeGet("teams.leader.name") }), "hint");
-      if (s.finalRoles) {
-        const ul = document.createElement("ul");
-        ul.className = "vote-list";
-        s.order.forEach((uid) => {
-          const li = document.createElement("li");
-          li.textContent = `${name(uid)}: ${themeGet(`teams.${s.finalRoles[uid]}.name`)}`;
-          ul.append(li);
-        });
-        box.append(ul);
-      }
+      // botão simples (não desabilita), pra reabrir a tela de resultado depois de "Ver a mesa"
+      const reopen = document.createElement("button");
+      reopen.className = "btn btn-secondary";
+      reopen.textContent = t("end.open_result");
+      reopen.addEventListener("click", openEnd);
+      row([reopen]);
       break;
     }
   }

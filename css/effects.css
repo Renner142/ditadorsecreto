@@ -184,3 +184,14 @@
   from { transform: perspective(600px) rotateY(90deg); filter: brightness(2.5); }
   to   { transform: perspective(600px) rotateY(0deg); filter: none; }
 }
+
+/* ---- tela de resultado ---- */
+.end-card { width: min(480px, 100%); max-height: 90vh; overflow-y: auto; text-align: center; }
+.end-title-big { margin: 0; font-size: 26px; }
+.end-title-big[data-team="a"] { color: var(--color-team-a); }
+.end-title-big[data-team="b"] { color: var(--color-team-b); }
+.end-card .action-row { justify-content: center; }
+.end-roles { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.end-role { padding: 5px 12px; border-radius: 999px; border: 1px solid #ffffff33; font-size: 13px; }
+.end-role[data-team="a"] { border-color: var(--color-team-a); background: color-mix(in srgb, var(--color-team-a) 30%, transparent); }
+.end-role[data-team="b"] { border-color: var(--color-team-b); background: color-mix(in srgb, var(--color-team-b) 30%, transparent); }

@@ -11,7 +11,18 @@ const PLAYER_ACTIONS = new Set([
   "investigate", "special_election", "execute", "ack",
   "veto_request", "veto_answer",
 ]);
+
 let started = false;
+let stopListening = null;
+let beginTimer = null;
+
+// desliga o "servidor" do anfitrião (usado ao voltar para a sala)
+export function stopHost() {
+  started = false;
+  if (stopListening) stopListening();
+  stopListening = null;
+  clearTimeout(beginTimer);
+}
 
 export async function startHost(code) {
   if (started) return;
@@ -21,6 +32,8 @@ export async function startHost(code) {
     get(ref(db, `rooms/${code}/public`)),
     get(ref(db, `rooms/${code}/host`)),
   ]);
+  if (!started) return; // parou enquanto carregava
+
   let state = joinState(pub.val(), host.val());
   let queue = Promise.resolve(); // processa uma ação por vez, na ordem
 
@@ -38,14 +51,13 @@ export async function startHost(code) {
       .catch((err) => console.error("[host] erro:", err));
   };
 
-  onChildAdded(ref(db, `rooms/${code}/inbox`), (snap) => {
+  stopListening = onChildAdded(ref(db, `rooms/${code}/inbox`), (snap) => {
     const action = snap.val();
-    console.log("[host] recebi:", action);
     remove(snap.ref);
     if (action && PLAYER_ACTIONS.has(action.type)) dispatch(action);
   });
 
   if (state.phase === "role_reveal") {
-    setTimeout(() => dispatch({ type: "begin" }), (RULES.roleRevealSeconds + 3) * 1000);
+    beginTimer = setTimeout(() => dispatch({ type: "begin" }), (RULES.roleRevealSeconds + 3) * 1000);
   }
 }

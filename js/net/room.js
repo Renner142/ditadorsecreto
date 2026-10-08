@@ -11,7 +11,7 @@ function randomCode(len = 5) {
   return Array.from(bytes, (b) => ALPHABET[b % ALPHABET.length]).join("");
 }
 
-async function addPlayer(code, user, nickname) {
+export async function addPlayer(code, user, nickname) {
   const playerRef = ref(db, `rooms/${code}/players/${user.uid}`);
   await set(playerRef, { name: nickname, joinedAt: serverTimestamp() });
   // se fechar a aba no lobby, sai da lista (a gente cancela isso quando a partida começar)
