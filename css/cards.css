@@ -1,0 +1,84 @@
+/* ---- carta de política ---- */
+.pcard {
+  --card-w: 100px;
+  --tc: #8a8a8a;
+  position: relative;
+  width: var(--card-w);
+  aspect-ratio: 5 / 7;
+  box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  padding: calc(var(--card-w) * 0.07) calc(var(--card-w) * 0.05);
+  border: calc(var(--card-w) * 0.035) solid var(--tc);
+  border-radius: calc(var(--card-w) * 0.09);
+  background: linear-gradient(160deg, #f7efdc, #e4d9bf);
+  color: #1d1610;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.45), inset 0 0 0 calc(var(--card-w) * 0.02) rgb(255 255 255 / 0.55);
+}
+.pcard[data-team="a"] { --tc: var(--color-team-a); }
+.pcard[data-team="b"] { --tc: var(--color-team-b); }
+.pcard-img {
+  width: 82%; flex: 1; min-height: 0; object-fit: contain;
+  margin: 3% 0; pointer-events: none; user-select: none;
+}
+.pcard-label {
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: calc(var(--card-w) * 0.1); font-weight: 700; color: var(--tc);
+}
+
+/* cartas clicáveis na legislação */
+.policy-card-btn {
+  padding: 0; border: 0; background: none; cursor: pointer;
+  transition: transform 0.15s;
+}
+.policy-card-btn .pcard { --card-w: 92px; }
+.policy-card-btn:hover:not(:disabled) { transform: translateY(-6px) scale(1.04); }
+.policy-card-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+.policy-card-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; border-radius: 10px; }
+.policy-card-btn:disabled { opacity: 0.5; cursor: default; }
+.action-row:has(.policy-card-btn) { flex-wrap: nowrap; justify-content: center; gap: 10px; }
+
+/* cartas espiadas */
+.chips { justify-content: center; }
+.chips .pcard { --card-w: 84px; }
+
+/* cartas no roadmap */
+.track { justify-content: center; }
+.slot { flex: 1; max-width: 112px; min-height: 84px; }
+@media (min-width: 901px) {
+  .slot { flex: 0 1 112px; aspect-ratio: 5 / 7; min-height: 0; }
+}
+.track[data-team] .slot.filled.has-card {
+  background: transparent; border: 0; padding: 0; box-shadow: none;
+}
+.slot.has-card > .slot-num, .slot.has-card > .slot-label { display: none; }
+.slot .pcard { flex: 1; width: 100%; aspect-ratio: auto; --card-w: 76px; }
+.slot .pcard-label { display: none; }
+
+/* tela do papel */
+.role-icon {
+  align-self: center; width: 140px; max-width: 55%;
+  filter: drop-shadow(0 6px 18px rgb(0 0 0 / 0.55));
+}
+.role-icon[hidden] { display: none; }
+
+/* logo do partido vencedor no fundo */
+.bg-emblem {
+  position: absolute; left: 50%; top: 50%;
+  width: min(70vmin, 560px);
+  translate: -50% -50%;
+  opacity: 0; scale: 0.8;
+  filter: drop-shadow(0 0 40px rgb(0 0 0 / 0.5));
+  transition: opacity 1.2s ease 0.5s, scale 1.6s ease 0.3s;
+}
+.bg-emblem.show { opacity: 0.22; scale: 1; }
+
+/* a carta decisiva no palco */
+.stage-card.policy-card.revealed {
+  min-width: 0; min-height: 0; padding: 0;
+  background: transparent; border: 0; box-shadow: none;
+}
+.stage-card.policy-card.revealed .pcard { --card-w: 220px; }
+
+@media (max-width: 900px) {
+  .policy-card-btn .pcard { --card-w: 104px; }
+}

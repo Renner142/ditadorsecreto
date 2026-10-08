@@ -6,6 +6,7 @@ import { playAmbient } from "../audio/audio.js";
 import { playSfx } from "../audio/sfx.js";
 import { setBackground } from "./background.js";
 import { show } from "./router.js";
+import { teamIconUrl } from "./cards.js";
 
 const $ = (id) => document.getElementById(id);
 let started = false;
@@ -78,6 +79,17 @@ function render(info, players) {
   const name = $("role-name");
   name.textContent = themeGet(`teams.${info.role}.name`);
   name.dataset.team = info.party;
+  let icon = document.getElementById("role-icon");
+  if (!icon) { // criado aqui, então não precisa mexer no HTML
+    icon = document.createElement("img");
+    icon.id = "role-icon";
+    icon.className = "role-icon";
+    icon.alt = "";
+    name.before(icon);
+  }
+  const iconUrl = teamIconUrl(info.party);
+  icon.hidden = !iconUrl;
+  if (iconUrl) icon.src = iconUrl;
   $("role-party").textContent = t("role.party", { party: themeGet(`teams.${info.party}.name`) });
 
   const known = info.known || [];

@@ -3,6 +3,7 @@ import { themeGet } from "../theme/loader.js";
 import { RULES } from "../config/game-config.js";
 import { partyOf } from "../core/roles.js";
 import { playSfx } from "../audio/sfx.js";
+import { policyFace } from "./cards.js";
 
 const timing = () => ({ introMs: 1400, afterShotMs: 700, suspenseMs: 1400, revealMs: 2400, ...(RULES.stageTimings || {}) });
 
@@ -129,6 +130,7 @@ export function stageLeaderElected({ name }) {
   });
 }
 
+
 // a política decisiva aparece virada e é revelada depois do suspense
 export function stagePolicyWin({ team }) {
   return session(async () => {
@@ -137,9 +139,8 @@ export function stagePolicyWin({ team }) {
     const title = scene(t("stage.last_policy"), c);
     sfx("suspense");
     await sleep(timing().suspenseMs);
-    c.dataset.team = team;
-    c.classList.add("flip");
-    c.querySelector("strong").textContent = t("leg.policy", { team: teamName });
+    c.replaceChildren(policyFace(team)); // a mesma carta do jogo, com o ícone
+    c.classList.add("revealed", "flip");
     title.textContent = t("stage.policy_wins", { team: teamName });
     sfx("stamp");
     sfx(`policy_${team}`, 250);

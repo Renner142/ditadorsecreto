@@ -1,3 +1,5 @@
+import { themeGet, themeAsset } from "../theme/loader.js";
+
 const SOFT = "12vw"; // largura da borda esfumaçada entre as cores
 const PRESETS = {
   neutral: { blue: "32%", red: "32%" }, // lobby: metade azul, metade vermelha, preto no meio
@@ -11,14 +13,14 @@ export function initBackground() {
   el = document.createElement("div");
   el.id = "bg";
   el.setAttribute("aria-hidden", "true");
-  el.innerHTML = '<div class="bg-a"></div><div class="bg-b"></div>';
+  el.innerHTML = '<div class="bg-a"></div><div class="bg-b"></div><img class="bg-emblem" alt="">';
   document.body.prepend(el);
   setBackground();
 }
 
 // setBackground()                  -> equilibrado (lobby)
 // setBackground({ party: "a" })    -> inclinado pro seu partido
-// setBackground({ win: "b" })      -> o vencedor toma a tela inteira
+// setBackground({ win: "b" })      -> o vencedor toma a tela inteira, com o logo
 export function setBackground({ party = null, win = null } = {}) {
   if (!el) initBackground();
   let blue, red;
@@ -32,4 +34,11 @@ export function setBackground({ party = null, win = null } = {}) {
   el.classList.toggle("won", !!win);
   el.style.setProperty("--blue", blue);
   el.style.setProperty("--red", red);
+
+  const emblem = el.querySelector(".bg-emblem");
+  if (emblem) {
+    const path = win ? themeGet(`teams.${win}.icon`) : null;
+    if (path) emblem.src = themeAsset(path);
+    emblem.classList.toggle("show", !!path);
+  }
 }

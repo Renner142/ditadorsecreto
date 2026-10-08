@@ -14,6 +14,7 @@ import { show } from "./router.js";
 import { setBackground } from "./background.js";
 import { stageExecution, stageLeaderElected, stagePolicyWin } from "./stage.js";
 import { showEndScreen, hideEndScreen } from "./endscreen.js";
+import { policyFace, policyCardButton } from "./cards.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -192,7 +193,7 @@ function renderSelf(info) {
   $("self-party").textContent = t("role.party", { party: themeGet(`teams.${info.party}.name`) });
 }
 
-function makeSlot(num, filled, label, fresh = false) {
+function makeSlot(num, filled, label, fresh = false, team = null) {
   const el = document.createElement("div");
   el.className = "slot" + (filled ? " filled" : "") + (fresh ? " stamp" : "");
   const n = document.createElement("span");
@@ -202,6 +203,10 @@ function makeSlot(num, filled, label, fresh = false) {
   l.className = "slot-label";
   l.textContent = label;
   el.append(n, l);
+  if (filled && team) { // política promulgada: vira carta no roadmap
+    el.classList.add("has-card");
+    el.append(policyFace(team));
+  }
   return el;
 }
 
@@ -219,7 +224,7 @@ function renderTracks(s) {
   for (let i = 0; i < RULES.winPolicies.a; i++) {
     const isWin = i === RULES.winPolicies.a - 1;
     a.append(makeSlot(i + 1, i < s.tracks.a, isWin ? t("board.win") : "",
-      !!prevTracks && i < s.tracks.a && i >= prevTracks.a));
+      !!prevTracks && i < s.tracks.a && i >= prevTracks.a, "a"));
   }
 
   const b = $("track-b");
@@ -229,7 +234,7 @@ function renderTracks(s) {
     const powerId = powers[i];
     const label = isWin ? t("board.win") : powerId ? themeGet(`powers.${powerId}.name`) : "—";
     b.append(makeSlot(i + 1, i < s.tracks.b, label,
-      !!prevTracks && i < s.tracks.b && i >= prevTracks.b));
+      !!prevTracks && i < s.tracks.b && i >= prevTracks.b, "b"));
   }
 
   $("legend-leader").textContent = t("board.legend_leader", {
@@ -365,11 +370,12 @@ function renderAction(user, code, s, players, mine, ui, openEnd) {
     return b;
   };
   const send = (type, payload) => () => sendAction(code, user.uid, type, payload);
-  const policyButtons = (type) =>
-    mine.hand.map((card, index) =>
-      button(t("leg.policy", { team: themeGet(`teams.${card}.name`) }),
-        send(type, { index }), `policy policy-${card}`, null,
-        type === "enact" ? "stamp" : "discard"));
+    const policyButtons = (type) =>
+      mine.hand.map((card, index) =>
+        policyCardButton(card, () => {
+          box.querySelectorAll("button").forEach((x) => (x.disabled = true));
+          sendAction(code, user.uid, type, { index }).catch(console.error);
+        }, type === "enact" ? "stamp" : "discard"));
 
   // o que acabou de acontecer
   if (s.lastEnacted) {
@@ -460,12 +466,7 @@ function renderAction(user, code, s, players, mine, ui, openEnd) {
         text(t("power.peek_title"));
         const chips = document.createElement("div");
         chips.className = "chips";
-        (mine.peek || []).forEach((card) => {
-          const c = document.createElement("div");
-          c.className = `chip chip-${card}`;
-          c.textContent = themeGet(`teams.${card}.name`);
-          chips.append(c);
-        });
+        (mine.peek || []).forEach((card) => chips.append(policyFace(card)));
         box.append(chips);
         row([button(t("power.ack"), send("ack"))]);
         break;
