@@ -1,4 +1,3 @@
-import { ref, update, onValue } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { db } from "./auth.js";
 import { RULES } from "../config/game-config.js";
 import { assignRoles, buildKnowledge } from "../core/roles.js";
