@@ -6,6 +6,7 @@ import { initLobby } from "./ui/lobby.js";
 import { initMenu } from "./ui/menu.js";
 import { initAudio, playLobby } from "./audio/audio.js";
 import { initSfx } from "./audio/sfx.js";
+import { initBackground } from "./ui/background.js";
 
 const THEME_ID = "democratas";
 const LOCALE = "pt-BR";

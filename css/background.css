@@ -1,0 +1,43 @@
+#bg {
+  position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+  --soft: 12vw;
+  --blue: 32%;
+  --red: 32%;
+  --bg-mid: #0b0909;
+  --bg-a: color-mix(in srgb, var(--color-team-a) 62%, #000);
+  --bg-b: color-mix(in srgb, var(--color-team-b) 62%, #000);
+  background: var(--bg-mid);
+}
+.bg-a, .bg-b {
+  position: absolute; top: 0; bottom: 0;
+  transition: width 1.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bg-a {
+  left: 0;
+  width: calc(var(--blue) + var(--soft));
+  background: linear-gradient(90deg, var(--bg-a) 0, var(--bg-a) calc(100% - var(--soft)), transparent 100%);
+}
+.bg-b {
+  right: 0;
+  width: calc(var(--red) + var(--soft));
+  background: linear-gradient(270deg, var(--bg-b) 0, var(--bg-b) calc(100% - var(--soft)), transparent 100%);
+}
+/* no fim da partida: varredura rápida, mas visível */
+#bg.won .bg-a, #bg.won .bg-b { transition-duration: 1.1s; transition-timing-function: cubic-bezier(0.7, 0, 0.2, 1); }
+/* escurece as bordas pra dar profundidade */
+#bg::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgb(0 0 0 / 0.4) 100%);
+}
+
+/* título: sem o degradê, em cor de papel, que combina com qualquer fundo */
+h1 {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: var(--color-text);
+  text-shadow: 0 3px 0 rgb(0 0 0 / 0.55), 0 0 28px rgb(0 0 0 / 0.6);
+}
+
+/* textos soltos sobre o fundo colorido continuam legíveis */
+.hint, .label, .credits { text-shadow: 0 1px 4px rgb(0 0 0 / 0.8); opacity: 0.9; }

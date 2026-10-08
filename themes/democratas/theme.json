@@ -31,5 +31,9 @@
     "neutral": "audio/lobby-theme.mp3"
   },
   "victory": { "a": "audio/demo-win.mp3", "b": "audio/auth-win.mp3" }
+},
+"sfx": {
+  "power_execute": "audio/sfx/tiro.mp3",
+  "suspense": "audio/sfx/suspense.mp3"
 }
 }

@@ -7,6 +7,7 @@ import { show } from "./router.js";
 import { showBoard } from "./board.js";
 import { startHost } from "../net/host.js";
 import { playLobby, stopAudio } from "../audio/audio.js";
+import { setBackground } from "./background.js";
 
 const $ = (id) => document.getElementById(id);
 

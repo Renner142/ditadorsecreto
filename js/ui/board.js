@@ -12,6 +12,7 @@ import { playSfx } from "../audio/sfx.js";
 import { confirmDialog } from "./modal.js";
 import { show } from "./router.js";
 import { stageExecution, stageLeaderElected, stagePolicyWin } from "./stage.js";
+import { setBackground } from "./background.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -107,6 +108,7 @@ export function showBoard(user, code, info) {
       if (endNow) { // só agora os papéis são revelados e a música de vitória toca
         ui.end = "done";
         playVictory(w.team);
+        setBackground({ win: w.team });
         draw();
       }
     });
