@@ -28,7 +28,9 @@
     "room_full": "A sala está cheia.",
     "room_closed": "O anfitrião fechou a sala.",
     "try_again": "Não consegui criar a sala, tente de novo.",
-    "bad_player_count": "Quantidade de jogadores inválida."
+    "bad_player_count": "Quantidade de jogadores inválida.",
+    "not_in_game": "Você não faz mais parte dessa partida.",
+  "resume_failed": "Não consegui voltar para a sala. Entre de novo."
   },
   "footer": {
     "credit": "Baseado em Secret Hitler, de Mike Boxleiter, Tommy Maranges e Mac Schubert (secrethitler.com), licença CC BY-NC-SA 4.0. Mudanças: novo tema, nomes, imagens e regras configuráveis. Músicas geradas com Suno AI, fora da licença CC."
@@ -55,7 +57,8 @@
     "dead": "executado",
     "you_dead": "Você foi executado. Não pode mais falar, votar nem ser eleito.",
     "legend_leader": "Depois da {n}ª política ({team}): se {leader} for eleito Chanceler, eles vencem.",
-    "legend_veto": "Depois da {n}ª política ({team}): Presidente e Chanceler podem vetar uma pauta."
+    "legend_veto": "Depois da {n}ª política ({team}): Presidente e Chanceler podem vetar uma pauta.",
+    "host_offline": "O anfitrião caiu. Aguardando ele voltar..."
   },
   "nominate": {
     "starting": "A partida está começando...",
@@ -126,7 +129,11 @@
     "sfx": "Efeitos sonoros",
     "mute": "Mudo",
     "open": "Opções",
-    "close": "Fechar"
+    "close": "Fechar",
+    "leave_game": "Sair da partida",
+  "leave_confirm": "Sair da partida? Você não vai conseguir voltar.",
+  "leave_confirm_host": "Você é o anfitrião: sair encerra a partida para todos. Continuar?",
+  "leave_yes": "Sair"
   },
   "stage": {
   "execution": "{president} executa {target}",

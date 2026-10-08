@@ -4,6 +4,7 @@ import { RULES } from "../config/game-config.js";
 import { assignRoles, buildKnowledge } from "../core/roles.js";
 import { initialState } from "../core/engine.js";
 import { splitState } from "../core/state.js";
+import { ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 
 export function stateToUpdates(code, state) {
   const { pub, host } = splitState(state);
@@ -60,4 +61,8 @@ export async function resetRoom(code, playerUids) {
     updates[`${base}/players/${uid}`] = null;
   }
   await update(ref(db), updates);
+}
+
+export async function readPrivate(code, uid) {
+  return (await get(ref(db, `rooms/${code}/private/${uid}`))).val();
 }

@@ -70,3 +70,11 @@ export function watchRoom(code, onChange) {
 export function releaseDisconnect(code, user) {
   return onDisconnect(ref(db, `rooms/${code}/players/${user.uid}`)).cancel();
 }
+
+export async function readPublic(code) {
+  return (await get(ref(db, `rooms/${code}/public`))).val();
+}
+
+export async function readPlayer(code, uid) {
+  return (await get(ref(db, `rooms/${code}/players/${uid}`))).val();
+}

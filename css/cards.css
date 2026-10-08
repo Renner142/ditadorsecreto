@@ -82,3 +82,39 @@
 @media (max-width: 900px) {
   .policy-card-btn .pcard { --card-w: 104px; }
 }
+
+/* ---- celular: trilhas em 2 linhas (3 em cima, o resto embaixo) ---- */
+@media (max-width: 900px) {
+  #app { padding: 12px; }
+  .board { padding: 12px; gap: 12px; }
+
+  .track { flex-wrap: wrap; justify-content: center; gap: 8px; }
+
+  /* 3 por linha; a linha de baixo fica centralizada */
+  .slot {
+    flex: 0 0 calc((100% - 16px) / 3);
+    max-width: none;
+    min-height: 0;
+    aspect-ratio: 5 / 7; /* formato de carta: dá altura de sobra pro texto do poder */
+    padding: 8px 6px;
+    overflow: hidden;
+  }
+  .slot-num { font-size: 18px; }
+  .slot-label {
+    max-width: 100%;
+    font-size: 12px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  /* a carta promulgada preenche o espaço */
+  .slot.has-card { padding: 0; }
+  .slot .pcard { --card-w: 92px; }
+}
+
+/* telas bem estreitas */
+@media (max-width: 380px) {
+  .slot-label { font-size: 11px; }
+  .slot .pcard { --card-w: 84px; }
+}

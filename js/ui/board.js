@@ -34,6 +34,8 @@ export function stopBoard() {
   timers.forEach(clearTimeout);
   timers = [];
   prevTracks = null;
+  const hb = document.getElementById("host-banner");
+  if (hb) hb.hidden = true;
   hideEndScreen();
 }
 
@@ -45,6 +47,7 @@ export function showBoard(user, code, info, hooks = {}) {
   const mine = { hand: null, peek: null, intel: [] };
   const ui = { end: null }; // end: null | "holding" (cerimônia rolando) | "done"
   let latest = null;
+  let firstRead = true;
   let lastTurnKey = "";
   let chain = Promise.resolve(); // as cerimônias rodam uma de cada vez
   const seen = {};
@@ -173,8 +176,18 @@ export function showBoard(user, code, info, hooks = {}) {
     };
     latest = { s, players: room.players };
 
-    const powerChanged = changed("power", s.lastPower);
+        const powerChanged = changed("power", s.lastPower);
     const execNow = powerChanged && s.lastPower?.type === "execute" ? s.lastPower : null;
+
+    // voltou pra uma partida que já tinha acabado: sem cerimônia, direto pro resultado
+    if (firstRead && hooks.resumed && s.winner && ui.end === null) {
+      ui.end = "done";
+      playVictory(s.winner.team);
+      setBackground({ win: s.winner.team });
+      later(openEnd, 500);
+    }
+    firstRead = false;
+
     const endNow = !!s.winner && ui.end === null;
     if (endNow) ui.end = "holding";
 
@@ -182,6 +195,7 @@ export function showBoard(user, code, info, hooks = {}) {
     if (execNow || endNow) ceremony(s, room.players, execNow, endNow);
     renderTracks(s);
     renderTracker(s);
+    renderHostBanner(s, user.uid);
     draw();
     renderLastVote(s, room.players);
   }));
@@ -537,4 +551,17 @@ function renderLastVote(s, players) {
     p.textContent = t("vote.chaos", { team: themeGet(`teams.${lv.chaos}.name`) });
     box.append(p);
   }
+}
+
+// aviso para os outros jogadores quando o anfitrião está fora
+function renderHostBanner(s, myUid) {
+  let el = document.getElementById("host-banner");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "host-banner";
+    el.className = "host-banner";
+    el.textContent = t("board.host_offline");
+    document.body.append(el);
+  }
+  el.hidden = !(s.hostOnline === false && !s.winner && s.hostUid !== myUid);
 }

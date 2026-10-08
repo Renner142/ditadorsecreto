@@ -195,3 +195,13 @@
 .end-role { padding: 5px 12px; border-radius: 999px; border: 1px solid #ffffff33; font-size: 13px; }
 .end-role[data-team="a"] { border-color: var(--color-team-a); background: color-mix(in srgb, var(--color-team-a) 30%, transparent); }
 .end-role[data-team="b"] { border-color: var(--color-team-b); background: color-mix(in srgb, var(--color-team-b) 30%, transparent); }
+
+.host-banner {
+  position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 60; max-width: calc(100vw - 90px);
+  padding: 8px 14px; border-radius: 999px; text-align: center;
+  background: var(--color-accent); color: #1a1208;
+  font-weight: 700; font-size: 13px;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.5);
+}
+.host-banner[hidden] { display: none; }
