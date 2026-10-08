@@ -88,8 +88,14 @@ function render(info, players) {
     name.before(icon);
   }
   const iconUrl = teamIconUrl(info.party);
-  icon.hidden = !iconUrl;
-  if (iconUrl) icon.src = iconUrl;
+  if (!iconUrl) {
+    icon.hidden = true;
+  } else if (icon.dataset.src !== iconUrl) {
+    icon.dataset.src = iconUrl;
+    icon.hidden = true; // não mostra o logo da partida anterior enquanto o novo carrega
+    icon.onload = () => { if (icon.dataset.src === iconUrl) icon.hidden = false; };
+    icon.src = iconUrl;
+  }
   $("role-party").textContent = t("role.party", { party: themeGet(`teams.${info.party}.name`) });
 
   const known = info.known || [];

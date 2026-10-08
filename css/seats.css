@@ -1,0 +1,32 @@
+/* assentos mais compactos: nome em cima, ícones embaixo */
+.seat {
+  flex: 0 1 128px; min-width: 96px;
+  padding: 8px 10px; gap: 6px;
+}
+.seat.me strong::after {
+  content: " · " attr(data-you);
+  font-weight: 400; font-size: 11px; opacity: 0.7;
+}
+
+.seat-badges { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.seat-badges:empty { display: none; }
+
+.badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 50%;
+  font-size: 13px; line-height: 1;
+  background: rgb(0 0 0 / 0.35);
+  border: 1px solid #ffffff33;
+}
+.badge img { width: 18px; height: 18px; object-fit: contain; pointer-events: none; }
+
+.badge.party { background: rgb(255 255 255 / 0.14); }
+.badge.gold { border-color: var(--color-accent); color: var(--color-accent); }
+.badge.ok { border-color: var(--color-yes); color: var(--color-yes); }
+.badge.dead { border-color: #ffffff55; }
+.badge.leader {
+  border-color: var(--color-team-b); color: #ffd9d9;
+  background: color-mix(in srgb, var(--color-team-b) 55%, #000);
+}
+.badge.pending { border-style: dashed; animation: badge-pulse 1.2s ease-in-out infinite; }
+@keyframes badge-pulse { 50% { opacity: 0.45; } }

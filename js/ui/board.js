@@ -14,7 +14,7 @@ import { show } from "./router.js";
 import { setBackground } from "./background.js";
 import { stageExecution, stageLeaderElected, stagePolicyWin } from "./stage.js";
 import { showEndScreen, hideEndScreen } from "./endscreen.js";
-import { policyFace, policyCardButton } from "./cards.js";
+import { policyFace, policyCardButton, teamIconUrl } from "./cards.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -297,6 +297,39 @@ function addTag(seat, text, cls = "") {
   seat.append(el);
 }
 
+function badge(seat, { icon, img, title, cls = "" }) {
+  let row = seat.querySelector(".seat-badges");
+  if (!row) {
+    row = document.createElement("div");
+    row.className = "seat-badges";
+    seat.append(row);
+  }
+  const b = document.createElement("span");
+  b.className = `badge ${cls}`.trim();
+  b.title = title;
+  b.setAttribute("aria-label", title);
+  if (img) {
+    const im = new Image();
+    im.alt = "";
+    im.draggable = false;
+    im.onerror = () => b.remove(); // sem imagem, o fundo colorido do assento já mostra o partido
+    im.src = img;
+    b.append(im);
+  } else {
+    b.textContent = icon;
+  }
+  row.append(b);
+}
+
+// logo do partido (e uma estrela se for o Ditador)
+function roleBadges(seat, role) {
+  const party = partyOf(role);
+  badge(seat, { img: teamIconUrl(party), title: themeGet(`teams.${party}.name`), cls: "party" });
+  if (role === "leader") {
+    badge(seat, { icon: "★", title: themeGet("teams.leader.name"), cls: "leader" });
+  }
+}
+
 function renderSeats(user, info, s, players, intel, ui) {
   const { order, presidentIdx } = s;
   const me = order.indexOf(user.uid);
@@ -320,6 +353,7 @@ function renderSeats(user, info, s, players, intel, ui) {
 
       const name = document.createElement("strong");
       name.textContent = playerName;
+      if (uid === user.uid) name.dataset.you = t("board.you");
       seat.append(name);
 
       // o morto fica coberto por uma caveira, sem revelar o papel, até o fim da partida
@@ -338,37 +372,36 @@ function renderSeats(user, info, s, players, intel, ui) {
         return;
       }
 
-      if (uid === user.uid) addTag(seat, t("board.you"));
-      if (s.dead[uid]) addTag(seat, t("board.dead"));
-
       if (finalRole) { // fim de jogo: papel revelado, na cor do partido
         seat.classList.add("revealed");
         seat.dataset.team = partyOf(finalRole);
         seat.dataset.role = finalRole;
-        addTag(seat, themeGet(`teams.${finalRole}.name`));
-      } else if (known[uid]) { // aliados dos Autoritários (e o Ditador), em vermelho
+        roleBadges(seat, finalRole);
+      } else if (known[uid]) { // aliados dos Autoritários (e o Ditador)
         seat.classList.add("revealed");
         seat.dataset.team = partyOf(known[uid]);
         seat.dataset.role = known[uid];
-        addTag(seat, themeGet(`teams.${known[uid]}.name`));
+        roleBadges(seat, known[uid]);
       } else if (investigated[uid]) { // investigado por você: só o partido
         seat.classList.add("revealed");
         seat.dataset.team = investigated[uid];
-        addTag(seat, themeGet(`teams.${investigated[uid]}.name`));
+        roleBadges(seat, investigated[uid]);
       } else if (uid === user.uid) { // o seu assento, na cor do seu partido
         seat.classList.add("revealed");
         seat.dataset.team = info.party;
         seat.dataset.role = info.role;
+        roleBadges(seat, info.role);
       }
 
       const isPres = i === presidentIdx && !s.dead[uid];
       const isCand = uid === s.candidate && s.phase === "vote";
       const isChan = uid === s.candidate && inGov;
-      if (isPres) addTag(seat, t("board.president"), "president");
-      if (isCand) addTag(seat, t("board.candidate"), "president");
-      if (isChan) addTag(seat, t("board.chancellor"), "president");
+      if (isPres) badge(seat, { icon: "👑", title: t("board.president"), cls: "gold" });
+      if (isCand) badge(seat, { icon: "🔨", title: t("board.candidate"), cls: "gold pending" });
+      if (isChan) badge(seat, { icon: "🔨", title: t("board.chancellor"), cls: "gold" });
       if (isPres || isCand || isChan) seat.classList.add("gov"); // borda amarela
-      if (s.phase === "vote" && s.voted[uid]) addTag(seat, t("board.voted"));
+      if (s.phase === "vote" && s.voted[uid]) badge(seat, { icon: "✔", title: t("board.voted"), cls: "ok" });
+      if (s.dead[uid]) badge(seat, { icon: "☠", title: t("board.dead"), cls: "dead" });
 
       box.append(seat);
     });

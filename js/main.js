@@ -7,6 +7,7 @@ import { initMenu } from "./ui/menu.js";
 import { initBackground } from "./ui/background.js";
 import { initAudio, playLobby } from "./audio/audio.js";
 import { initSfx } from "./audio/sfx.js";
+import { preloadTheme } from "./theme/preload.js";
 
 const THEME_ID = "democratas";
 const LOCALE = "pt-BR";
@@ -17,6 +18,7 @@ async function start() {
     await loadTheme(THEME_ID);
     applyI18n();
     applyTheme();
+    await preloadTheme(); // a tela "Carregando..." fica visível enquanto as imagens baixam
     initBackground();
     initAudio();
     initSfx();
