@@ -8,12 +8,29 @@ const PRESETS = {
 };
 let el = null;
 
+// logo do partido, preso à faixa de cor dele (se a imagem não existir, simplesmente não aparece)
+function makeLogo(team) {
+  const path = themeGet(`teams.${team}.icon`);
+  if (!path) return null;
+  const img = new Image();
+  img.className = `bg-logo bg-logo-${team}`;
+  img.alt = "";
+  img.draggable = false;
+  img.onerror = () => img.remove();
+  img.src = themeAsset(path);
+  return img;
+}
+
 export function initBackground() {
   if (el) return;
   el = document.createElement("div");
   el.id = "bg";
   el.setAttribute("aria-hidden", "true");
-  el.innerHTML = '<div class="bg-a"></div><div class="bg-b"></div><img class="bg-emblem" alt="">';
+  el.innerHTML = '<div class="bg-a"></div><div class="bg-b"></div>';
+  for (const team of ["a", "b"]) {
+    const logo = makeLogo(team);
+    if (logo) el.append(logo);
+  }
   document.body.prepend(el);
   setBackground();
 }
@@ -32,13 +49,7 @@ export function setBackground({ party = null, win = null } = {}) {
     ({ blue, red } = PRESETS[party] || PRESETS.neutral);
   }
   el.classList.toggle("won", !!win);
+  el.dataset.win = win || "";
   el.style.setProperty("--blue", blue);
   el.style.setProperty("--red", red);
-
-  const emblem = el.querySelector(".bg-emblem");
-  if (emblem) {
-    const path = win ? themeGet(`teams.${win}.icon`) : null;
-    if (path) emblem.src = themeAsset(path);
-    emblem.classList.toggle("show", !!path);
-  }
 }

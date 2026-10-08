@@ -41,3 +41,41 @@ h1 {
 
 /* textos soltos sobre o fundo colorido continuam legíveis */
 .hint, .label, .credits { text-shadow: 0 1px 4px rgb(0 0 0 / 0.8); opacity: 0.9; }
+
+/* ---- logos dos partidos: presos ao centro da faixa de cor de cada um ---- */
+#bg { --logo-cap: 32vmin; --logo-opacity: 0.45; }
+#bg.won { --logo-cap: min(72vmin, 560px); --logo-opacity: 0.3; }
+
+.bg-logo {
+  position: absolute; top: 50%;
+  height: auto; max-height: 60vh; object-fit: contain;
+  opacity: var(--logo-opacity);
+  filter: drop-shadow(0 6px 24px rgb(0 0 0 / 0.55));
+  pointer-events: none; user-select: none;
+  transition:
+    left 1.6s cubic-bezier(0.4, 0, 0.2, 1),
+    right 1.6s cubic-bezier(0.4, 0, 0.2, 1),
+    width 1.6s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.8s ease;
+}
+.bg-logo-a {
+  left: calc(var(--blue) / 2);
+  width: max(0px, min(calc(var(--blue) * 0.7), var(--logo-cap)));
+  translate: -50% -50%;
+}
+.bg-logo-b {
+  right: calc(var(--red) / 2);
+  width: max(0px, min(calc(var(--red) * 0.7), var(--logo-cap)));
+  translate: 50% -50%;
+}
+
+/* no fim da partida: acompanha a varredura e o logo do perdedor some */
+#bg.won .bg-logo {
+  transition:
+    left 1.1s cubic-bezier(0.7, 0, 0.2, 1),
+    right 1.1s cubic-bezier(0.7, 0, 0.2, 1),
+    width 1.1s cubic-bezier(0.7, 0, 0.2, 1),
+    opacity 0.8s ease;
+}
+#bg[data-win="a"] .bg-logo-b,
+#bg[data-win="b"] .bg-logo-a { opacity: 0; }
