@@ -138,7 +138,8 @@
   "stage": {
   "execution": "{president} executa {target}",
   "elected": "{name} foi eleito Chanceler...",
-  "last_policy": "A política decisiva...",
+  "last_policy": "A política promulgada será revelada...",
+  "policy_enacted": "Política de {team} promulgada.",
   "policy_wins": "{team} vencem pela política!",
   "skip": "Toque para pular"
 }

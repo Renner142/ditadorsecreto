@@ -132,7 +132,8 @@ export function stageLeaderElected({ name }) {
 
 
 // a política decisiva aparece virada e é revelada depois do suspense
-export function stagePolicyWin({ team }) {
+// a política aparece virada e é revelada depois do suspense (vence ou não)
+export function stagePolicyWin({ team, wins = true }) {
   return session(async () => {
     const teamName = themeGet(`teams.${team}.name`);
     const c = card("?", { cls: "policy-card" });
@@ -141,9 +142,11 @@ export function stagePolicyWin({ team }) {
     await sleep(timing().suspenseMs);
     c.replaceChildren(policyFace(team)); // a mesma carta do jogo, com o ícone
     c.classList.add("revealed", "flip");
-    title.textContent = t("stage.policy_wins", { team: teamName });
+    title.textContent = wins
+      ? t("stage.policy_wins", { team: teamName })
+      : t("stage.policy_enacted", { team: teamName });
     sfx("stamp");
     sfx(`policy_${team}`, 250);
-    await sleep(timing().revealMs);
+    await sleep(wins ? timing().revealMs : Math.round(timing().revealMs * 0.7));
   });
 }

@@ -47,8 +47,8 @@ export function showBoard(user, code, info, hooks = {}) {
   const mine = { hand: null, peek: null, intel: [] };
   const ui = { end: null }; // end: null | "holding" (cerimônia rolando) | "done"
   let latest = null;
-  let firstRead = true;
   let lastTurnKey = "";
+  let firstRead = true;
   let chain = Promise.resolve(); // as cerimônias rodam uma de cada vez
   const seen = {};
 
@@ -101,19 +101,18 @@ export function showBoard(user, code, info, hooks = {}) {
     return did;
   };
 
-  function cues(s, powerChanged, execNow) {
+  function cues(s, ev) {
     let cued = false;
-    const winByPolicies = s.winner?.reason === "policies"; // esse som fica pro palco
-    if (changed("vote", s.lastVote) && s.lastVote) {
+    if (ev.voteChanged && s.lastVote) {
       cued = true;
       playSfx(s.lastVote.passed ? "vote_pass" : "vote_fail");
-      if (s.lastVote.chaos && !winByPolicies) playSfx(`policy_${s.lastVote.chaos}`, 700);
+      if (s.lastVote.chaos && !ev.holdPolicySfx) playSfx(`policy_${s.lastVote.chaos}`, 700);
     }
-    if (changed("enacted", s.lastEnacted) && s.lastEnacted) {
+    if (ev.enactedChanged && s.lastEnacted) {
       cued = true;
-      if (!winByPolicies) playSfx(s.lastEnacted.veto ? "veto" : `policy_${s.lastEnacted.policy}`, 400);
+      if (!ev.holdPolicySfx) playSfx(s.lastEnacted.veto ? "veto" : `policy_${s.lastEnacted.policy}`, 400);
     }
-    if (powerChanged && s.lastPower) {
+    if (ev.powerChanged && s.lastPower) {
       cued = true;
       if (s.lastPower.type !== "execute") playSfx(`power_${s.lastPower.type}`, POWER_SFX_DELAY);
     }
@@ -128,13 +127,17 @@ export function showBoard(user, code, info, hooks = {}) {
       (s.phase === "leg_veto" && pres === me) ||
       (s.phase === "power" && pres === me);
     const key = myTurn ? `${s.phase}:${s.presidentIdx}:${s.tracks.a}:${s.tracks.b}:${s.electionTracker}` : "";
-    if (key && key !== lastTurnKey) playSfx("turn", execNow ? 4600 : cued ? 1500 : 0);
+    const tm = RULES.stageTimings || {};
+    const stageMs = (tm.suspenseMs ?? 1400) + (tm.revealMs ?? 2400) + 400;
+    if (key && key !== lastTurnKey) {
+      playSfx("turn", ev.execNow ? 4600 : ev.holdPolicySfx ? stageMs : cued ? 1500 : 0);
+    }
     lastTurnKey = key;
     $("action").classList.toggle("your-turn", myTurn);
   }
 
-  // cerimônias na frente da tela: execução, Ditador eleito e política decisiva
-  function ceremony(s, players, execNow, endNow) {
+  // cerimônias na frente da tela: execução, Ditador eleito, política decisiva e política em suspense
+  function ceremony(s, players, execNow, endNow, tensionPolicy) {
     const w = s.winner;
     const nm = (uid) => players[uid]?.name ?? "?";
     chain = chain.then(async () => {
@@ -148,7 +151,9 @@ export function showBoard(user, code, info, hooks = {}) {
         } else if (endNow && w.reason === "leader_elected") {
           await stageLeaderElected({ name: nm(s.candidate) });
         } else if (endNow && w.reason === "policies") {
-          await stagePolicyWin({ team: w.team });
+          await stagePolicyWin({ team: w.team, wins: true });
+        } else if (tensionPolicy) {
+          await stagePolicyWin({ team: tensionPolicy, wins: false });
         }
       } catch (err) {
         console.error(err);
@@ -176,8 +181,25 @@ export function showBoard(user, code, info, hooks = {}) {
     };
     latest = { s, players: room.players };
 
-        const powerChanged = changed("power", s.lastPower);
+    const voteChanged = changed("vote", s.lastVote);
+    const enactedChanged = changed("enacted", s.lastEnacted);
+    const powerChanged = changed("power", s.lastPower);
     const execNow = powerChanged && s.lastPower?.type === "execute" ? s.lastPower : null;
+
+    // política que acabou de entrar na trilha (promulgada ou pelo povo)
+    let policyNow = null;
+    if (enactedChanged && s.lastEnacted && !s.lastEnacted.veto) policyNow = s.lastEnacted.policy;
+    else if (voteChanged && s.lastVote?.chaos) policyNow = s.lastVote.chaos;
+
+    // suspense também quando falta pouco: nem todo suspense é uma vitória
+    const left = RULES.suspenseWhenRemaining ?? 1;
+    const before = {
+      a: s.tracks.a - (policyNow === "a" ? 1 : 0),
+      b: s.tracks.b - (policyNow === "b" ? 1 : 0),
+    };
+    const nearWin = before.a >= RULES.winPolicies.a - left || before.b >= RULES.winPolicies.b - left;
+    const tensionPolicy = policyNow && !s.winner && nearWin ? policyNow : null;
+    const holdPolicySfx = !!policyNow && (s.winner?.reason === "policies" || !!tensionPolicy);
 
     // voltou pra uma partida que já tinha acabado: sem cerimônia, direto pro resultado
     if (firstRead && hooks.resumed && s.winner && ui.end === null) {
@@ -191,8 +213,8 @@ export function showBoard(user, code, info, hooks = {}) {
     const endNow = !!s.winner && ui.end === null;
     if (endNow) ui.end = "holding";
 
-    cues(s, powerChanged, execNow);
-    if (execNow || endNow) ceremony(s, room.players, execNow, endNow);
+    cues(s, { voteChanged, enactedChanged, powerChanged, execNow, holdPolicySfx });
+    if (execNow || endNow || tensionPolicy) ceremony(s, room.players, execNow, endNow, tensionPolicy);
     renderTracks(s);
     renderTracker(s);
     renderHostBanner(s, user.uid);
