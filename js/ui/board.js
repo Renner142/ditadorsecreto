@@ -16,6 +16,7 @@ import { stageExecution, stageLeaderElected, stagePolicyWin } from "./stage.js";
 import { showEndScreen, hideEndScreen } from "./endscreen.js";
 import { policyFace, policyCardButton, teamIconUrl } from "./cards.js";
 import { buildToken } from "./token.js";
+import { showNews, updateNews } from "./news.js";
 
 
 const $ = (id) => document.getElementById(id);
@@ -42,6 +43,7 @@ export function stopBoard() {
   prevMini = null;
   const mr = document.getElementById("mini-road");
   if (mr) mr.hidden = true;
+  showNews(false);
   hideEndScreen();
 }
 
@@ -49,6 +51,7 @@ export function showBoard(user, code, info, hooks = {}) {
   stopBoard();
   show("board");
   renderSelf(info);
+  showNews(true);
     // no celular o painel de ação fica fixo embaixo: reserva o espaço pra ele não cobrir a mesa
   const actionEl = $("action");
   if (actionEl && "ResizeObserver" in window) {
@@ -73,6 +76,7 @@ export function showBoard(user, code, info, hooks = {}) {
     if (!latest) return;
     renderSeats(user, info, latest.s, latest.players, mine.intel, ui);
     renderAction(user, code, latest.s, latest.players, mine, ui, openEnd);
+    updateNews(latest.s, latest.players, ui.end === "done");
   }
 
   // tela de resultado: vencedor, motivo, papel de todos e botões
@@ -196,6 +200,7 @@ export function showBoard(user, code, info, hooks = {}) {
       voted: pub.voted || {},
       lastGov: pub.lastGov || null,
       investigated: pub.investigated || [],
+      news: Array.isArray(pub.news) ? pub.news : Object.values(pub.news || {}),
     };
     latest = { s, players: room.players };
 

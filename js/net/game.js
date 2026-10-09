@@ -46,7 +46,8 @@ export function handUpdates(code, state) {
 const GAME_FIELDS = [
   "order", "presidentIdx", "dead", "tracks", "electionTracker", "candidate",
   "lastGov", "lastVote", "lastEnacted", "lastPower", "power", "investigated",
-  "specialReturn", "vetoDenied", "confirmedNotLeader", "winner", "voted", "finalRoles",
+  "specialReturn", "vetoDenied", "confirmedNotLeader", "winner", "voted", "finalRoles", 
+  'news',
 ];
 
 // leva a sala de volta ao lobby: apaga a partida e a lista de jogadores

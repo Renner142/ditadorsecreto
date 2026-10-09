@@ -1,0 +1,51 @@
+/* botão do jornal, ao lado do ⚙ e do ? */
+.news-btn { right: 106px; font-size: 19px; }
+.news-dot {
+  position: absolute; top: -4px; right: -4px;
+  min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px;
+  display: grid; place-items: center;
+  background: var(--color-no); color: #fff;
+  font: 700 11px/1 system-ui, sans-serif;
+  border: 2px solid var(--color-bg);
+}
+.news-dot[hidden] { display: none; }
+
+/* o palco das cerimônias (z-index 90) cobre o jornal, então ele não estraga o suspense */
+#news.modal { z-index: 80; }
+
+/* o jornal */
+.paper-card {
+  width: min(540px, 100%); max-height: 86vh; overflow-y: auto;
+  gap: 0; padding: 0;
+  background: #efe6cf; color: #211a12;
+  border: 1px solid #00000066; border-radius: 6px;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.6), inset 0 0 70px rgb(120 90 40 / 0.18);
+  font-family: Georgia, "Times New Roman", serif;
+  text-align: left;
+}
+.paper-head {
+  position: sticky; top: 0; z-index: 1;
+  padding: 14px 18px 10px; text-align: center;
+  background: #efe6cf; border-bottom: 3px double #211a12;
+}
+.paper-name {
+  margin: 0; font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(22px, 6vw, 30px); letter-spacing: 0.07em; text-transform: uppercase;
+}
+.paper-tag { margin: 2px 0 0; font-size: 12px; font-style: italic; opacity: 0.7; }
+
+.paper-list { display: flex; flex-direction: column; padding: 2px 18px 6px; }
+.paper-item { padding: 12px 0; border-bottom: 1px solid #211a1233; animation: fadeUp 0.25s ease both; }
+.paper-item h4 { margin: 0 0 4px; font-size: 16px; line-height: 1.25; }
+.paper-comment { margin: 0; font-size: 14px; font-style: italic; line-height: 1.4; color: #4a3d2e; }
+.paper-item .nm, .paper-item .nt { font-weight: 800; }
+.paper-card .nt.team-a { color: color-mix(in srgb, var(--color-team-a) 80%, #000); }
+.paper-card .nt.team-b { color: color-mix(in srgb, var(--color-team-b) 80%, #000); }
+.paper-card .nt.leader { color: #6e0d14; }
+.paper-item[class*="kind-end_"] { border-left: 4px solid var(--color-accent); padding-left: 10px; }
+.paper-empty { margin: 0; padding: 26px 8px; text-align: center; font-style: italic; opacity: 0.7; }
+
+.paper-foot {
+  position: sticky; bottom: 0;
+  padding: 10px 18px 14px; text-align: center; background: #efe6cf;
+}

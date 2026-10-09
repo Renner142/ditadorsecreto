@@ -12,8 +12,8 @@
   "color-no": "#c0392b"
   },
   "teams": {
-    "a": { "name": "Democratas", "icon": "img/democrata.png", "card": "img/poldemocrata.png" },
-    "b": { "name": "Autoritários", "icon": "img/autoritario.png", "card": "img/polautoritario.png" },
+    "a": { "name": "Democratas", "icon": "img/democrata.png", "card": "img/poldemocrata.png", "adj": "democrata" },
+    "b": { "name": "Autoritários", "icon": "img/autoritario.png", "card": "img/polautoritario.png", "adj": "autoritária" },
     "leader": { "name": "O Ditador" }
   },
   "powers": {

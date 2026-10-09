@@ -20,3 +20,7 @@ export function applyI18n(root = document) {
     el.placeholder = t(el.dataset.i18nPlaceholder);
   });
 }
+
+export function tRaw(key) {
+  return key.split(".").reduce((obj, k) => obj?.[k], strings) ?? null;
+}

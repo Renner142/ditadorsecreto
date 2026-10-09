@@ -167,5 +167,122 @@
     "veto_text": "Depois da {veto}ª política de {b}, o Chanceler pode propor vetar a pauta. Se o Presidente concordar, as duas políticas são descartadas e conta como uma eleição recusada.",
     "tips_title": "Dicas",
     "tips_text": "{a}: conversem e façam perguntas sobre cada decisão. {b}: pareçam {a}. Uma política de {b} pode vir do Presidente, do Chanceler ou do puro azar do baralho."
+  },
+  "news": {
+    "paper": "Gazeta da Nação",
+    "tagline": "Notícias de fonte segura (ou quase)",
+    "open": "Abrir o jornal",
+    "close": "Fechar",
+    "empty": "A edição de hoje ainda está no prelo. Volte quando algo acontecer.",
+    "head": {
+      "policy": "Presidente {president} e Chanceler {chancellor} promulgam política {team}",
+      "chaos": "Sem governo, o povo promulga uma política {team}",
+      "rejected": "Plenário rejeita o governo de {president} e {chancellor}",
+      "veto": "{president} e {chancellor} vetam a pauta: nenhuma política é promulgada",
+      "veto_refused": "{president} recusa o veto proposto por {chancellor}",
+      "execute": "{president} manda executar {target}",
+      "investigate": "{president} investiga a lealdade de {target}",
+      "special": "{president} convoca eleição especial e entrega a presidência a {target}",
+      "peek": "{president} consulta os arquivos e espia as próximas políticas",
+      "end_policies": "Fim de jogo: {party} vencem pelas políticas",
+      "end_leader_elected": "{target} era {leader} e foi eleito Chanceler: {party} vencem",
+      "end_leader_killed": "{target} era {leader} e foi executado: {party} vencem"
+    },
+    "comment": {
+      "policy_a": [
+        "A democracia agradece e pede bis.",
+        "Festa nas praças: as urnas ainda servem para alguma coisa.",
+        "Fontes garantem que alguém, em algum lugar, leu a Constituição.",
+        "Cidadãos aplaudem de pé e o pão amanheceu mais barato.",
+        "Um raro momento de bom senso no palácio. Registre-se.",
+        "Os pombos da praça central comemoram com um voo rasante.",
+        "A liberdade respira aliviada, mas ainda não largou o oxigênio.",
+        "Especialistas chamam isso de governo funcionando. Vai entender.",
+        "Hoje até o jornal teve motivo para sorrir."
+      ],
+      "policy_b": [
+        "O que, exatamente, está acontecendo lá no alto escalão?",
+        "Coincidência? Os jornais não acreditam em coincidências, só em tiragens.",
+        "Quem aprovou isso, e por que ninguém parece saber?",
+        "Fontes próximas ao palácio pedem anonimato e depois somem.",
+        "Será que alguém ainda lê as letras miúdas desses decretos?",
+        "Um novo decreto surge e as cortinas do gabinete continuam fechadas. Por quê?",
+        "Curioso: ninguém lembra de ter votado a favor, mas o carimbo está lá.",
+        "Os cidadãos se perguntam quem está no comando de verdade.",
+        "As botas ecoam pelos corredores. De quem serão?",
+        "Reunião a portas fechadas termina com sorrisos demais. Suspeito, não?"
+      ],
+      "chaos": [
+        "O país, sem governo, tirou uma política do chapéu.",
+        "Sem acordo entre os poderosos, o acaso assumiu a caneta.",
+        "Três governos rejeitados e a nação decide no cara ou coroa.",
+        "A política surgiu do nada, sem pai nem mãe. Como todo bom escândalo.",
+        "O povo cansou de esperar e puxou uma carta do monte. Que Deus ajude."
+      ],
+      "rejected": [
+        "Não foi dessa vez: o plenário vaiou o ministério.",
+        "Gabinete desfeito antes do café. Recorde de brevidade.",
+        "O plenário preferiu não arriscar. Ou será que sabia de algo?",
+        "Os votos foram contados e ninguém gostou da conta.",
+        "Quem votou contra? Quem sabe o motivo? Ninguém fala.",
+        "Mais uma chapa vai para o arquivo morto.",
+        "A sessão acabou em cara feia e cadeiras arrastadas."
+      ],
+      "veto": [
+        "Dois poderosos concordaram em não fazer nada. Um clássico da política.",
+        "A pauta foi para a gaveta, e a gaveta tem chave.",
+        "Quando ninguém quer assumir a responsabilidade, o veto é a saída.",
+        "Sessão encerrada com a elegância de quem fugiu pela porta dos fundos."
+      ],
+      "veto_refused": [
+        "Pediram para não fazer nada e ouviram 'não'. A burocracia não perdoa.",
+        "O Chanceler propôs fugir da pauta, mas o Presidente quis ver o desfecho.",
+        "Um veto negado e dois olhares que dizem mais que mil decretos."
+      ],
+      "execute": [
+        "Uma cadeira vazia na sala. Ninguém quer ocupar o assunto.",
+        "Os motivos são sigilosos. A sentença, pública.",
+        "Dizem que {target} sabia demais. Ou de menos. Os jornais divergem.",
+        "Vizinhos garantem que {target} sempre foi gente boa. Quem diria.",
+        "Foi justo? A pergunta fica, a resposta não.",
+        "Silêncio no gabinete. Só o relógio de parede se pronunciou.",
+        "O papel de {target} segue em segredo. Isso também não ajuda a dormir."
+      ],
+      "investigate": [
+        "O dossiê tem uma só página, e só o Presidente leu.",
+        "Sorrisos amarelos pelos corredores: o que será que ele descobriu?",
+        "{target} jura inocência, mas ninguém tinha perguntado ainda.",
+        "Fofoca de corredor agora é política de Estado.",
+        "A lealdade de {target} está em xeque. Ou não. Só o Presidente sabe."
+      ],
+      "special": [
+        "Um favor de alto nível. Ou uma armadilha?",
+        "A faixa presidencial mudou de ombro, e o cheiro de trama ficou.",
+        "{target} assume com um sorriso que não convenceu a imprensa.",
+        "Será que a vaga foi dada ou foi paga? A redação segue investigando."
+      ],
+      "peek": [
+        "O que estava escrito lá? Só ele sabe, e talvez ele minta.",
+        "O Presidente saiu da sala com cara de quem leu o futuro.",
+        "Os arquivos foram fechados às pressas. Por quê?",
+        "Dizem que o baralho tem segredos. Agora um deles tem dono."
+      ],
+      "end_policies": [
+        "Fecham-se as cortinas e a história julga.",
+        "A edição extra já está nas bancas, e os rumores seguem de graça.",
+        "Acabou. Resta saber quem mentiu melhor.",
+        "O país vira a página, mas guarda o jornal de hoje."
+      ],
+      "end_leader_elected": [
+        "Aplausos, olhares e um sorriso mais largo que os outros. Estava na cara.",
+        "A confiança foi dada de bandeja. A conta chegou depois.",
+        "Os jornais da vez perguntam: ninguém desconfiou?"
+      ],
+      "end_leader_killed": [
+        "O tiro foi ouvido em todo o país. A pergunta que sobrou: quem apontou?",
+        "A tirania acabou numa só cena. Os historiadores agradecem o roteiro.",
+        "Cai o regime e sobe a tiragem."
+      ]
+    }
   }
 }

@@ -13,6 +13,7 @@ export function splitState(s) {
       lastPower: s.lastPower, power: s.power, investigated: s.investigated,
       specialReturn: s.specialReturn, vetoDenied: s.vetoDenied,
       confirmedNotLeader: s.confirmedNotLeader, winner: s.winner, voted,
+      news: s.news,
       finalRoles: s.winner ? s.roles : null, // só aparece quando o jogo acaba
     }),
     host: clean({
@@ -42,6 +43,7 @@ export function joinState(pub, host) {
     vetoDenied: !!pub.vetoDenied,
     confirmedNotLeader: pub.confirmedNotLeader || [],
     winner: pub.winner ?? null,
+    news: Array.isArray(pub.news) ? pub.news : Object.values(pub.news || {}),
     roles: host.roles,
     deck: host.deck || [],
     discard: host.discard || [],

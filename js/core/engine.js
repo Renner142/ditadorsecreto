@@ -26,6 +26,7 @@ export function initialState(uids, roles, rules) {
     hand: null,
     peek: null,
     intel: {},
+    news: [],
     roles,
     deck: buildDeck(rules),
     discard: [],
@@ -33,6 +34,11 @@ export function initialState(uids, roles, rules) {
 }
 
 export const aliveUids = (s) => s.order.filter((u) => !s.dead[u]);
+
+// notícia do jornal: o "seed" decide qual manchete e qual comentário aparecem (igual para todos)
+function addNews(s, entry) {
+  s.news.push({ ...entry, seed: Math.floor(Math.random() * 1000000) });
+}
 
 function nextPresidentIdx(s) {
   let i = s.presidentIdx;
@@ -74,6 +80,7 @@ function endTurn(s) {
 function chaos(s, rules) {
   const policy = s.deck.shift(); // poder da política é ignorado
   s.tracks[policy] += 1;
+  addNews(s, { k: "chaos", team: policy });
   s.lastVote.chaos = policy;
   s.electionTracker = 0;
   s.lastGov = null; // limites de mandato esquecidos
@@ -95,6 +102,7 @@ function startPower(s, type) {
     const president = s.order[s.presidentIdx];
     s.peek = { uid: president, cards: s.deck.slice(0, 3) };
     s.lastPower = { type: "peek", president };
+    addNews(s, { k: "peek", president });
   }
 }
 
@@ -130,6 +138,7 @@ function resolveVote(s, rules) {
   }
 
   s.electionTracker += 1;
+  addNews(s, { k: "rejected", president, chancellor: s.candidate, n: s.electionTracker });
   if (s.electionTracker >= rules.failedElectionsLimit) chaos(s, rules);
   if (!s.winner) endTurn(s);
 }
@@ -178,6 +187,7 @@ function apply(s, a, rules) {
       s.discard.push(...s.hand.cards);
       s.hand = null;
       s.tracks[policy] += 1;
+      addNews(s, { k: "policy", team: policy, president, chancellor: s.candidate });
       s.lastEnacted = { policy, president, chancellor: s.candidate };
       s.electionTracker = 0;
       refillDeck(s);
@@ -197,10 +207,16 @@ function apply(s, a, rules) {
 
     case "veto_answer": {
       if (s.phase !== "leg_veto" || a.uid !== president || typeof a.agree !== "boolean") return false;
-      if (!a.agree) { s.vetoDenied = true; s.phase = "leg_chancellor"; return true; }
+      if (!a.agree) {
+        addNews(s, { k: "veto_refused", president, chancellor: s.candidate });
+        s.vetoDenied = true;
+        s.phase = "leg_chancellor";
+        return true;
+      }
       s.discard.push(...s.hand.cards);
       s.hand = null;
       s.lastEnacted = { veto: true, president, chancellor: s.candidate };
+      addNews(s, { k: "veto", president, chancellor: s.candidate });
       s.electionTracker += 1;
       refillDeck(s);
       if (s.electionTracker >= rules.failedElectionsLimit) chaos(s, rules);
@@ -215,6 +231,7 @@ function apply(s, a, rules) {
       s.investigated.push(a.target);
       (s.intel[president] ||= []).push({ target: a.target, party: partyOf(s.roles[a.target]) });
       s.lastPower = { type: "investigate", president, target: a.target };
+      addNews(s, { k: "investigate", president, target: a.target });
       finishPower(s);
       return true;
     }
@@ -223,6 +240,7 @@ function apply(s, a, rules) {
       if (s.phase !== "power" || s.power !== "special_election" || a.uid !== president) return false;
       if (!aliveUids(s).includes(a.target) || a.target === president) return false;
       s.lastPower = { type: "special_election", president, target: a.target };
+      addNews(s, { k: "special", president, target: a.target });
       if (s.specialReturn == null) s.specialReturn = s.presidentIdx;
       s.presidentIdx = s.order.indexOf(a.target);
       s.power = null;
@@ -236,6 +254,7 @@ function apply(s, a, rules) {
       if (!aliveUids(s).includes(a.target) || a.target === president) return false;
       s.dead[a.target] = true;
       s.lastPower = { type: "execute", president, target: a.target };
+      addNews(s, { k: "execute", president, target: a.target });
       if (s.roles[a.target] === "leader") {
         s.winner = { team: "a", reason: "leader_killed" };
         s.phase = "ended";
