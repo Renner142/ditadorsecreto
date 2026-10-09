@@ -1,0 +1,50 @@
+/* ---- Ditador bem visível ---- */
+.tk.is-leader .tk-face {
+  border-color: var(--color-team-b);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--color-team-b) 45%, transparent),
+    0 0 24px var(--color-team-b);
+  animation: leader-pulse 1.8s ease-in-out infinite;
+}
+.tk.is-leader.gov .tk-face { border-color: var(--color-accent); } /* o aro dourado do governo continua valendo */
+@keyframes leader-pulse {
+  50% { box-shadow:
+    0 0 0 7px color-mix(in srgb, var(--color-team-b) 22%, transparent),
+    0 0 36px var(--color-team-b); }
+}
+.tk.is-leader .tk-b.leader { min-width: 24px; height: 24px; font-size: 14px; }
+
+.tk-sub {
+  position: absolute; left: 50%; translate: -50% 0;
+  top: calc(100% + 21px);
+  width: max-content; max-width: calc(var(--tok) + 34px);
+  font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #ffb3b3; text-shadow: 0 1px 4px #000;
+}
+.tk.me .tk-sub { top: calc(100% + 27px); }
+#screen-board #seats.ring { margin-bottom: 38px; }
+
+/* ---- cerimônias com as mesmas bolinhas da mesa ---- */
+.stage-row { flex-wrap: nowrap; gap: clamp(8px, 5vw, 48px); }
+.stage-vs { flex: none; }
+
+.stage .tk {
+  position: relative; left: auto; top: auto; translate: none;
+  flex: none; margin-bottom: 56px;
+  --tok: clamp(76px, 24vw, 120px);
+}
+.stage .tk-name { font-size: 15px; max-width: min(38vw, 220px); }
+.stage .tk-sub { font-size: 13px; top: calc(100% + 26px); }
+
+.stage-actor { display: grid; place-items: center; }
+.stage-actor.from-left { animation: stg-in-l 0.5s ease both; }
+.stage-actor.from-right { animation: stg-in-r 0.5s ease both; }
+.stage-actor.shot { animation: stg-shake 0.5s ease; }
+.stage-actor.shot .tk-face {
+  border-color: var(--color-no);
+  box-shadow: 0 0 30px var(--color-no);
+}
+.stage-actor.flip { animation: stg-flip 0.8s ease both; }
+.stage-actor.big { animation: stg-rise 0.6s ease both; }
+.stage-actor.big .tk { --tok: clamp(120px, 40vw, 180px); }
+.stage-actor .tk-skull { animation: stg-skull 0.5s ease-out both; }

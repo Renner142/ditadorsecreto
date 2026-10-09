@@ -1,9 +1,9 @@
 import { t } from "../i18n/i18n.js";
 import { themeGet } from "../theme/loader.js";
 import { RULES } from "../config/game-config.js";
-import { partyOf } from "../core/roles.js";
 import { playSfx } from "../audio/sfx.js";
 import { policyFace } from "./cards.js";
+import { buildToken, applyRole, coverToken, uncoverToken } from "./token.js";
 
 const timing = () => ({ introMs: 1400, afterShotMs: 700, suspenseMs: 1400, revealMs: 2400, ...(RULES.stageTimings || {}) });
 
@@ -60,29 +60,37 @@ function scene(titleText, content) {
   return title;
 }
 
-function addTag(cardEl, text) {
-  const tag = document.createElement("span");
-  tag.className = "stage-tag";
-  tag.textContent = text;
-  cardEl.append(tag);
-}
-
+// cartão simples (usado só na cena da política decisiva)
 function card(name, { tag = "", cls = "" } = {}) {
   const c = document.createElement("div");
   c.className = `stage-card ${cls}`.trim();
   const n = document.createElement("strong");
   n.textContent = name;
   c.append(n);
-  if (tag) addTag(c, tag);
+  if (tag) {
+    const tg = document.createElement("span");
+    tg.className = "stage-tag";
+    tg.textContent = tag;
+    c.append(tg);
+  }
   return c;
 }
 
-// vira o cartão para "O Ditador" (vermelho)
-async function flipToLeader(title, c, name) {
+// embrulha a bolinha pra poder animar (entrar, tremer, virar)
+function actor(tk, cls = "") {
+  const a = document.createElement("div");
+  a.className = `stage-actor ${cls}`.trim();
+  a.append(tk);
+  return a;
+}
+
+// a caveira sai, o condenado vira o Ditador (vermelho, com o rótulo)
+async function revealLeader(title, a, tk, name) {
   const leader = themeGet("teams.leader.name");
-  c.dataset.team = partyOf("leader");
-  c.classList.add("flip");
-  addTag(c, leader);
+  uncoverToken(tk);
+  applyRole(tk, "leader");
+  a.classList.remove("shot");
+  a.classList.add("flip");
   title.textContent = t("end.revealing", { target: name, leader });
   sfx("reveal");
   await sleep(timing().revealMs);
@@ -92,8 +100,10 @@ async function flipToLeader(title, c, name) {
 export function stageExecution({ president, target, reveal = false }) {
   return session(async () => {
     const tm = timing();
-    const pres = card(president, { tag: t("board.president"), cls: "president from-left" });
-    const vict = card(target, { cls: "from-right" });
+    const presTk = buildToken({ name: president, president: true });
+    const victTk = buildToken({ name: target });
+    const pres = actor(presTk, "from-left");
+    const vict = actor(victTk, "from-right");
     const vs = document.createElement("span");
     vs.className = "stage-vs";
     vs.textContent = "⌖";
@@ -107,31 +117,27 @@ export function stageExecution({ president, target, reveal = false }) {
     vict.classList.add("shot");
     sfx("power_execute");
     await sleep(tm.afterShotMs);
-    vict.classList.add("dead");
+    coverToken(victTk);
     await sleep(500);
     sfx("suspense");
     await sleep(tm.suspenseMs);
 
-    if (reveal) {
-      vict.classList.remove("dead", "shot");
-      await flipToLeader(title, vict, target);
-    }
+    if (reveal) await revealLeader(title, vict, victTk, target);
   });
 }
 
 // o Ditador sobe pra frente de tudo e é revelado
 export function stageLeaderElected({ name }) {
   return session(async () => {
-    const c = card(name, { cls: "big" });
-    const title = scene(t("stage.elected", { name }), c);
+    const tk = buildToken({ name, chancellor: true });
+    const a = actor(tk, "big");
+    const title = scene(t("stage.elected", { name }), a);
     sfx("suspense");
     await sleep(timing().suspenseMs);
-    await flipToLeader(title, c, name);
+    await revealLeader(title, a, tk, name);
   });
 }
 
-
-// a política decisiva aparece virada e é revelada depois do suspense
 // a política aparece virada e é revelada depois do suspense (vence ou não)
 export function stagePolicyWin({ team, wins = true }) {
   return session(async () => {

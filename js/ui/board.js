@@ -15,6 +15,7 @@ import { setBackground } from "./background.js";
 import { stageExecution, stageLeaderElected, stagePolicyWin } from "./stage.js";
 import { showEndScreen, hideEndScreen } from "./endscreen.js";
 import { policyFace, policyCardButton, teamIconUrl } from "./cards.js";
+import { buildToken } from "./token.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -297,14 +298,7 @@ function addTag(seat, text, cls = "") {
   seat.append(el);
 }
 
-function badge(face, pos, { icon, title, cls = "" }) {
-  const b = document.createElement("span");
-  b.className = `tk-b pos-${pos} ${cls}`.trim();
-  b.textContent = icon;
-  b.title = title;
-  b.setAttribute("aria-label", title);
-  face.append(b);
-}
+
 
 // posição de cada jogador na fila de presidência (1 = o próximo)
 function turnOrder(s) {
@@ -323,27 +317,6 @@ function turnOrder(s) {
 }
 
 // mostra o partido do jogador: logo dentro da bolinha (e uma estrela se for o Ditador)
-function showParty(tk, face, role) {
-  const party = partyOf(role);
-  tk.classList.add("revealed");
-  tk.dataset.team = party;
-  const url = teamIconUrl(party);
-  if (url) {
-    const img = new Image();
-    img.className = "tk-logo";
-    img.alt = "";
-    img.draggable = false;
-    img.onerror = () => { img.remove(); tk.classList.add("no-logo"); };
-    img.src = url;
-    face.append(img);
-  } else {
-    tk.classList.add("no-logo");
-  }
-  if (role === "leader") {
-    badge(face, "bl", { icon: "★", title: themeGet("teams.leader.name"), cls: "leader" });
-  }
-}
-
 function renderSeats(user, info, s, players, intel, ui) {
   const { order, presidentIdx } = s;
   const n = order.length;
@@ -360,68 +333,22 @@ function renderSeats(user, info, s, players, intel, ui) {
     n <= 6 ? "clamp(50px, 13vw, 70px)" : n <= 8 ? "clamp(44px, 11.5vw, 62px)" : "clamp(38px, 9.6vw, 56px)");
 
   order.forEach((uid, i) => {
-    const k = (i - me + n) % n; // você fica embaixo; os outros seguem no sentido horário
-    const tk = document.createElement("div");
-    tk.className = "tk" + (uid === user.uid ? " me" : "");
-    tk.style.setProperty("--a", `${90 + (k * 360) / n}deg`);
-
-    const playerName = players[uid]?.name ?? "?";
+    const dead = !!s.dead[uid];
     const finalRole = ui.end === "done" ? s.finalRoles?.[uid] : null; // papéis só no fim
-    tk.title = playerName;
-
-    const face = document.createElement("div");
-    face.className = "tk-face";
-    const initial = document.createElement("span");
-    initial.className = "tk-initial";
-    initial.textContent = (playerName.trim()[0] || "?").toUpperCase();
-    face.append(initial);
-
-    const label = document.createElement("span");
-    label.className = "tk-name";
-    label.textContent = playerName;
-
-    if (uid === user.uid) {
-      const you = document.createElement("span");
-      you.className = "tk-you";
-      you.textContent = t("board.you");
-      face.append(you);
-    }
-    tk.append(face, label);
-
-    if (s.dead[uid]) tk.classList.add("dead");
-
-    // o morto fica coberto por uma caveira, sem revelar o papel, até o fim da partida
-    if (s.dead[uid] && !finalRole) {
-      const skull = document.createElement("span");
-      skull.className = "tk-skull";
-      skull.textContent = "☠";
-      face.append(skull);
-      box.append(tk);
-      return;
-    }
-
-    if (finalRole) showParty(tk, face, finalRole);               // fim de jogo
-    else if (known[uid]) showParty(tk, face, known[uid]);        // aliados dos Autoritários (e o Ditador)
-    else if (investigated[uid]) showParty(tk, face, investigated[uid]); // investigado por você
-    else if (uid === user.uid) showParty(tk, face, info.role);   // o seu próprio
-
-    const isPres = i === presidentIdx && !s.dead[uid];
-    const isCand = uid === s.candidate && s.phase === "vote";
-    const isChan = uid === s.candidate && inGov;
-    if (isPres) { badge(face, "top", { icon: "👑", title: t("board.president"), cls: "crown" }); tk.classList.add("is-pres"); }
-    if (isCand) badge(face, "tr", { icon: "🔨", title: t("board.candidate"), cls: "gold pending" });
-    if (isChan) badge(face, "tr", { icon: "🔨", title: t("board.chancellor"), cls: "gold" });
-    if (isPres || isCand || isChan) tk.classList.add("gov"); // aro dourado
-    if (s.phase === "vote" && s.voted[uid]) badge(face, "tl", { icon: "✔", title: t("board.voted"), cls: "ok" });
-    if (s.dead[uid]) badge(face, "tl", { icon: "☠", title: t("board.dead"), cls: "dead" });
-    if (nextOrder[uid]) {
-      badge(face, "br", {
-        icon: String(nextOrder[uid]),
-        title: t("board.order_n", { n: nextOrder[uid] }),
-        cls: "ord" + (nextOrder[uid] === 1 ? " next" : ""),
-      });
-    }
-
+    const tk = buildToken({
+      name: players[uid]?.name ?? "?",
+      you: uid === user.uid,
+      role: finalRole || known[uid] || investigated[uid] || (uid === user.uid ? info.role : null),
+      dead,
+      covered: dead && !finalRole,
+      president: i === presidentIdx && !dead,
+      candidate: uid === s.candidate && s.phase === "vote",
+      chancellor: uid === s.candidate && inGov,
+      voted: s.phase === "vote" && !!s.voted[uid],
+      order: nextOrder[uid] || 0,
+    });
+    const k = (i - me + n) % n; // você fica embaixo; os outros seguem no sentido horário
+    tk.style.setProperty("--a", `${90 + (k * 360) / n}deg`);
     box.append(tk);
   });
 
