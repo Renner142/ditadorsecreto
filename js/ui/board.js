@@ -346,8 +346,11 @@ function renderSeats(user, info, s, players, intel, ui) {
   if (!box) return;
   box.innerHTML = "";
   box.classList.add("ring");
-  box.style.setProperty("--tok",
-    n <= 6 ? "clamp(58px, 16vw, 84px)" : n <= 8 ? "clamp(50px, 13.5vw, 74px)" : "clamp(44px, 11.2vw, 66px)");
+  // o tamanho das bolinhas acompanha o tamanho da mesa (cqw), com reserva pra navegador antigo
+  const cq = typeof CSS !== "undefined" && CSS.supports?.("width", "1cqw");
+  box.style.setProperty("--tok", cq
+    ? (n <= 6 ? "clamp(52px, 15.5cqw, 90px)" : n <= 8 ? "clamp(46px, 13.2cqw, 80px)" : "clamp(40px, 11.2cqw, 70px)")
+    : (n <= 6 ? "clamp(58px, 16vw, 84px)" : n <= 8 ? "clamp(50px, 13.5vw, 74px)" : "clamp(44px, 11.2vw, 66px)"));
 
   const lv = s.phase !== "vote" ? s.lastVote : null; // votos revelados da última votação
 

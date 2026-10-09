@@ -1,0 +1,44 @@
+/* a mesa vira uma "caixa" que mede o próprio tamanho: as bolinhas escalam com ela (celular e PC) */
+#screen-board #seats.ring { container-type: size; }
+
+@media (min-width: 901px) {
+  /* mesa à esquerda, roadmap à direita, painel de ação fixo embaixo */
+  #screen-board.screen-wide { width: min(1400px, 100%); }
+  #screen-board:not([hidden]) {
+    animation: none; /* a animação de entrada quebraria o position: fixed */
+    padding-bottom: calc(var(--action-h, 0px) + 12px);
+  }
+
+  #screen-board .game {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-rows: 1fr auto auto 1fr; /* as duas linhas das pontas centralizam o roadmap */
+    gap: 12px 28px;
+    align-items: center;
+  }
+  #screen-board .game-main,
+  #screen-board .game-side { display: contents; }
+
+  /* a mesa cabe na altura da tela: 260px reservam título, margens e rodapé */
+  #screen-board #seats.ring {
+    grid-column: 1; grid-row: 1 / 5; justify-self: center;
+    width: max(300px, min(100%, 620px, calc(100vh - var(--action-h, 0px) - 260px)));
+    width: max(300px, min(100%, 620px, calc(100dvh - var(--action-h, 0px) - 260px)));
+    margin: 0 auto 76px;
+  }
+
+  #screen-board .board { grid-column: 2; grid-row: 2; }
+  #screen-board #last-vote { grid-column: 2; grid-row: 3; }
+
+  /* painel de ação/votação fixo embaixo, no centro */
+  #action {
+    position: fixed; left: 50%; bottom: 0; translate: -50% 0; z-index: 40;
+    width: min(820px, calc(100vw - 32px));
+    max-height: 40vh; overflow-y: auto;
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 -10px 28px rgb(0 0 0 / 0.55);
+  }
+}
