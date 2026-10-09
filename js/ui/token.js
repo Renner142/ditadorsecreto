@@ -14,19 +14,36 @@ export function badge(face, pos, { icon, title, cls = "" }) {
   return b;
 }
 
+// etiqueta do partido embaixo do nome (o Ditador ganha uma própria, bem chamativa)
+function setPartyTag(tk, role) {
+  const label = tk.querySelector(".tk-label");
+  if (!label) return;
+  label.querySelector(".tk-party")?.remove();
+  const party = partyOf(role);
+  const tag = document.createElement("span");
+  tag.className = `tk-party team-${party}` + (role === "leader" ? " leader" : "");
+  tag.textContent = role === "leader"
+    ? `★ ${themeGet("teams.leader.name")}`
+    : themeGet(`teams.${party}.name`);
+  label.append(tag);
+}
+
 function markLeader(tk, face) {
   tk.classList.add("is-leader");
-  const leader = themeGet("teams.leader.name");
-  if (!face.querySelector(".tk-b.leader")) badge(face, "bl", { icon: "★", title: leader, cls: "leader" });
-  if (!tk.querySelector(".tk-sub")) {
-    const sub = document.createElement("span");
-    sub.className = "tk-sub";
-    sub.textContent = leader;
-    tk.append(sub);
+  if (!face.querySelector(".tk-b.leader")) {
+    badge(face, "bl", { icon: "★", title: themeGet("teams.leader.name"), cls: "leader" });
   }
 }
 
-// mostra o partido na bolinha: logo, cor e (se for o Ditador) destaque.
+// faixa acima da bolinha: Presidente, Chanceler ou Candidato
+function roleTag(tk, kind) {
+  const el = document.createElement("span");
+  el.className = `tk-role role-${kind}`;
+  el.textContent = `${kind === "president" ? "👑" : "🔨"} ${t(`board.${kind}`)}`;
+  tk.append(el);
+}
+
+// mostra o partido na bolinha: logo, cor, etiqueta e (se for o Ditador) destaque.
 // role pode ser "a", "b" ou "leader"
 export function applyRole(tk, role) {
   const face = tk.querySelector(".tk-face");
@@ -49,6 +66,7 @@ export function applyRole(tk, role) {
   } else {
     tk.classList.add("no-logo");
   }
+  setPartyTag(tk, role);
   if (role === "leader") markLeader(tk, face);
 }
 
@@ -90,9 +108,13 @@ export function buildToken({
     face.append(y);
   }
 
-  const label = document.createElement("span");
-  label.className = "tk-name";
-  label.textContent = name;
+  // embaixo da bolinha: nome e (quando conhecido) o partido
+  const label = document.createElement("div");
+  label.className = "tk-label";
+  const nameEl = document.createElement("span");
+  nameEl.className = "tk-name";
+  nameEl.textContent = name;
+  label.append(nameEl);
   tk.append(face, label);
 
   if (dead) tk.classList.add("dead");
@@ -100,10 +122,11 @@ export function buildToken({
 
   if (role) applyRole(tk, role);
 
-  if (president) { badge(face, "top", { icon: "👑", title: t("board.president"), cls: "crown" }); tk.classList.add("is-pres"); }
-  if (candidate) badge(face, "tr", { icon: "🔨", title: t("board.candidate"), cls: "gold pending" });
-  if (chancellor) badge(face, "tr", { icon: "🔨", title: t("board.chancellor"), cls: "gold" });
+  if (president) { roleTag(tk, "president"); tk.classList.add("is-pres"); }
+  if (candidate) roleTag(tk, "candidate");
+  if (chancellor) roleTag(tk, "chancellor");
   if (president || candidate || chancellor) tk.classList.add("gov"); // aro dourado
+
   if (voted) badge(face, "tl", { icon: "✔", title: t("board.voted"), cls: "ok" });
   if (vote !== null && !voted && !dead) {
     badge(face, "tl", { icon: vote ? "✔" : "✖", title: t(vote ? "vote.yes" : "vote.no"), cls: vote ? "vote-yes" : "vote-no" });

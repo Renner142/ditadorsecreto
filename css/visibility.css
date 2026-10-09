@@ -1,0 +1,77 @@
+/* ---- título em branco ---- */
+h1, .title-big {
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  text-shadow: 0 3px 0 rgb(0 0 0 / 0.55), 0 0 28px rgb(0 0 0 / 0.65);
+}
+
+/* ---- mesa maior ---- */
+#screen-board #seats.ring { width: min(100%, 560px); --r: 37%; margin-bottom: 76px; }
+
+/* ---- nome e partido embaixo da bolinha ---- */
+.tk-label {
+  position: absolute; left: 50%; top: calc(100% + 6px); translate: -50% 0; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  width: max-content; max-width: calc(var(--tok) + 44px);
+  pointer-events: none;
+}
+.tk.me .tk-label { top: calc(100% + 14px); } /* abre espaço pra etiqueta VOCÊ */
+.tk-label .tk-name {
+  position: static; translate: none; width: auto; max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 13px; font-weight: 700;
+}
+.tk.gov .tk-label .tk-name { color: var(--color-accent); }
+
+.tk-role, .tk-party {
+  padding: 2px 8px; border-radius: 999px;
+  font-family: system-ui, sans-serif; font-size: 10px; font-weight: 800;
+  letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.3; white-space: nowrap;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.5);
+}
+
+/* partido */
+.tk-party.team-a { background: var(--color-team-a); color: #fff; }
+.tk-party.team-b { background: var(--color-team-b); color: #fff; }
+.tk-party.leader {
+  background: #6e0d14; color: #fff; border: 1px solid #ff9a9a;
+  box-shadow: 0 0 14px var(--color-team-b);
+  animation: tk-leader-tag 1.8s ease-in-out infinite;
+}
+@keyframes tk-leader-tag { 50% { box-shadow: 0 0 22px 3px var(--color-team-b); } }
+
+/* ---- bolinha: borda e cor do partido mais fortes ---- */
+.tk-face { border-width: 4px; }
+.tk.revealed[data-team="a"] .tk-face { background: color-mix(in srgb, var(--color-team-a) 62%, #12100e); }
+.tk.revealed[data-team="b"] .tk-face { background: color-mix(in srgb, var(--color-team-b) 62%, #12100e); }
+.tk.is-leader .tk-face { border-width: 5px; }
+
+/* ---- Presidente, Chanceler e Candidato ---- */
+.tk-role {
+  position: absolute; left: 50%; bottom: calc(100% + 5px); translate: -50% 0; z-index: 3;
+  background: var(--color-accent); color: #1a1208; border: 1px solid rgb(0 0 0 / 0.35);
+}
+.tk-role.role-candidate {
+  background: rgb(20 16 12 / 0.92); color: var(--color-accent);
+  border: 1px dashed var(--color-accent);
+  animation: tk-blink 1.2s ease-in-out infinite;
+}
+/* aro dourado por fora; a cor do partido continua por dentro */
+.tk.gov .tk-face {
+  outline: 4px solid var(--color-accent); outline-offset: 3px;
+  box-shadow: 0 0 26px color-mix(in srgb, var(--color-accent) 70%, transparent);
+}
+
+/* ---- nas cerimônias (execução e Ditador eleito) ---- */
+.stage .tk { margin-top: 32px; margin-bottom: 76px; }
+.stage .tk-label { max-width: min(40vw, 230px); gap: 5px; top: calc(100% + 8px); }
+.stage .tk-label .tk-name { font-size: 16px; }
+.stage .tk-role, .stage .tk-party { font-size: 12px; padding: 3px 10px; }
+.stage-actor.big .tk { margin-bottom: 96px; }
+
+/* ---- celular: etiquetas um pouco menores pra caber ---- */
+@media (max-width: 480px) {
+  .tk-label { max-width: calc(var(--tok) + 30px); }
+  .tk-label .tk-name { font-size: 12px; }
+  .tk-role, .tk-party { font-size: 9px; padding: 1px 6px; }
+}
