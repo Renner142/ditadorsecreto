@@ -70,7 +70,7 @@ export function uncoverToken(tk) {
 // o assento do jogador: usado na mesa e nas cerimônias, então mudou aqui, mudou nos dois
 export function buildToken({
   name, you = false, role = null, dead = false, covered = false,
-  president = false, candidate = false, chancellor = false, voted = false, order = 0,
+  president = false, candidate = false, chancellor = false, voted = false, order = 0, vote = null,
 } = {}) {
   const tk = document.createElement("div");
   tk.className = "tk" + (you ? " me" : "");
@@ -105,6 +105,9 @@ export function buildToken({
   if (chancellor) badge(face, "tr", { icon: "🔨", title: t("board.chancellor"), cls: "gold" });
   if (president || candidate || chancellor) tk.classList.add("gov"); // aro dourado
   if (voted) badge(face, "tl", { icon: "✔", title: t("board.voted"), cls: "ok" });
+  if (vote !== null && !voted && !dead) {
+    badge(face, "tl", { icon: vote ? "✔" : "✖", title: t(vote ? "vote.yes" : "vote.no"), cls: vote ? "vote-yes" : "vote-no" });
+  }
   if (dead) badge(face, "tl", { icon: "☠", title: t("board.dead"), cls: "dead" });
   if (order) {
     badge(face, "br", {

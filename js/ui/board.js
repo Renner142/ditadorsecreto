@@ -44,6 +44,17 @@ export function showBoard(user, code, info, hooks = {}) {
   stopBoard();
   show("board");
   renderSelf(info);
+    // no celular o painel de ação fica fixo embaixo: reserva o espaço pra ele não cobrir a mesa
+  const actionEl = $("action");
+  if (actionEl && "ResizeObserver" in window) {
+    const ro = new ResizeObserver(() =>
+      document.documentElement.style.setProperty("--action-h", `${actionEl.offsetHeight}px`));
+    ro.observe(actionEl);
+    unsubs.push(() => {
+      ro.disconnect();
+      document.documentElement.style.setProperty("--action-h", "0px");
+    });
+  }
 
   const mine = { hand: null, peek: null, intel: [] };
   const ui = { end: null }; // end: null | "holding" (cerimônia rolando) | "done"
@@ -338,6 +349,8 @@ function renderSeats(user, info, s, players, intel, ui) {
   box.style.setProperty("--tok",
     n <= 6 ? "clamp(50px, 13vw, 70px)" : n <= 8 ? "clamp(44px, 11.5vw, 62px)" : "clamp(38px, 9.6vw, 56px)");
 
+  const lv = s.phase !== "vote" ? s.lastVote : null; // votos revelados da última votação
+
   order.forEach((uid, i) => {
     const dead = !!s.dead[uid];
     const finalRole = ui.end === "done" ? s.finalRoles?.[uid] : null; // papéis só no fim
@@ -351,6 +364,7 @@ function renderSeats(user, info, s, players, intel, ui) {
       candidate: uid === s.candidate && s.phase === "vote",
       chancellor: uid === s.candidate && inGov,
       voted: s.phase === "vote" && !!s.voted[uid],
+      vote: lv?.votes && uid in lv.votes ? !!lv.votes[uid] : null,
       order: nextOrder[uid] || 0,
     });
     const k = (i - me + n) % n; // você fica embaixo; os outros seguem no sentido horário
@@ -554,6 +568,8 @@ function renderLastVote(s, players) {
   const lv = s.lastVote;
   if (!lv) return;
   const name = (uid) => players[uid]?.name ?? "?";
+  const values = Object.values(lv.votes || {});
+  const yes = values.filter(Boolean).length;
 
   const title = document.createElement("p");
   title.className = "label";
@@ -562,16 +578,10 @@ function renderLastVote(s, players) {
   });
   box.append(title);
 
-  const ul = document.createElement("ul");
-  ul.className = "vote-list";
-  s.order.filter((uid) => uid in lv.votes).forEach((uid) => {
-    const yes = lv.votes[uid];
-    const li = document.createElement("li");
-    li.className = yes ? "vote-yes" : "vote-no";
-    li.textContent = `${name(uid)}: ${t(yes ? "vote.yes" : "vote.no")}`;
-    ul.append(li);
-  });
-  box.append(ul);
+  const tally = document.createElement("p");
+  tally.className = "hint";
+  tally.textContent = t("vote.tally", { yes, no: values.length - yes });
+  box.append(tally);
 
   if (lv.chaos) {
     const p = document.createElement("p");

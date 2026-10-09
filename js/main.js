@@ -8,6 +8,7 @@ import { initBackground } from "./ui/background.js";
 import { initAudio, playLobby } from "./audio/audio.js";
 import { initSfx } from "./audio/sfx.js";
 import { preloadTheme } from "./theme/preload.js";
+import { initHowTo } from "./ui/howto.js";
 
 const THEME_ID = "democratas";
 const LOCALE = "pt-BR";

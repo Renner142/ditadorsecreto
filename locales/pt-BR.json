@@ -33,7 +33,7 @@
   "resume_failed": "Não consegui voltar para a sala. Entre de novo."
   },
   "footer": {
-    "credit": "Baseado em Secret Hitler, de Mike Boxleiter, Tommy Maranges e Mac Schubert (secrethitler.com), licença CC BY-NC-SA 4.0. Mudanças: novo tema, nomes, imagens e regras configuráveis. Músicas geradas com Suno AI, fora da licença CC."
+    "credit": "Baseado em Secret Hitler, de Mike Boxleiter, Tommy Maranges e Mac Schubert (secrethitler.com), licença CC BY-NC-SA 4.0. Mudanças: novo tema, nomes, imagens e regras configuráveis. Músicas geradas com Suno AI e imagens geradas com ChatGPT, ambas fora da licença CC."
   },
   "role": {
     "you_are": "Seu papel nesta partida",
@@ -75,7 +75,8 @@
     "waiting": "Voto registrado. Aguardando os outros...",
     "passed": "Governo aprovado: {president} e {chancellor}",
     "failed": "Governo rejeitado: {president} e {chancellor}",
-    "chaos": "Três governos rejeitados: o povo promulgou uma política de {team}."
+    "chaos": "Três governos rejeitados: o povo promulgou uma política de {team}.",
+    "tally": "Sim {yes} × Não {no}"
   },
   "leg": {
     "policy": "Política: {team}",
@@ -146,5 +147,24 @@
   "policy_wins": "{team} vencem pela política!",
   "skip": "Toque para pular",
   "last_policy_big": "Tudo se decide agora..."
-}
+  },
+  "howto": {
+    "title": "Como jogar",
+    "open": "Como jogar",
+    "close": "Fechar",
+    "goal_title": "Objetivo",
+    "goal_text": "Cada jogador tem um papel secreto. {a} vencem promulgando {winA} políticas do partido {a} ou executando {leader}. {b} vencem promulgando {winB} políticas do partido {b} ou elegendo {leader} como Chanceler depois da {n}ª política {b}.",
+    "roles_title": "Papéis",
+    "roles_text": "{a} não sabem quem é quem. {b} se conhecem e sabem quem é {leader}. {leader} não conhece ninguém, exceto em partidas de 5 e 6 jogadores, em que ele conhece os {b}. Mentir e blefar é permitido.",
+    "round_title": "A cada rodada",
+    "round_text": "1) O Presidente nomeia um Chanceler. 2) Todos votam Sim ou Não: a maioria aprova e o empate rejeita. 3) Se aprovado, o Presidente recebe 3 políticas, descarta 1 e passa 2 ao Chanceler, que promulga 1. Os dois podem mentir sobre o que viram. Se {fails} governos seguidos forem rejeitados, o povo promulga a política do topo do baralho.",
+    "limits_title": "Limite de mandato",
+    "limits_text": "O último Presidente e o último Chanceler eleitos não podem ser nomeados Chanceler na rodada seguinte. Com apenas 5 jogadores vivos, só o último Chanceler fica impedido.",
+    "powers_title": "Poderes do Presidente",
+    "powers_text": "Algumas políticas de {b} liberam um poder, indicado na trilha. {pInv}: vê o partido de um jogador (não o papel). {pSpec}: escolhe o próximo Presidente. {pPeek}: vê as 3 próximas políticas. {pExec}: executa um jogador (se for {leader}, {a} vencem). Quem é executado não vota nem fala, e só revela o papel no fim.",
+    "veto_title": "Veto",
+    "veto_text": "Depois da {veto}ª política de {b}, o Chanceler pode propor vetar a pauta. Se o Presidente concordar, as duas políticas são descartadas e conta como uma eleição recusada.",
+    "tips_title": "Dicas",
+    "tips_text": "{a}: conversem e façam perguntas sobre cada decisão. {b}: pareçam {a}. Uma política de {b} pode vir do Presidente, do Chanceler ou do puro azar do baralho."
+  }
 }
