@@ -31,7 +31,7 @@ export const RULES = {
 
     holdToReveal: false, // true = papel só aparece enquanto segura o botão
     roleRevealSeconds: 5,
-    stageTimings: { introMs: 1400, afterShotMs: 700, suspenseMs: 1400, revealMs: 2400 },
+      stageTimings: { introMs: 1400, afterShotMs: 700, suspenseMs: 1400, suspenseBigMs: 3400, revealMs: 2400 },
     endSequence: { deathMs: 2400, revealMs: 2600 }, // pausa da execução do Ditador antes do fim
     suspenseWhenRemaining: 1, // suspense em toda política quando faltam até N pra alguém vencer (0 = só na decisiva)
 };

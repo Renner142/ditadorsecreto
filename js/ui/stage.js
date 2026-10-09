@@ -44,7 +44,7 @@ function sfx(name, delay = 0) {
 async function session(build) {
   const el = ensureRoot();
   run = { skipped: false, wake: null, startedAt: Date.now() };
-  el.classList.remove("flash");
+    el.classList.remove("flash", "tension");
   el.hidden = false;
   try { await build(); } finally { el.hidden = true; el.replaceChildren(); run = null; }
 }
@@ -139,13 +139,28 @@ export function stageLeaderElected({ name }) {
 }
 
 // a política aparece virada e é revelada depois do suspense (vence ou não)
-export function stagePolicyWin({ team, wins = true }) {
+// level 1 = falta uma pra algum time; level 2 = falta uma pra os dois times
+export function stagePolicyWin({ team, wins = true, level = 1 }) {
   return session(async () => {
+    const tm = timing();
+    const big = level >= 2;
     const teamName = themeGet(`teams.${team}.name`);
     const c = card("?", { cls: "policy-card" });
-    const title = scene(t("stage.last_policy"), c);
-    sfx("suspense");
-    await sleep(timing().suspenseMs);
+    const title = scene(t(big ? "stage.last_policy_big" : "stage.last_policy"), c);
+
+    if (big) {
+      root.classList.add("tension");
+      const half = Math.round(tm.suspenseBigMs / 2);
+      sfx("suspense");
+      await sleep(half);
+      sfx("suspense"); // o batimento toca duas vezes
+      await sleep(tm.suspenseBigMs - half);
+      root.classList.remove("tension");
+    } else {
+      sfx("suspense");
+      await sleep(tm.suspenseMs);
+    }
+
     c.replaceChildren(policyFace(team)); // a mesma carta do jogo, com o ícone
     c.classList.add("revealed", "flip");
     title.textContent = wins
@@ -153,6 +168,6 @@ export function stagePolicyWin({ team, wins = true }) {
       : t("stage.policy_enacted", { team: teamName });
     sfx("stamp");
     sfx(`policy_${team}`, 250);
-    await sleep(wins ? timing().revealMs : Math.round(timing().revealMs * 0.7));
+    await sleep(wins ? tm.revealMs : Math.round(tm.revealMs * 0.7));
   });
 }

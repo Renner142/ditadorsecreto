@@ -144,6 +144,7 @@
   "last_policy": "A política promulgada será revelada...",
   "policy_enacted": "Política de {team} promulgada.",
   "policy_wins": "{team} vencem pela política!",
-  "skip": "Toque para pular"
+  "skip": "Toque para pular",
+  "last_policy_big": "Tudo se decide agora..."
 }
 }

@@ -129,7 +129,8 @@ export function showBoard(user, code, info, hooks = {}) {
       (s.phase === "power" && pres === me);
     const key = myTurn ? `${s.phase}:${s.presidentIdx}:${s.tracks.a}:${s.tracks.b}:${s.electionTracker}` : "";
     const tm = RULES.stageTimings || {};
-    const stageMs = (tm.suspenseMs ?? 1400) + (tm.revealMs ?? 2400) + 400;
+    const suspense = ev.tensionLevel >= 2 ? (tm.suspenseBigMs ?? 3400) : (tm.suspenseMs ?? 1400);
+    const stageMs = suspense + (tm.revealMs ?? 2400) + 400;
     if (key && key !== lastTurnKey) {
       playSfx("turn", ev.execNow ? 4600 : ev.holdPolicySfx ? stageMs : cued ? 1500 : 0);
     }
@@ -138,7 +139,7 @@ export function showBoard(user, code, info, hooks = {}) {
   }
 
   // cerimônias na frente da tela: execução, Ditador eleito, política decisiva e política em suspense
-  function ceremony(s, players, execNow, endNow, tensionPolicy) {
+  function ceremony(s, players, execNow, endNow, tensionPolicy, tensionLevel) {
     const w = s.winner;
     const nm = (uid) => players[uid]?.name ?? "?";
     chain = chain.then(async () => {
@@ -152,9 +153,9 @@ export function showBoard(user, code, info, hooks = {}) {
         } else if (endNow && w.reason === "leader_elected") {
           await stageLeaderElected({ name: nm(s.candidate) });
         } else if (endNow && w.reason === "policies") {
-          await stagePolicyWin({ team: w.team, wins: true });
+          await stagePolicyWin({ team: w.team, wins: true, level: tensionLevel || 1 });
         } else if (tensionPolicy) {
-          await stagePolicyWin({ team: tensionPolicy, wins: false });
+          await stagePolicyWin({ team: tensionPolicy, wins: false, level: tensionLevel || 1 });
         }
       } catch (err) {
         console.error(err);
@@ -192,14 +193,17 @@ export function showBoard(user, code, info, hooks = {}) {
     if (enactedChanged && s.lastEnacted && !s.lastEnacted.veto) policyNow = s.lastEnacted.policy;
     else if (voteChanged && s.lastVote?.chaos) policyNow = s.lastVote.chaos;
 
-    // suspense também quando falta pouco: nem todo suspense é uma vitória
+    // nível de suspense, medido ANTES da política entrar:
+    // 0 = ninguém perto, 1 = falta uma pra algum time, 2 = falta uma pra os dois
     const left = RULES.suspenseWhenRemaining ?? 1;
     const before = {
       a: s.tracks.a - (policyNow === "a" ? 1 : 0),
       b: s.tracks.b - (policyNow === "b" ? 1 : 0),
     };
-    const nearWin = before.a >= RULES.winPolicies.a - left || before.b >= RULES.winPolicies.b - left;
-    const tensionPolicy = policyNow && !s.winner && nearWin ? policyNow : null;
+    const nearA = before.a >= RULES.winPolicies.a - left;
+    const nearB = before.b >= RULES.winPolicies.b - left;
+    const tensionLevel = nearA && nearB ? 2 : nearA || nearB ? 1 : 0;
+    const tensionPolicy = policyNow && !s.winner && tensionLevel > 0 ? policyNow : null;
     const holdPolicySfx = !!policyNow && (s.winner?.reason === "policies" || !!tensionPolicy);
 
     // voltou pra uma partida que já tinha acabado: sem cerimônia, direto pro resultado
@@ -214,8 +218,10 @@ export function showBoard(user, code, info, hooks = {}) {
     const endNow = !!s.winner && ui.end === null;
     if (endNow) ui.end = "holding";
 
-    cues(s, { voteChanged, enactedChanged, powerChanged, execNow, holdPolicySfx });
-    if (execNow || endNow || tensionPolicy) ceremony(s, room.players, execNow, endNow, tensionPolicy);
+    cues(s, { voteChanged, enactedChanged, powerChanged, execNow, holdPolicySfx, tensionLevel });
+    if (execNow || endNow || tensionPolicy) {
+      ceremony(s, room.players, execNow, endNow, tensionPolicy, tensionLevel);
+    }
     renderTracks(s);
     renderTracker(s);
     renderHostBanner(s, user.uid);
