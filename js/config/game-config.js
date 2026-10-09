@@ -25,13 +25,14 @@ export const RULES = {
   lastPresidentEligibleAt: 5, // com 5 ou menos vivos, o último presidente pode ser nomeado
 
 
-  leaderKnowsAllies: false, // true = o Ditador conhece os Autoritários
+    // o Ditador conhece os Autoritários? (no manual: sim com 5-6 jogadores, não com 7-10)
+  leaderKnowsAllies: { "5-6": true, "7-10": false },
 
 
 
     holdToReveal: false, // true = papel só aparece enquanto segura o botão
     roleRevealSeconds: 5,
-      stageTimings: { introMs: 1400, afterShotMs: 700, suspenseMs: 1400, suspenseBigMs: 3400, revealMs: 2400 },
+    stageTimings: { introMs: 1400, afterShotMs: 700, suspenseMs: 1400, suspenseBigMs: 3400, revealMs: 2400 },
     endSequence: { deathMs: 2400, revealMs: 2600 }, // pausa da execução do Ditador antes do fim
     suspenseWhenRemaining: 1, // suspense em toda política quando faltam até N pra alguém vencer (0 = só na decisiva)
 };
