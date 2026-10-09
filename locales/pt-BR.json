@@ -61,7 +61,8 @@
     "host_offline": "O anfitrião caiu. Aguardando ele voltar...",
     "order_title": "Ordem dos presidentes",
     "next_president": "Próximo: {name}",
-    "order_n": "{n}º na ordem de presidência"
+    "order_n": "{n}º na ordem de presidência",
+    "mini_title": "Ver o roadmap"
   },
   "nominate": {
     "starting": "A partida está começando...",

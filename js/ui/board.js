@@ -17,6 +17,7 @@ import { showEndScreen, hideEndScreen } from "./endscreen.js";
 import { policyFace, policyCardButton, teamIconUrl } from "./cards.js";
 import { buildToken } from "./token.js";
 
+
 const $ = (id) => document.getElementById(id);
 
 const POWER_SFX_DELAY = 900;  // o som do poder toca depois do som da política
@@ -25,6 +26,7 @@ const END_PAUSE_MS = 1300;    // pausa entre o fundo varrido e a tela de resulta
 let unsubs = [];
 let timers = [];
 let prevTracks = null;
+let prevMini = null;
 
 const later = (fn, ms) => timers.push(setTimeout(fn, ms));
 
@@ -37,6 +39,9 @@ export function stopBoard() {
   prevTracks = null;
   const hb = document.getElementById("host-banner");
   if (hb) hb.hidden = true;
+  prevMini = null;
+  const mr = document.getElementById("mini-road");
+  if (mr) mr.hidden = true;
   hideEndScreen();
 }
 
@@ -235,6 +240,7 @@ export function showBoard(user, code, info, hooks = {}) {
     }
     renderTracks(s);
     renderTracker(s);
+    renderMiniRoad(s);
     renderHostBanner(s, user.uid);
     draw();
     renderLastVote(s, room.players);
@@ -605,4 +611,75 @@ function renderHostBanner(s, myUid) {
     document.body.append(el);
   }
   el.hidden = !(s.hostOnline === false && !s.winner && s.hostUid !== myUid);
+}
+
+// roadmap em miniatura, fixo no topo (só aparece no celular, pelo CSS)
+function renderMiniRoad(s) {
+  let el = document.getElementById("mini-road");
+  if (!el) {
+    el = document.createElement("button");
+    el.id = "mini-road";
+    el.type = "button";
+    el.className = "mini-road";
+    el.title = t("board.mini_title");
+    el.setAttribute("aria-label", t("board.mini_title"));
+    el.addEventListener("click", () =>
+      document.querySelector("#screen-board .board")?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    document.body.append(el);
+  }
+  el.hidden = false;
+
+  const powers = powerTrack(RULES, s.order.length);
+  const rows = [
+    { team: "a", total: RULES.winPolicies.a, filled: s.tracks.a, powers: [] },
+    { team: "b", total: RULES.winPolicies.b, filled: s.tracks.b, powers },
+  ];
+
+  const tracks = document.createElement("span");
+  tracks.className = "mini-tracks";
+  for (const r of rows) {
+    const row = document.createElement("span");
+    row.className = `mini-row team-${r.team}`;
+
+    const dot = () => {
+      const d = document.createElement("span");
+      d.className = "mini-dot";
+      return d;
+    };
+    const url = teamIconUrl(r.team);
+    if (url) {
+      const img = new Image();
+      img.className = "mini-logo";
+      img.alt = "";
+      img.draggable = false;
+      img.onerror = () => img.replaceWith(dot()); // sem imagem, vira uma bolinha colorida
+      img.src = url;
+      row.append(img);
+    } else {
+      row.append(dot());
+    }
+
+    for (let i = 0; i < r.total; i++) {
+      const c = document.createElement("span");
+      c.className = "mini-slot"
+        + (i < r.filled ? " on" : "")
+        + (i === r.total - 1 ? " win" : "")
+        + (r.powers[i] ? " power" : "");
+      if (prevMini && i < r.filled && i >= prevMini[r.team]) c.classList.add("fresh");
+      row.append(c);
+    }
+    tracks.append(row);
+  }
+
+  const tracker = document.createElement("span");
+  tracker.className = "mini-tracker";
+  tracker.title = t("board.tracker");
+  for (let i = 0; i < RULES.failedElectionsLimit; i++) {
+    const d = document.createElement("span");
+    d.className = "mini-tdot" + (i < (s.electionTracker || 0) ? " on" : "");
+    tracker.append(d);
+  }
+
+  el.replaceChildren(tracks, tracker);
+  prevMini = { a: s.tracks.a, b: s.tracks.b };
 }
