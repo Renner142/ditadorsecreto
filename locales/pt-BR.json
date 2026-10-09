@@ -58,7 +58,10 @@
     "you_dead": "Você foi executado. Não pode mais falar, votar nem ser eleito.",
     "legend_leader": "Depois da {n}ª política ({team}): se {leader} for eleito Chanceler, eles vencem.",
     "legend_veto": "Depois da {n}ª política ({team}): Presidente e Chanceler podem vetar uma pauta.",
-    "host_offline": "O anfitrião caiu. Aguardando ele voltar..."
+    "host_offline": "O anfitrião caiu. Aguardando ele voltar...",
+    "order_title": "Ordem dos presidentes",
+    "next_president": "Próximo: {name}",
+    "order_n": "{n}º na ordem de presidência"
   },
   "nominate": {
     "starting": "A partida está começando...",

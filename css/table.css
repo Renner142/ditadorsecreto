@@ -1,0 +1,125 @@
+/* ---- mesa redonda ---- */
+#screen-board #seats.ring {
+  position: relative; inset: auto;
+  display: block;
+  width: min(100%, 460px);
+  aspect-ratio: 1;
+  margin: 4px auto 14px;
+  --r: 36%;
+  --tok: 58px;
+}
+
+.tk {
+  position: absolute;
+  left: calc(50% + var(--r) * cos(var(--a)));
+  top: calc(50% + var(--r) * sin(var(--a)));
+  translate: -50% -50%;
+  width: var(--tok); height: var(--tok);
+}
+
+.tk-face {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #41372e, var(--color-surface));
+  border: 3px solid #ffffff3a;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.5);
+  font-family: var(--font-display, inherit);
+  font-weight: 700;
+  font-size: calc(var(--tok) * 0.42);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.tk-logo {
+  position: absolute; inset: 12%; width: 76%; height: 76%;
+  object-fit: contain; pointer-events: none; user-select: none;
+}
+.tk.revealed:not(.no-logo) .tk-initial { visibility: hidden; }
+
+.tk.revealed[data-team="a"] .tk-face {
+  border-color: var(--color-team-a);
+  background: color-mix(in srgb, var(--color-team-a) 50%, var(--color-surface));
+}
+.tk.revealed[data-team="b"] .tk-face {
+  border-color: var(--color-team-b);
+  background: color-mix(in srgb, var(--color-team-b) 50%, var(--color-surface));
+}
+
+/* presidente / candidato / chanceler: aro dourado (o fundo continua na cor do partido) */
+.tk.gov .tk-face {
+  border-color: var(--color-accent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--color-accent) 35%, transparent),
+    0 0 22px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+.tk.is-pres .tk-face { animation: tk-pulse 2.2s ease-in-out infinite; }
+@keyframes tk-pulse {
+  50% { box-shadow:
+    0 0 0 7px color-mix(in srgb, var(--color-accent) 12%, transparent),
+    0 0 26px color-mix(in srgb, var(--color-accent) 65%, transparent); }
+}
+
+/* você */
+.tk.me .tk-face { outline: 3px solid rgb(255 255 255 / 0.9); outline-offset: 3px; }
+.tk-you {
+  position: absolute; left: 50%; bottom: -10px; translate: -50% 0; z-index: 3;
+  padding: 1px 7px; border-radius: 999px;
+  background: #fff; color: #111;
+  font-family: system-ui, sans-serif; font-size: 10px; font-weight: 800;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+
+/* nome embaixo */
+.tk-name {
+  position: absolute; left: 50%; top: calc(100% + 5px); translate: -50% 0;
+  width: max-content; max-width: calc(var(--tok) + 34px);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  text-align: center; font-size: 12px; font-weight: 600;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.9);
+}
+.tk.me .tk-name { top: calc(100% + 11px); }
+.tk.dead .tk-name { text-decoration: line-through; opacity: 0.6; }
+.tk.dead.revealed .tk-face { opacity: 0.8; }
+
+/* morto: caveira por cima */
+.tk-skull {
+  position: absolute; inset: 0; z-index: 2;
+  display: grid; place-items: center; border-radius: 50%;
+  background: rgb(10 8 8 / 0.93);
+  font-size: calc(var(--tok) * 0.52);
+  text-shadow: 0 0 12px var(--color-no);
+}
+
+/* ícones presos em volta da bolinha */
+.tk-b {
+  position: absolute; z-index: 2;
+  display: grid; place-items: center;
+  min-width: 20px; height: 20px; padding: 0 3px; border-radius: 999px;
+  background: rgb(0 0 0 / 0.72); border: 1px solid #ffffff44;
+  font-size: 11px; line-height: 1;
+}
+.tk-b.pos-top { top: -13px; left: 50%; translate: -50% 0; background: none; border: 0; font-size: 17px; filter: drop-shadow(0 1px 3px #000); }
+.tk-b.pos-tr { top: -5px; right: -7px; }
+.tk-b.pos-tl { top: -5px; left: -7px; }
+.tk-b.pos-bl { bottom: -4px; left: -7px; }
+.tk-b.pos-br { bottom: -4px; right: -7px; }
+.tk-b.gold { border-color: var(--color-accent); color: var(--color-accent); }
+.tk-b.ok { border-color: var(--color-yes); color: var(--color-yes); }
+.tk-b.leader { border-color: var(--color-team-b); color: #ffd9d9; background: color-mix(in srgb, var(--color-team-b) 60%, #000); }
+.tk-b.pending { border-style: dashed; animation: tk-blink 1.2s ease-in-out infinite; }
+@keyframes tk-blink { 50% { opacity: 0.45; } }
+.tk-b.ord { font-weight: 700; font-family: system-ui, sans-serif; opacity: 0.9; }
+.tk-b.ord.next { border-color: var(--color-accent); color: var(--color-accent); opacity: 1; }
+
+/* centro da mesa */
+.ring-center {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  width: 44%; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  text-align: center; pointer-events: none;
+}
+.rc-arrow {
+  font-size: clamp(30px, 9vw, 46px); line-height: 1; opacity: 0.5;
+  animation: rc-spin 26s linear infinite;
+}
+@keyframes rc-spin { to { rotate: 360deg; } }
+.rc-title { font-size: 11px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.06em; }
+.rc-next { font-size: 13px; font-weight: 700; color: var(--color-accent); overflow-wrap: anywhere; }
