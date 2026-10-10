@@ -196,9 +196,28 @@
       "investigate": "{president} investiga a lealdade de {target}",
       "special": "{president} convoca eleição especial e entrega a presidência a {target}",
       "peek": "{president} consulta os arquivos e espia as próximas políticas",
-      "end_policies": "Fim de jogo: {party} vencem pelas políticas",
-      "end_leader_elected": "{target} era {leader} e foi eleito Chanceler: {party} vencem",
-      "end_leader_killed": "{target} era {leader} e foi executado: {party} vencem"
+      "end_policies_a": [
+        "O povo falou nas urnas e nas leis: a nação tem um vencedor claro.",
+        "A batalha política terminou, e o futuro do país foi escrito hoje.",
+        "O bom senso venceu no parlamento. A República respira.",
+        "As leis certas chegaram a tempo. A democracia segue de pé."
+      ],
+      "end_policies_b": [
+        "A nação se curva a um novo capítulo da sua história. Ninguém ousa protestar.",
+        "As leis foram escritas e as portas, trancadas. O regime agora é oficial.",
+        "O parlamento aplaude de pé, por medo ou por convicção. Difícil dizer.",
+        "A liberdade foi arquivada, com carimbo e tudo."
+      ],
+      "end_leader_elected": [
+        "Chanceler eleito, {target} revela-se {leader} e toma a nação de assalto",
+        "{target} sobe ao poder pelo voto e revela-se {leader}",
+        "Era ele o tempo todo: {target}, eleito Chanceler, é {leader}"
+      ],
+      "end_leader_killed": [
+        "{leader} cai: {target} é executado e a tirania chega ao fim",
+        "Execução põe fim ao regime: {target} era {leader}",
+        "A nação respira: {target}, {leader}, não governa mais"
+        ]
     },
     "comment": {
       "policy_a": [
@@ -292,29 +311,7 @@
         "Cartas reveladas nas sombras: o líder já sabe o perigo que nos aguarda nas próximas leis.",
         "O futuro da nação está em jogo. {target} é o único que sabe o que realmente acontece.",
         "O Presidente espiou o que estava por vir. O que ele fará com essa informação?"
-      ],
-      "end_policies_a": [
-        "O povo falou nas urnas e nas leis: a nação tem um vencedor claro.",
-        "A batalha política terminou, e o futuro do país foi escrito hoje.",
-        "O bom senso venceu no parlamento. A República respira.",
-        "As leis certas chegaram a tempo. A democracia segue de pé."
-      ],
-      "end_policies_b": [
-        "A nação se curva a um novo capítulo da sua história. Ninguém ousa protestar.",
-        "As leis foram escritas e as portas, trancadas. O regime agora é oficial.",
-        "O parlamento aplaude de pé, por medo ou por convicção. Difícil dizer.",
-        "A liberdade foi arquivada, com carimbo e tudo."
-      ],
-      "end_leader_elected": [
-        "Chanceler eleito, {target} revela-se {leader} e toma a nação de assalto",
-        "{target} sobe ao poder pelo voto e revela-se {leader}",
-        "Era ele o tempo todo: {target}, eleito Chanceler, é {leader}"
-      ],
-      "end_leader_killed": [
-        "{leader} cai: {target} é executado e a tirania chega ao fim",
-        "Execução põe fim ao regime: {target} era {leader}",
-        "A nação respira: {target}, {leader}, não governa mais"
-        ]
+      ]
     }
   }
 }

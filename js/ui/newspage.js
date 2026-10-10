@@ -230,50 +230,19 @@ function drawMasthead(ctx, y0, big) {
 
 function drawMain(ctx, y0, end, imgs, TEAM) {
   const content = W - 2 * M;
-  const dark = end.team === "a" ? TEAM.a : TEAM.b;
-  const logo = imgs[end.team];
-  const PAD = 24;
-  const LOGO = 96;
-  const textW = content - PAD * 2 - (logo ? LOGO + 24 : 0);
-  const parts = segs(end.head, end.vars, TEAM).map((s) => ({ ...s, color: null })); // tudo claro sobre a faixa colorida
-  let size = 64;
+  const color = end.team === "a" ? TEAM.a : TEAM.b;
+  // a manchete é só texto, todo na cor do partido vencedor
+  const parts = segs(end.head, end.vars, TEAM).map((s) => ({ ...s, color: null }));
+  let size = 42;
   let st;
   let L;
   do {
-    st = { size, family: DISPLAY, weight: 700, upper: true, lh: 1.1 };
-    L = layoutText(ctx, parts, textW, st);
-    size -= 4;
-  } while (L.lines.length > 3 && size >= 36);
-  const boxH = Math.max(L.h, logo ? LOGO : 0) + PAD * 2;
-
-  rr(ctx, M, y0, content, boxH, 12);
-  ctx.fillStyle = dark;
-  ctx.fill();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = "rgba(245,236,213,.55)";
-  rr(ctx, M + 7, y0 + 7, content - 14, boxH - 14, 8);
-  ctx.stroke();
-
-  let tx = M + PAD;
-  if (logo) {
-    const cx = M + PAD + LOGO / 2;
-    const cy = y0 + boxH / 2;
-    ctx.beginPath();
-    ctx.arc(cx, cy, LOGO / 2, 0, Math.PI * 2);
-    ctx.fillStyle = "#f1e7cc";
-    ctx.fill();
-    drawContain(ctx, logo, cx - LOGO * 0.37, cy - LOGO * 0.37, LOGO * 0.74, LOGO * 0.74);
-    tx += LOGO + 24;
-  }
-  drawLines(ctx, L, tx, y0 + (boxH - L.h) / 2, textW, st, "center", "#f5ecd5");
-  let y = y0 + boxH + 16;
-
-  if (SHOW_END_COMMENT && end.comment) {
-    const cst = { size: 26, family: SERIF, italic: true, lh: 1.35 };
-    const cL = layoutText(ctx, segs(end.comment, end.vars, TEAM), content, cst);
-    y += drawLines(ctx, cL, M, y, content, cst, "center", INK) + 6;
-  }
-  return y + 6;
+    st = { size, family: DISPLAY, weight: 700, lh: 1.2 };
+    L = layoutText(ctx, parts, content, st);
+    size -= 2;
+  } while (L.lines.length > 2 && size >= 26);
+  const h = drawLines(ctx, L, M, y0, content, st, "center", color);
+  return y0 + h + 14;
 }
 
 function drawRoster(ctx, y0, rows, imgs, TEAM) {
@@ -281,7 +250,9 @@ function drawRoster(ctx, y0, rows, imgs, TEAM) {
   const PH = 40, GX = 10, GY = 10, PAD = 12, LOGO = 26;
   ctx.font = `700 21px ${SERIF}`;
   const pills = rows.map((r) => {
-    const text = `${r.name} · ${r.role === "leader" ? "★ " : ""}${r.label}${r.dead ? " ☠" : ""}`;
+    const text = r.role === "leader"
+      ? `${r.name} · ★ ${r.label}${r.dead ? " ☠" : ""}`
+      : `${r.name}${r.dead ? " ☠" : ""}`;
     return { ...r, text, w: Math.min(content, ctx.measureText(text).width + PAD * 2 + LOGO + 8) };
   });
   const lines = [];
