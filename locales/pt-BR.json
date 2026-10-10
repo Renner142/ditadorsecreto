@@ -197,120 +197,115 @@
       "special": "{president} convoca eleição especial e entrega a presidência a {target}",
       "peek": "{president} consulta os arquivos e espia as próximas políticas",
       "end_policies_a": [
-        "O povo falou nas urnas e nas leis: a nação tem um vencedor claro.",
-        "A batalha política terminou, e o futuro do país foi escrito hoje.",
-        "O bom senso venceu no parlamento. A República respira.",
-        "As leis certas chegaram a tempo. A democracia segue de pé."
+        "{party} VENCEM: as leis salvam a República",
+        "Vitória dos {party}: a democracia está garantida",
+        "{party} vencem nas urnas e nas leis",
+        "A República resiste: {party} vencem a disputa"
       ],
       "end_policies_b": [
-        "A nação se curva a um novo capítulo da sua história. Ninguém ousa protestar.",
-        "As leis foram escritas e as portas, trancadas. O regime agora é oficial.",
-        "O parlamento aplaude de pé, por medo ou por convicção. Difícil dizer.",
-        "A liberdade foi arquivada, com carimbo e tudo."
+        "{party} VENCEM: o regime está consolidado",
+        "Vitória dos {party}: a nação é deles",
+        "{party} vencem e assumem o controle absoluto",
+        "Leis aprovadas, poder tomado: {party} vencem"
       ],
       "end_leader_elected": [
-        "Chanceler eleito, {target} revela-se {leader} e toma a nação de assalto",
-        "{target} sobe ao poder pelo voto e revela-se {leader}",
-        "Era ele o tempo todo: {target}, eleito Chanceler, é {leader}"
+        "{party} VENCEM: {target} era {leader} e foi eleito Chanceler",
+        "Vitória dos {party}: eleito Chanceler, {target} revela-se {leader}",
+        "{party} vencem pelo voto: {leader} era {target}",
+        "{party} tomam o poder: o Chanceler eleito é {leader}"
       ],
       "end_leader_killed": [
-        "{leader} cai: {target} é executado e a tirania chega ao fim",
-        "Execução põe fim ao regime: {target} era {leader}",
-        "A nação respira: {target}, {leader}, não governa mais"
-        ]
+        "{party} VENCEM: {target} era {leader} e foi executado",
+        "Vitória dos {party}: execução derruba {leader}",
+        "{party} vencem: {leader} cai, era {target}",
+        "{party} derrubam o regime: {target} era {leader}"
+      ]
     },
     "comment": {
       "policy_a": [
-        "A democracia agradece e pede bis.",
-        "Os pombos da praça central comemoram com um voo rasante.",
-        "Hoje até o jornal teve motivo para sorrir.",
-        "A esperança renasce nas ruas!",
-        "Um triunfo para a liberdade!",
-        "A tirania perde espaço neste país!",
-        "O bom senso venceu no parlamento hoje.",
-        "A justiça prevalece!",
-        "Os democratas mantêm a chama da liberdade acesa!"
+        "Medida foi bem recebida pela população.",
+        "Texto segue para sanção e entra em vigor.",
+        "Juristas independentes elogiam o texto.",
+        "Analistas veem avanço nas liberdades civis.",
+        "Oposição evitou criticar a medida.",
+        "Governo comemora e promete novas propostas.",
+        "Texto amplia direitos e limita o Executivo.",
+        "Aprovação é vista como sinal de estabilidade.",
+        "Praças registram clima de alívio.",
+        "Mercado reagiu com cautela e otimismo."
       ],
       "policy_b": [
-        "Quem aprovou isso, e por que ninguém parece saber?",
-        "Será que alguém ainda lê as letras miúdas desses decretos?",
-        "Um novo decreto surge e as cortinas do gabinete continuam fechadas. Por quê?",
-        "Curioso: ninguém lembra de ter votado a favor, mas o carimbo está lá.",
-        "ALERTA VERMELHO: O avanço do regime ditatorial deixa a nação à beira do abismo!",
-        "Mais uma lei da tirania aprovada. As sombras do autoritarismo cobrem nossa República!",
-        "Pânico generalizado! O ditador se aproxima do poder absoluto e a liberdade agoniza.",
-        "Silêncio forçado e medo nas ruas: o regime extremista ganha cada vez mais força.",
-        "Uma apunhalada na democracia. Se não os pararmos agora, o país cairá na escuridão!",
-        "Decreto cruel sancionado! A opressão avança e o terror toma conta do povo."
+        "Texto amplia os poderes do Executivo.",
+        "Entidades civis criticam a falta de debate.",
+        "Juristas questionam a constitucionalidade.",
+        "Medida foi aprovada sem consulta pública.",
+        "Oposição fala em retrocesso e promete recorrer.",
+        "Texto restringe liberdades e vale imediatamente.",
+        "Sindicatos convocam protesto para amanhã.",
+        "Governo defende a medida como necessária.",
+        "Observadores internacionais acompanham com preocupação.",
+        "Jornalistas relatam novas restrições à imprensa."
       ],
       "chaos": [
-        "Sem acordo entre os poderosos, o acaso assumiu a caneta.",
-        "Três governos rejeitados e a nação decide no cara ou coroa.",
-        "A política surgiu do nada, sem pai nem mãe. Como todo bom escândalo.",
-        "Que Deus nos ajude! O povo decidiu por si só.",
-        "O governo colapsou! Sem acordo entre os líderes, a massa desesperada decidiu no grito!",
-        "Anarquia nas ruas! O impasse político fez o país rolar os dados no meio do caos absoluto!",
-        "Paralisia total do Estado! Na falta de consenso, o destino da nação é a ruína!",
-        "A democracia travou! O pânico tomou conta do plenário e a lei surgiu do puro desespero!"
+        "Três rejeições seguidas paralisaram o governo.",
+        "Sem maioria, a pauta seguiu por decisão automática.",
+        "Impasse termina por imposição do regimento.",
+        "Analistas falam em paralisia do Estado.",
+        "Crise política entrou no terceiro round sem acordo.",
+        "Nenhum líder quis assumir a autoria da medida."
       ],
       "rejected": [
-        "O plenário preferiu não arriscar.",
-        "Mais uma chapa vai para o arquivo morto.",
-        "A sessão acabou em cara feia e cadeiras arrastadas.",
-        "Tensão máxima no congresso! O plenário barrou a chapa por medo de conspiração!",
-        "Gabinete rejeitado! Ninguém confia em ninguém e o cheiro de traição empesteia o palácio.",
-        "Votação dramática! A proposta de governo ruiu sob vaias e acusações graves.",
-        "O parlamento disse NÃO! Os deputados temem estar entregando o poder aos inimigos."
+        "Chapa não obteve maioria no plenário.",
+        "Proposta foi derrotada na votação.",
+        "Rejeições seguidas: {n}.",
+        "Líderes admitem falta de articulação política.",
+        "Governo volta à mesa de negociação.",
+        "Parlamentares alegam falta de confiança na chapa.",
+        "Nova tentativa deve ocorrer em breve."
       ],
       "veto": [
-        "Dois poderosos concordaram em não fazer nada. Um clássico da política.",
-        "Quando ninguém quer assumir a responsabilidade, o veto é a saída.",
-        "Impasse histórico: Presidente e Chanceler concordam em congelar a pauta para evitar o pior.",
-        "A pauta foi engavetada! Um veto de emergência impede que medidas extremas entrem em vigor.",
-        "Recuo estratégico! O governo prefere o silêncio a arriscar o destino da República."
+        "Presidente e Chanceler concordaram em arquivar a pauta.",
+        "Nenhuma medida foi aprovada na sessão.",
+        "Veto conjunto surpreendeu os parlamentares.",
+        "O veto conta como governo rejeitado.",
+        "Pauta fica para outra sessão."
       ],
       "veto_refused": [
-        "O Chanceler propôs fugir da pauta, mas o Presidente quis ver o desfecho.",
-        "Um veto negado e dois olhares que dizem mais que mil decretos.",
-        "O conflito explode! O Presidente rejeita o veto e força a pauta a avançar a qualquer custo!",
-        "Sem acordo! O Chanceler tentou travar o processo, mas o Presidente exigiu a conclusão!"
+        "Presidente barrou o pedido e exigiu a votação.",
+        "Chanceler terá que escolher uma das medidas.",
+        "Pedido de veto foi negado.",
+        "Divergência entre os dois ficou pública."
       ],
       "execute": [
-        "Uma cadeira vazia na sala. Ninguém quer ocupar o assunto.",
-        "Os motivos são sigilosos. A sentença, pública.",
-        "Dizem que {target} sabia demais. Os jornais divergem.",
-        "Foi justo? A pergunta fica, a resposta não.",
-        "Um tiro no escuro: {target} foi executado. Seria um traidor ou um patriota injustiçado?",
-        "A lei das armas tomou o poder! {target} caiu morto sob ordens diretas da presidência.",
-        "Medida extrema! A cadeira de {target} está vazia e o país prende a respiração de pavor.",
-        "O silêncio do plenário é ensurdecedor. {target} não vai mais falar, votar nem ser eleito. O que será que ele sabia?",
-        "O papel de {target} segue em segredo. Isso também não ajuda a dormir."
+        "{target} foi afastado e não participa mais.",
+        "Motivos da execução não foram divulgados.",
+        "Governo não comentou o caso.",
+        "{target} não vota nem fala mais em plenário.",
+        "O ato foi assinado pelo próprio Presidente.",
+        "Organizações pedem esclarecimentos sobre o caso.",
+        "A cadeira de {target} permanece vazia."
       ],
       "investigate": [
-        "Caça aos espiões! O Presidente vasculha os arquivos secretos para revelar quem é {target}.",
-        "A máscara vai cair? O histórico de {target} está sob rigorosa devassa do Estado.",
-        "Paranoia e desconfiança: a lealdade de {target} está sendo posta à prova agora mesmo.",
-        "O Presidente não confia em ninguém, nem mesmo em {target}. A investigação está em andamento.",
-        "Sorrisos amarelos pelos corredores: o que será que ele descobriu?",
-        "{target} jura inocência, mas ninguém tinha perguntado ainda.",
-        "Fofoca de corredor agora é política de Estado.",
-        "A lealdade de {target} está em xeque. Ou não."
+        "Presidente teve acesso aos registros de {target}.",
+        "Resultado da apuração permanece em sigilo.",
+        "{target} diz que colabora com a investigação.",
+        "Governo não comenta a apuração.",
+        "Fontes dizem que o dossiê tem poucas páginas.",
+        "Conclusões não têm data para divulgação."
       ],
       "special": [
-        "Manobra de emergência! O Presidente entrega o comando a {target} em momento crítico.",
-        "Eleição extraordinária! A faixa presidencial muda de dono sob olhares atentos e desconfiados.",
-        "O povo assiste apreensivo: {target} assume a presidência em caráter especial.",
-        "Será que a vaga foi dada ou foi paga? A redação segue investigando.",
-        "O poder muda de mãos e a nação prende a respiração. Quem será o próximo a falar?",
-        "O Presidente confia em {target} para conduzir a nação. Ou será que confia em si mesmo? Ninguém sabe."
+        "Presidente transfere a faixa a {target} em sessão extraordinária.",
+        "Eleição extraordinária foi convocada sem aviso prévio.",
+        "{target} assume por tempo determinado.",
+        "A ordem de sucessão será retomada depois.",
+        "Decisão pegou o plenário de surpresa."
       ],
       "peek": [
-        "O que estava escrito lá? Só ele sabe.",
-        "Dizem que o baralho tem segredos. Agora um deles tem dono.",
-        "Segredos revelados! O Presidente espiou o futuro da nação nos documentos confidenciais.",
-        "Cartas reveladas nas sombras: o líder já sabe o perigo que nos aguarda nas próximas leis.",
-        "O futuro da nação está em jogo. {target} é o único que sabe o que realmente acontece.",
-        "O Presidente espiou o que estava por vir. O que ele fará com essa informação?"
+        "{president} consultou o baralho de pautas.",
+        "Conteúdo da consulta é sigiloso.",
+        "Governo diz que o acesso é de rotina.",
+        "{president} não comentou o que viu.",
+        "Registro da consulta foi arquivado."
       ]
     }
   }
