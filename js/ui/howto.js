@@ -1,6 +1,7 @@
 import { t } from "../i18n/i18n.js";
 import { themeGet } from "../theme/loader.js";
 import { RULES } from "../config/game-config.js";
+import { getToolbar } from "./toolbar.js";
 
 const SECTIONS = ["goal", "roles", "round", "limits", "powers", "veto", "tips"];
 let root = null;
@@ -81,5 +82,5 @@ export function initHowTo() {
   b.textContent = "?";
   b.title = t("howto.open");
   b.addEventListener("click", open);
-  document.body.append(b);
+  getToolbar().append(b);
 }

@@ -1,0 +1,48 @@
+/* ---- barra de botões: ? 📰 ⚙ juntos, no PC e no celular ---- */
+.toolbar {
+  position: fixed; top: 10px; right: 10px; z-index: 50;
+  display: flex; flex-direction: row; align-items: center; gap: 6px;
+}
+#toolbar .mute-btn { position: relative; top: auto; right: auto; left: auto; bottom: auto; flex: none; }
+#btn-help { order: 1; }
+#btn-news { order: 2; }
+#btn-options { order: 3; }
+
+/* ---- véu de caveira de quem foi executado ---- */
+.dead-veil {
+  position: fixed; inset: 0; z-index: 30; pointer-events: none;
+  display: grid; place-items: center;
+  background: rgb(0 0 0 / 0.42);
+  font-size: min(62vmin, 440px); line-height: 1;
+  color: rgb(255 255 255 / 0.14);
+  text-shadow: 0 0 40px rgb(192 57 43 / 0.35);
+  animation: veil-in 0.9s ease both;
+}
+.dead-veil[hidden] { display: none; }
+@keyframes veil-in { from { opacity: 0; } }
+
+/* ---- celular ---- */
+@media (max-width: 900px) {
+  /* o mini roadmap nunca passa por baixo da barra de botões */
+  .mini-road:not([hidden]) {
+    max-width: calc(100vw - var(--toolbar-w, 140px) - 26px);
+    overflow: hidden;
+    z-index: 44;
+  }
+
+  /* painel de ação mais compacto */
+  #action {
+    max-height: 34vh; gap: 6px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+  #action p { font-size: 14px; line-height: 1.3; }
+  #action .action-row { gap: 6px; }
+  #action .action-row .btn { flex: 1 1 calc(33% - 6px); min-width: 0; padding: 9px 6px; font-size: 14px; }
+  .policy-card-btn .pcard { --card-w: 78px; }
+  .chips .pcard { --card-w: 70px; }
+}
+
+@media (max-width: 360px) {
+  .mini-slot { width: 12px; height: 18px; }
+  .mini-logo, .mini-dot { width: 16px; height: 16px; }
+}

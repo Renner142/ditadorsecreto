@@ -12,6 +12,7 @@ import { initAudio, playLobby } from "./audio/audio.js";
 import { initSfx } from "./audio/sfx.js";
 import { preloadTheme } from "./theme/preload.js";
 import { initHowTo } from "./ui/howto.js";
+import { initToolbar } from "./ui/toolbar.js";
 
 const THEME_ID = "democratas";
 const LOCALE = "pt-BR";
@@ -27,6 +28,8 @@ async function start() {
     initAudio();
     initSfx();
     initMenu();
+    initToolbar();
+    initHowTo();
     initToggles();
     playLobby();
 

@@ -46,6 +46,8 @@ export function stopBoard() {
   const mr = document.getElementById("mini-road");
   if (mr) mr.hidden = true;
   showNews(false);
+  const dv = document.getElementById("dead-veil");
+  if (dv) dv.hidden = true;
   hideEndScreen();
   hideDeck();
 }
@@ -248,6 +250,7 @@ export function showBoard(user, code, info, hooks = {}) {
     }
     renderTracks(s);
     renderTracker(s);
+    renderDeadVeil(s, user.uid);
     updateDeck(s);
     renderMiniRoad(s);
     renderHostBanner(s, user.uid);
@@ -451,24 +454,6 @@ function renderAction(user, code, s, players, mine, ui, openEnd) {
           sendAction(code, user.uid, type, { index }).catch(console.error);
         }, type === "enact" ? "stamp" : "discard"));
 
-  // o que acabou de acontecer
-  if (s.lastEnacted) {
-    const e = s.lastEnacted;
-    text(e.veto
-      ? t("veto.done", { president: name(e.president), chancellor: name(e.chancellor) })
-      : t("leg.enacted", {
-          team: themeGet(`teams.${e.policy}.name`),
-          president: name(e.president),
-          chancellor: name(e.chancellor),
-        }), "hint");
-  }
-  if (s.lastPower) {
-    text(t(`power.did_${s.lastPower.type}`, {
-      president: name(s.lastPower.president),
-      target: name(s.lastPower.target),
-    }), "hint");
-  }
-  if (s.dead[user.uid]) text(t("board.you_dead"), "hint");
 
   switch (s.phase) {
     case "role_reveal":
@@ -691,4 +676,19 @@ function renderMiniRoad(s) {
 
   el.replaceChildren(tracks, tracker);
   prevMini = { a: s.tracks.a, b: s.tracks.b };
+}
+
+// véu de caveira: cobre a tela de quem foi executado (os menus continuam acessíveis)
+function renderDeadVeil(s, uid) {
+  let el = document.getElementById("dead-veil");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "dead-veil";
+    el.className = "dead-veil";
+    el.setAttribute("role", "img");
+    el.setAttribute("aria-label", t("board.you_dead"));
+    el.textContent = "☠";
+    document.body.append(el);
+  }
+  el.hidden = !(s.dead[uid] && !s.winner);
 }

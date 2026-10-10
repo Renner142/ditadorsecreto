@@ -2,6 +2,7 @@ import { t, tRaw } from "../i18n/i18n.js";
 import { themeGet } from "../theme/loader.js";
 import { partyOf } from "../core/roles.js";
 import { renderEdition, savePages, sharePages, canShareFiles } from "./newspage.js";
+import { getToolbar } from "./toolbar.js";
 
 let btn = null;
 let dot = null;
@@ -388,7 +389,8 @@ function ensure() {
 
   cardEl.append(scrollEl, foot);
   panel.append(cardEl);
-  document.body.append(btn, panel);
+  getToolbar().append(btn);
+  document.body.append(panel);
 }
 
 // liga/desliga o botão do jornal (só existe durante a partida)
