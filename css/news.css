@@ -13,39 +13,88 @@
 /* o palco das cerimônias (z-index 90) cobre o jornal, então ele não estraga o suspense */
 #news.modal { z-index: 80; }
 
-/* o jornal */
+/* ---- o jornal: papel envelhecido ---- */
 .paper-card {
-  width: min(540px, 100%); max-height: 86vh; overflow-y: auto;
-  gap: 0; padding: 0;
-  background: #efe6cf; color: #211a12;
-  border: 1px solid #00000066; border-radius: 6px;
-  box-shadow: 0 18px 50px rgb(0 0 0 / 0.6), inset 0 0 70px rgb(120 90 40 / 0.18);
+  width: min(600px, 100%); max-height: 90vh;
+  display: flex; flex-direction: column; gap: 0; padding: 0; overflow: hidden;
+  color: #4a4132; text-align: center;
   font-family: Georgia, "Times New Roman", serif;
-  text-align: left;
+  background-color: #e6d9bb;
+  background-image:
+    radial-gradient(ellipse at 15% 10%, rgb(255 255 255 / 0.4), transparent 45%),
+    radial-gradient(ellipse at 85% 90%, rgb(110 75 30 / 0.22), transparent 55%),
+    radial-gradient(ellipse at 90% 15%, rgb(110 75 30 / 0.12), transparent 40%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.26  0 0 0 0 0.14  0 0 0 0.30 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  border: 1px solid #00000066; border-radius: 4px;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.6), inset 0 0 90px rgb(120 85 35 / 0.28);
 }
-.paper-head {
-  position: sticky; top: 0; z-index: 1;
-  padding: 14px 18px 10px; text-align: center;
-  background: #efe6cf; border-bottom: 3px double #211a12;
+
+/* a parte que rola: sem barra de rolagem */
+.paper-scroll {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.paper-scroll::-webkit-scrollbar { display: none; }
+
+/* cabeçalho: nome grande de um lado, lema do outro */
+.paper-masthead {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 6px 16px; padding: 18px 18px 10px;
 }
 .paper-name {
-  margin: 0; font-family: var(--font-display, Georgia, serif);
-  font-size: clamp(22px, 6vw, 30px); letter-spacing: 0.07em; text-transform: uppercase;
+  margin: 0; flex: 0 1 auto; color: #5d5444;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(34px, 9vw, 56px); line-height: 1;
+  letter-spacing: 0.04em; text-transform: uppercase; text-align: left;
 }
-.paper-tag { margin: 2px 0 0; font-size: 12px; font-style: italic; opacity: 0.7; }
+.paper-tag {
+  margin: 0; flex: 1 1 170px; text-align: right;
+  font-size: 14px; font-style: italic; line-height: 1.3; color: #5d5444;
+}
+.paper-rule { height: 12px; margin: 0 18px; background: #6e6552; opacity: 0.8; }
 
-.paper-list { display: flex; flex-direction: column; padding: 2px 18px 6px; }
-.paper-item { padding: 12px 0; border-bottom: 1px solid #211a1233; animation: fadeUp 0.25s ease both; }
-.paper-item h4 { margin: 0 0 4px; font-size: 16px; line-height: 1.25; }
-.paper-comment { margin: 0; font-size: 14px; font-style: italic; line-height: 1.4; color: #4a3d2e; }
-.paper-item .nm, .paper-item .nt { font-weight: 800; }
+/* manchete principal */
+.paper-main { padding: 16px 18px 12px; }
+.paper-main-head {
+  margin: 0 0 8px; color: #4f4636;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(22px, 6.4vw, 34px); line-height: 1.12;
+  text-transform: uppercase; text-wrap: balance;
+}
+.paper-main-head.team-a { color: color-mix(in srgb, var(--color-team-a) 75%, #000); }
+.paper-main-head.team-b { color: color-mix(in srgb, var(--color-team-b) 75%, #000); }
+.paper-main-text { margin: 0; font-size: 15px; line-height: 1.4; }
+
+/* acontecimentos em duas colunas, com um filete no meio */
+.paper-grid { display: grid; grid-template-columns: 1fr 1fr; padding: 6px 18px 18px; }
+.paper-item { padding: 10px 14px 14px; }
+.paper-item:nth-child(odd) { padding-left: 0; border-right: 1px solid #5d544666; }
+.paper-item:nth-child(even) { padding-right: 0; }
+.paper-item h4 {
+  margin: 0 0 6px; color: #5d5444;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 16px; line-height: 1.2; text-transform: uppercase; text-wrap: balance;
+}
+.paper-comment { margin: 0; font-size: 14px; font-style: italic; line-height: 1.4; }
+.paper-item .nm, .paper-item .nt, .paper-main .nm, .paper-main .nt { font-weight: 800; }
 .paper-card .nt.team-a { color: color-mix(in srgb, var(--color-team-a) 80%, #000); }
 .paper-card .nt.team-b { color: color-mix(in srgb, var(--color-team-b) 80%, #000); }
 .paper-card .nt.leader { color: #6e0d14; }
-.paper-item[class*="kind-end_"] { border-left: 4px solid var(--color-accent); padding-left: 10px; }
-.paper-empty { margin: 0; padding: 26px 8px; text-align: center; font-style: italic; opacity: 0.7; }
+.paper-empty { grid-column: 1 / -1; margin: 0; padding: 22px 8px; font-style: italic; opacity: 0.7; }
+
+.paper-item.fresh { animation: paper-in 0.4s ease both; }
+@keyframes paper-in { from { opacity: 0; translate: 0 10px; } }
 
 .paper-foot {
-  position: sticky; bottom: 0;
-  padding: 10px 18px 14px; text-align: center; background: #efe6cf;
+  padding: 10px 18px 14px; text-align: center;
+  background: #dccfae; border-top: 1px solid #00000022;
+}
+
+/* celular estreito: uma coluna só */
+@media (max-width: 460px) {
+  .paper-grid { grid-template-columns: 1fr; }
+  .paper-item:nth-child(odd), .paper-item:nth-child(even) { padding: 10px 0 14px; border-right: 0; }
+  .paper-item + .paper-item { border-top: 1px solid #5d544644; }
+  .paper-name { text-align: center; flex-basis: 100%; }
+  .paper-tag { text-align: center; }
 }
