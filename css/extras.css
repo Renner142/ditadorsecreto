@@ -30,3 +30,10 @@
 .opt-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; }
 .opt-toggle input[type="checkbox"] { width: 20px; height: 20px; padding: 0; flex: none; accent-color: var(--color-accent); }
 .invite-fallback { word-break: break-all; user-select: all; text-align: center; margin: 0; }
+
+.opt-install { display: flex; flex-direction: column; gap: 8px; }
+.opt-install[hidden] { display: none; }
+.opt-install .hint { margin: 0; text-align: center; }
+
+/* bônus: no celular, puxar a tela pra baixo não recarrega a página sem querer */
+html, body { overscroll-behavior-y: contain; }

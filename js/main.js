@@ -13,6 +13,7 @@ import { initSfx } from "./audio/sfx.js";
 import { preloadTheme } from "./theme/preload.js";
 import { initHowTo } from "./ui/howto.js";
 import { initToolbar } from "./ui/toolbar.js";
+import { initInstall } from "./ui/install.js";
 
 const THEME_ID = "democratas";
 const LOCALE = "pt-BR";

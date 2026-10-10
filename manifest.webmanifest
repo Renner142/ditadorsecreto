@@ -1,0 +1,19 @@
+{
+  "name": "Ditador Secreto",
+  "short_name": "Ditador",
+  "description": "Jogo de dedução social online, adaptado de Secret Hitler.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#14110f",
+  "theme_color": "#14110f",
+  "icons": [
+    {
+      "src": "themes/democratas/img/iconejogo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

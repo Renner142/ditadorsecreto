@@ -324,5 +324,9 @@
     "discard": "Descarte",
     "hint": "Cartas no baralho e no descarte. O descarte volta embaralhado ao baralho quando restam menos de 3 cartas.",
     "shuffled": "🔀 Baralho embaralhado: o descarte voltou ao monte"
+  },
+    "install": {
+    "button": "Instalar o app",
+    "ios": "No iPhone: toque em Compartilhar e depois em Adicionar à Tela de Início."
   }
 }
