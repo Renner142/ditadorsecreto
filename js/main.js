@@ -32,6 +32,7 @@ async function start() {
     initToolbar();
     initHowTo();
     initToggles();
+    initInstall();
     playLobby();
 
     const user = await login();

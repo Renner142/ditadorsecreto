@@ -46,3 +46,7 @@
   .mini-slot { width: 12px; height: 18px; }
   .mini-logo, .mini-dot { width: 16px; height: 16px; }
 }
+
+/* opções: se a janela passar da altura da tela, rola em vez de cortar */
+#options.modal { overflow-y: auto; place-items: start center; }
+#options .modal-card { margin: auto; }
