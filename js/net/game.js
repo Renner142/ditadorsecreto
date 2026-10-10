@@ -47,7 +47,7 @@ const GAME_FIELDS = [
   "order", "presidentIdx", "dead", "tracks", "electionTracker", "candidate",
   "lastGov", "lastVote", "lastEnacted", "lastPower", "power", "investigated",
   "specialReturn", "vetoDenied", "confirmedNotLeader", "winner", "voted", "finalRoles", 
-  'news',
+  'news', "deckCount", "discardCount", "shuffles"
 ];
 
 // leva a sala de volta ao lobby: apaga a partida e a lista de jogadores

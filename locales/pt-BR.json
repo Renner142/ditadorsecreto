@@ -318,5 +318,11 @@
     "share": "Compartilhar",
     "share_text": "Entre na minha sala de {title}! Código: {code}",
     "note": "Você foi convidado para a sala {code}. Digite seu apelido e entre."
+  },
+  "deck": {
+    "deck": "Baralho",
+    "discard": "Descarte",
+    "hint": "Cartas no baralho e no descarte. O descarte volta embaralhado ao baralho quando restam menos de 3 cartas.",
+    "shuffled": "🔀 Baralho embaralhado: o descarte voltou ao monte"
   }
 }

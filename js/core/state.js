@@ -14,6 +14,7 @@ export function splitState(s) {
       specialReturn: s.specialReturn, vetoDenied: s.vetoDenied,
       confirmedNotLeader: s.confirmedNotLeader, winner: s.winner, voted,
       news: s.news,
+      deckCount: s.deck.length, discardCount: s.discard.length, shuffles: s.shuffles,
       finalRoles: s.winner ? s.roles : null, // só aparece quando o jogo acaba
     }),
     host: clean({
@@ -51,5 +52,6 @@ export function joinState(pub, host) {
     hand: host.hand ?? null,
     peek: host.peek ?? null,
     intel: host.intel || {},
+    shuffles: pub.shuffles || 0,
   };
 }

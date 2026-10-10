@@ -18,6 +18,7 @@ import { policyFace, policyCardButton, teamIconUrl } from "./cards.js";
 import { buildToken } from "./token.js";
 import { showNews, updateNews } from "./news.js";
 import { buzz } from "./haptics.js";
+import { updateDeck, hideDeck } from "./deckcount.js";
 
 
 const $ = (id) => document.getElementById(id);
@@ -46,6 +47,7 @@ export function stopBoard() {
   if (mr) mr.hidden = true;
   showNews(false);
   hideEndScreen();
+  hideDeck();
 }
 
 export function showBoard(user, code, info, hooks = {}) {
@@ -246,6 +248,7 @@ export function showBoard(user, code, info, hooks = {}) {
     }
     renderTracks(s);
     renderTracker(s);
+    updateDeck(s);
     renderMiniRoad(s);
     renderHostBanner(s, user.uid);
     draw();

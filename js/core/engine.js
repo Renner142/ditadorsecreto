@@ -27,6 +27,7 @@ export function initialState(uids, roles, rules) {
     peek: null,
     intel: {},
     news: [],
+    shuffles: 0,
     roles,
     deck: buildDeck(rules),
     discard: [],
@@ -63,6 +64,7 @@ function refillDeck(s) {
   if (s.deck.length < 3) {
     s.deck = shuffle([...s.deck, ...s.discard]);
     s.discard = [];
+    s.shuffles = (s.shuffles || 0) + 1;
   }
 }
 
