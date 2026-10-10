@@ -1,6 +1,6 @@
 {
   "name": "Ditador Secreto",
-  "short_name": "Ditador",
+  "short_name": "DitSec",
   "description": "Jogo de dedução social online, adaptado de Secret Hitler.",
   "lang": "pt-BR",
   "start_url": "./",

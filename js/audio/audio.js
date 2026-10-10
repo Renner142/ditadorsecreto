@@ -1,12 +1,14 @@
 import { themeGet, themeAsset } from "../theme/loader.js";
 import { getSetting, onSettingsChange } from "../settings/settings.js";
-import { getCtx } from "./ctx.js";
+import { getCtx, suspendCtx } from "./ctx.js";
 
 let el = null;
 let musicGain = null;
 let currentPath = null;
 let wantPlaying = false;
 let unlockBound = false;
+let resumeOnShow = false;
+let pendingShow = false;
 
 function applyVolume() {
   if (!el) return;
@@ -61,6 +63,7 @@ function bindUnlock() {
 
 function tryPlay() {
   if (!wantPlaying) return;
+  if (document.hidden) { pendingShow = true; return; } // não toca em segundo plano
   player().play().then(() => {
     const c = getCtx();
     if (c && c.state !== "running") bindUnlock();
@@ -100,4 +103,19 @@ export function playVictory(team) { play(themeGet(`audio.victory.${team}`), fals
 
 export function initAudio() {
   onSettingsChange(applyVolume);
+
+  // ao sair do jogo (trocar de app, bloquear a tela, trocar de aba) o som para; ao voltar, retoma
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      resumeOnShow = !!el && !el.paused && !el.ended;
+      if (el) el.pause();
+      suspendCtx();
+    } else {
+      const again = wantPlaying && (resumeOnShow || pendingShow);
+      resumeOnShow = false;
+      pendingShow = false;
+      getCtx(); // reativa o áudio
+      if (again) tryPlay();
+    }
+  });
 }

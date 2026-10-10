@@ -85,6 +85,7 @@ function synth(name, dest) {
 
 export function playSfx(name, delayMs = 0) {
   if (delayMs) return void setTimeout(() => playSfx(name), delayMs);
+  if (document.hidden) return;
   if (getSetting("sfxMuted") || getSetting("sfxVolume") <= 0) return;
   const dest = output();
   if (!dest) return;

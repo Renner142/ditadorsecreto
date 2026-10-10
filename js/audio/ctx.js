@@ -9,3 +9,7 @@ export function getCtx() {
   if (ctx.state === "suspended") ctx.resume().catch(() => {});
   return ctx;
 }
+
+export function suspendCtx() {
+  if (ctx && ctx.state === "running") ctx.suspend().catch(() => {});
+}
