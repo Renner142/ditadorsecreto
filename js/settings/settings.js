@@ -1,5 +1,5 @@
 const KEY = "settings.v3";
-const DEFAULTS = { musicVolume: 0.3, musicMuted: false, sfxVolume: 2, sfxMuted: false };
+const DEFAULTS = { musicVolume: 0.3, musicMuted: false, sfxVolume: 2, sfxMuted: false, vibrate: true, awake: true };
 const MAX = 2; // 200%
 const listeners = new Set();
 let current = { ...DEFAULTS };
@@ -19,6 +19,8 @@ export function setSettings(partial) {
   next.sfxVolume = clamp(next.sfxVolume);
   next.musicMuted = !!next.musicMuted;
   next.sfxMuted = !!next.sfxMuted;
+  next.vibrate = next.vibrate !== false;
+  next.awake = next.awake !== false;
   current = next;
   try { localStorage.setItem(KEY, JSON.stringify(current)); } catch {}
   listeners.forEach((fn) => fn(current));

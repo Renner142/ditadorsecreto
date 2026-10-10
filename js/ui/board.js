@@ -17,6 +17,7 @@ import { showEndScreen, hideEndScreen } from "./endscreen.js";
 import { policyFace, policyCardButton, teamIconUrl } from "./cards.js";
 import { buildToken } from "./token.js";
 import { showNews, updateNews } from "./news.js";
+import { buzz } from "./haptics.js";
 
 
 const $ = (id) => document.getElementById(id);

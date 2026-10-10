@@ -136,9 +136,11 @@
     "open": "Opções",
     "close": "Fechar",
     "leave_game": "Sair da partida",
-  "leave_confirm": "Sair da partida? Você não vai conseguir voltar.",
-  "leave_confirm_host": "Você é o anfitrião: sair encerra a partida para todos. Continuar?",
-  "leave_yes": "Sair"
+    "leave_confirm": "Sair da partida? Você não vai conseguir voltar.",
+    "leave_confirm_host": "Você é o anfitrião: sair encerra a partida para todos. Continuar?",
+    "leave_yes": "Sair",
+    "vibrate": "Vibrar na minha vez",
+    "awake": "Manter a tela ligada"
   },
   "stage": {
   "execution": "{president} executa {target}",
@@ -188,14 +190,14 @@
     "footer": "{title} · Edição final",
     "head": {
       "policy": "Presidente {president} e Chanceler {chancellor} promulgam política {team}",
-      "chaos": "Sem governo, o povo promulga uma política {team}",
-      "rejected": "Plenário rejeita o governo de {president} e {chancellor}",
-      "veto": "{president} e {chancellor} vetam a pauta: nenhuma política é promulgada",
-      "veto_refused": "{president} recusa o veto proposto por {chancellor}",
+      "chaos": "Sem governo, uma política {team} é promulgada",
+      "rejected": " Governo de {president} e {chancellor} é rejeitado",
+      "veto": "{president} e {chancellor} vetam a pauta",
+      "veto_refused": "{president} recusa o veto de {chancellor}",
       "execute": "{president} manda executar {target}",
       "investigate": "{president} investiga a lealdade de {target}",
-      "special": "{president} convoca eleição especial e entrega a presidência a {target}",
-      "peek": "{president} consulta os arquivos e espia as próximas políticas",
+      "special": "{president} entrega a presidência a {target}",
+      "peek": "{president} espia as próximas políticas",
       "end_policies_a": [
         "As leis salvam a República",
         "A democracia está garantida",
@@ -239,12 +241,12 @@
         "Entidades civis criticam a falta de debate.",
         "Juristas questionam a constitucionalidade.",
         "Medida foi aprovada sem consulta pública.",
-        "Oposição fala em retrocesso e promete recorrer.",
-        "Texto restringe liberdades e vale imediatamente.",
+        "Oposição promete recorrer.",
+        "Texto restringe liberdades imediatamente.",
         "Sindicatos convocam protesto para amanhã.",
         "Governo defende a medida como necessária.",
-        "Observadores internacionais acompanham com preocupação.",
-        "Jornalistas relatam novas restrições à imprensa."
+        "Observadores acompanham com preocupação.",
+        "Relatos de novas restrições à imprensa."
       ],
       "chaos": [
         "Três rejeições seguidas paralisaram o governo.",
@@ -308,5 +310,13 @@
         "Registro da consulta foi arquivado."
       ]
     }
+  },
+  "invite": {
+    "copy": "Copiar link",
+    "copied": "Link copiado!",
+    "copy_failed": "Não consegui copiar. Copie o link:",
+    "share": "Compartilhar",
+    "share_text": "Entre na minha sala de {title}! Código: {code}",
+    "note": "Você foi convidado para a sala {code}. Digite seu apelido e entre."
   }
 }

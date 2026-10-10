@@ -10,6 +10,9 @@ import { showBoard, stopBoard } from "./board.js";
 import { setBackground } from "./background.js";
 import { confirmDialog } from "./modal.js";
 import { show } from "./router.js";
+import { inviteUrl, copyText, rememberNick, recallNick } from "../net/invite.js";
+import { keepAwake } from "./wakelock.js";
+import { themeGet } from "../theme/loader.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -31,6 +34,7 @@ function showError(err) {
 function getNickname() {
   const nick = $("nickname").value.trim();
   if (!nick) throw new Error("errors.nickname_required");
+  rememberNick(nick);
   return nick;
 }
 
@@ -62,6 +66,8 @@ function setLeaveButton(visible) {
 
 // começa a acompanhar a sala; inGame = já entra direto na partida (sem contagem do papel)
 function startWatching(user, code, nickname, inGame = false) {
+  keepAwake(true);
+  document.getElementById("invite-note")?.remove();
   currentCode = code;
   myNickname = nickname;
   gameShown = inGame;
@@ -99,6 +105,7 @@ function clearGame() {
 }
 
 function exitLobby() {
+  keepAwake(false);
   if (stopWatching) stopWatching();
   stopWatching = null;
   clearGame();
@@ -234,8 +241,81 @@ export async function resumeSession(user) {
   }
 }
 
+// botões de convite na sala (criados aqui, então não precisa mexer no HTML)
+function setupInviteButtons() {
+  const anchor = $("lobby-code");
+  if (!anchor || document.getElementById("invite-row")) return;
+
+  const row = document.createElement("div");
+  row.id = "invite-row";
+  row.className = "action-row";
+
+  const fallback = document.createElement("p");
+  fallback.className = "hint invite-fallback";
+  fallback.hidden = true;
+
+  const copy = document.createElement("button");
+  copy.type = "button";
+  copy.className = "btn btn-secondary";
+  copy.textContent = t("invite.copy");
+  copy.addEventListener("click", async () => {
+    if (!currentCode) return;
+    const url = inviteUrl(currentCode);
+    const ok = await copyText(url);
+    fallback.hidden = ok;
+    if (!ok) fallback.textContent = `${t("invite.copy_failed")} ${url}`;
+    copy.textContent = t(ok ? "invite.copied" : "invite.copy");
+    setTimeout(() => { copy.textContent = t("invite.copy"); }, 2000);
+  });
+  row.append(copy);
+
+  if (navigator.share) {
+    const share = document.createElement("button");
+    share.type = "button";
+    share.className = "btn btn-secondary";
+    share.textContent = t("invite.share");
+    share.addEventListener("click", async () => {
+      if (!currentCode) return;
+      const title = themeGet("title") || "";
+      try {
+        await navigator.share({
+          title,
+          text: t("invite.share_text", { title, code: currentCode }),
+          url: inviteUrl(currentCode),
+        });
+      } catch (err) {
+        if (err?.name !== "AbortError") console.error(err);
+      }
+    });
+    row.append(share);
+  }
+
+  anchor.after(row, fallback);
+}
+
+// abre o site pelo link de convite: vai direto pro formulário com o código preenchido
+export function applyInvite(code) {
+  $("room-code").value = code;
+  if (!$("nickname").value) $("nickname").value = recallNick();
+  let note = document.getElementById("invite-note");
+  if (!note) {
+    note = document.createElement("p");
+    note.id = "invite-note";
+    note.className = "hint";
+    $("nickname").before(note);
+  }
+  note.textContent = t("invite.note", { code });
+  $("home-error").textContent = "";
+  setBackground();
+  playLobby();
+  show("home");
+  $("nickname").focus();
+}
+
 export function initLobby(user, themeId) {
   me = user;
+  setupInviteButtons();
+  if (!$("nickname").value) $("nickname").value = recallNick();
 
   $("btn-create").addEventListener("click", async () => {
     $("home-error").textContent = "";

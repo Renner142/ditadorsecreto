@@ -26,3 +26,7 @@
     box-shadow: 0 -10px 28px rgb(0 0 0 / 0.55);
   }
 }
+
+.opt-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; }
+.opt-toggle input[type="checkbox"] { width: 20px; height: 20px; padding: 0; flex: none; accent-color: var(--color-accent); }
+.invite-fallback { word-break: break-all; user-select: all; text-align: center; margin: 0; }
