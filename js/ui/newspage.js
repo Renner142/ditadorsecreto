@@ -29,7 +29,13 @@ function teamColors() {
   const get = (name, fallback) => cs.getPropertyValue(name).trim() || fallback;
   const rawA = get("--color-team-a", "#2c7bb6");
   const rawB = get("--color-team-b", "#b3202a");
-  return { rawA, rawB, a: darken(rawA, 0.25), b: darken(rawB, 0.25), aDeep: darken(rawA, 0.5), bDeep: darken(rawB, 0.5) };
+  const rawAccent = get("--color-accent", "#d9a53f");
+  return {
+    rawA, rawB,
+    a: darken(rawA, 0.25), b: darken(rawB, 0.25),
+    aDeep: darken(rawA, 0.5), bDeep: darken(rawB, 0.5),
+    accent: darken(rawAccent, 0.1),
+  };
 }
 
 const colorFor = (cls = "", TEAM) =>
@@ -385,10 +391,9 @@ function drawFlow(ctx, r, area, TEAM) {
     const tx = x + INSET;
     const tw = r.colW - INSET;
     const body = p.m.hL.h + (p.m.cL ? 8 * p.m.sc + p.m.cL.h : 0);
-    if (p.m.team) { // faixa lateral na cor do partido
-      ctx.fillStyle = TEAM[p.m.team];
-      ctx.fillRect(x, top + 2, 6, body - 2);
-    }
+    // faixa lateral: cor do partido nas políticas, amarela nas demais notícias
+    ctx.fillStyle = p.m.team ? TEAM[p.m.team] : TEAM.accent;
+    ctx.fillRect(x, top + 2, 6, body - 2);
     let y = top + drawLines(ctx, p.m.hL, tx, top, tw, p.m.headSt, "center", INK2);
     if (p.m.cL) {
       y += 8 * p.m.sc;

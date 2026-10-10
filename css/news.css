@@ -137,3 +137,9 @@
 
 .paper-foot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .paper-page-lbl { align-self: center; min-width: 34px; text-align: center; font: 700 14px system-ui, sans-serif; color: #4a4132; }
+
+/* notícia que não é política: a mesma barrinha, em amarelo */
+.paper-item.alert { border-left: 5px solid var(--color-accent); padding-left: 10px !important; }
+
+/* título mais leve, pra o negrito do nome dos jogadores aparecer */
+.paper-item h4 { font-weight: 500; }

@@ -41,8 +41,15 @@ const pickFrom = (raw, seed) => {
 
 const adj = (team) => themeGet(`teams.${team}.adj`) ?? themeGet(`teams.${team}.name`) ?? "?";
 
-function varsFor(e) {
-  const nm = (uid) => ({ text: players[uid]?.name ?? "?", cls: "nm" });
+function varsFor(e, colored = false) {
+  const nm = (uid) => {
+    let cls = "nm";
+    if (colored) { // só a imagem final pede cor, e só existe papel revelado quando a partida acaba
+      const role = snapshot?.finalRoles?.[uid];
+      if (role) cls += ` team-${partyOf(role)}`;
+    }
+    return { text: players[uid]?.name ?? "?", cls };
+  };
   const v = { leader: { text: themeGet("teams.leader.name") ?? "?", cls: "nt leader" } };
   if (e.president) v.president = nm(e.president);
   if (e.chancellor) v.chancellor = nm(e.chancellor);
@@ -76,7 +83,7 @@ function fill(template, vars) {
   return frag;
 }
 
-function texts(e) {
+function texts(e, colored = false) {
   const seed = e.seed || 0;
   // a vitória por políticas tem frases diferentes pra cada time (com reserva na chave antiga)
   const pick = (kind, k) => {
@@ -86,13 +93,13 @@ function texts(e) {
   const head = pickFrom(pick("head", e.k), seed) || e.k;
   const ckey = e.k === "policy" ? `policy_${e.team}` : e.k;
   const comment = pickFrom(pick("comment", ckey), Math.floor(seed / 7));
-  return { head, comment, vars: varsFor(e) };
+  return { head, comment, vars: varsFor(e, colored) };
 }
 
 function article(e, fresh) {
   const { head, comment, vars } = texts(e);
   const el = document.createElement("article");
-  el.className = `paper-item kind-${e.k}` + (e.team ? ` team-${e.team}` : "") + (fresh ? " fresh" : "");
+  el.className = `paper-item kind-${e.k}` + (e.team ? ` team-${e.team}` : " alert") + (fresh ? " fresh" : "");
   const h = document.createElement("h4");
   h.append(fill(head, vars));
   el.append(h);
@@ -166,8 +173,8 @@ function roster() {
 function buildEdition() {
   const endEntry = entries.find((e) => String(e.k).startsWith("end_"));
   return {
-    end: endEntry ? { k: endEntry.k, team: endEntry.team, ...texts(endEntry) } : null,
-    items: entries.filter((e) => !String(e.k).startsWith("end_")).map((e) => ({ k: e.k, team: e.team, ...texts(e) })),
+    end: endEntry ? { k: endEntry.k, team: endEntry.team, ...texts(endEntry, true) } : null,
+    items: entries.filter((e) => !String(e.k).startsWith("end_")).map((e) => ({ k: e.k, team: e.team, ...texts(e, true) })),
     rows: roster(),
     score,
   };

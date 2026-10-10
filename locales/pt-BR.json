@@ -260,21 +260,21 @@
         "Chapa não obteve maioria no plenário.",
         "Proposta foi derrotada na votação.",
         "Rejeições seguidas: {n}.",
-        "Líderes admitem falta de articulação política.",
+        "Admitem falta de articulação política.",
         "Governo volta à mesa de negociação.",
-        "Parlamentares alegam falta de confiança na chapa.",
+        "Alegam falta de confiança na chapa.",
         "Nova tentativa deve ocorrer em breve."
       ],
       "veto": [
-        "Presidente e Chanceler concordaram em arquivar a pauta.",
+        "Presidente e Chanceler concordaram.",
         "Nenhuma medida foi aprovada na sessão.",
-        "Veto conjunto surpreendeu os parlamentares.",
+        "Veto conjunto surpreendeu a todos.",
         "O veto conta como governo rejeitado.",
         "Pauta fica para outra sessão."
       ],
       "veto_refused": [
-        "Presidente barrou o pedido e exigiu a votação.",
-        "Chanceler terá que escolher uma das medidas.",
+        "Presidente barrou o pedido.",
+        "Chanceler terá que escolher.",
         "Pedido de veto foi negado.",
         "Divergência entre os dois ficou pública."
       ],
@@ -282,22 +282,22 @@
         "{target} foi afastado e não participa mais.",
         "Motivos da execução não foram divulgados.",
         "Governo não comentou o caso.",
-        "{target} não vota nem fala mais em plenário.",
-        "O ato foi assinado pelo próprio Presidente.",
-        "Organizações pedem esclarecimentos sobre o caso.",
+        "{target} não vota nem fala mais.",
+        "Ato assinado pelo próprio Presidente.",
+        "Organizações pedem esclarecimentos sobre.",
         "A cadeira de {target} permanece vazia."
       ],
       "investigate": [
-        "Presidente teve acesso aos registros de {target}.",
+        "Presidente acessou os registros de {target}.",
         "Resultado da apuração permanece em sigilo.",
-        "{target} diz que colabora com a investigação.",
+        "{target} colabora com a investigação.",
         "Governo não comenta a apuração.",
-        "Fontes dizem que o dossiê tem poucas páginas.",
+        "Dizem que o dossiê tem poucas páginas.",
         "Conclusões não têm data para divulgação."
       ],
       "special": [
-        "Presidente transfere a faixa a {target} em sessão extraordinária.",
-        "Eleição extraordinária foi convocada sem aviso prévio.",
+        "Presidente transfere a faixa a {target}.",
+        "Eleição extraordinária foi convocada.",
         "{target} assume por tempo determinado.",
         "A ordem de sucessão será retomada depois.",
         "Decisão pegou o plenário de surpresa."
