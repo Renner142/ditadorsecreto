@@ -98,3 +98,21 @@
   .paper-name { text-align: center; flex-basis: 100%; }
   .paper-tag { text-align: center; }
 }
+
+/* edição final encaixada na tela: sem rolagem */
+.paper-card.edition {
+  width: min(100%, calc((100vh - 170px) * 0.75));
+  width: min(100%, calc((100dvh - 170px) * 0.75));
+  max-height: none;
+}
+.paper-card.edition .paper-scroll { overflow: hidden; }
+.paper-card.edition .paper-foot { padding: 8px 12px 10px; gap: 6px; }
+.paper-card.edition .paper-foot .btn { padding: 8px 12px; font-size: 14px; }
+.paper-page-lbl { align-self: center; min-width: 34px; text-align: center; font: 700 14px system-ui, sans-serif; color: #4a4132; }
+
+/* notícias por partido (jornal durante a partida) */
+.paper-item.team-a, .paper-item.team-b { border-left: 5px solid; padding-left: 10px !important; }
+.paper-item.team-a { border-left-color: var(--color-team-a); }
+.paper-item.team-b { border-left-color: var(--color-team-b); }
+.paper-item.team-a .paper-comment { color: color-mix(in srgb, var(--color-team-a) 55%, #1a140c); }
+.paper-item.team-b .paper-comment { color: color-mix(in srgb, var(--color-team-b) 55%, #1a140c); }

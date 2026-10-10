@@ -15,6 +15,10 @@ let listEl = null;
 let editionEl = null;
 let btnSave = null;
 let btnShare = null;
+let cur = 0;
+let btnPrev = null;
+let btnNext = null;
+let pageLbl = null;
 let sig = "";
 let entries = [];
 let players = {};
@@ -74,9 +78,14 @@ function fill(template, vars) {
 
 function texts(e) {
   const seed = e.seed || 0;
-  const head = pickFrom(tRaw(`news.head.${e.k}`), seed) || e.k;
+  // a vitória por políticas tem frases diferentes pra cada time (com reserva na chave antiga)
+  const pick = (kind, k) => {
+    const specific = e.k === "end_policies" ? tRaw(`news.${kind}.${k}_${e.team || ""}`) : null;
+    return specific ?? tRaw(`news.${kind}.${k}`);
+  };
+  const head = pickFrom(pick("head", e.k), seed) || e.k;
   const ckey = e.k === "policy" ? `policy_${e.team}` : e.k;
-  const comment = pickFrom(tRaw(`news.comment.${ckey}`), Math.floor(seed / 7));
+  const comment = pickFrom(pick("comment", ckey), Math.floor(seed / 7));
   return { head, comment, vars: varsFor(e) };
 }
 
@@ -169,10 +178,18 @@ function syncFoot() {
   const ready = ended && pages.length > 0;
   btnSave.hidden = !ready;
   btnShare.hidden = !(ready && shareOk);
+  const multi = ready && pages.length > 1;
+  btnPrev.hidden = btnNext.hidden = pageLbl.hidden = !multi;
+  if (multi) {
+    pageLbl.textContent = `${cur + 1}/${pages.length}`;
+    btnPrev.disabled = cur === 0;
+    btnNext.disabled = cur === pages.length - 1;
+  }
 }
 
 function mountPages() {
-  editionEl.replaceChildren(...pages);
+  if (cur >= pages.length) cur = 0;
+  editionEl.replaceChildren(...(pages[cur] ? [pages[cur]] : []));
   syncFoot();
 }
 
@@ -197,6 +214,7 @@ async function renderEditionView() {
     const canvases = await renderEdition(data);
     if (token !== editionToken) return;
     pages = canvases;
+    cur = 0;
     mountPages();
   } catch (err) {
     console.error(err);
@@ -344,7 +362,22 @@ function ensure() {
   close.className = "btn btn-secondary";
   close.textContent = t("news.close");
   close.addEventListener("click", closePanel);
-  foot.append(btnSave, btnShare, close);
+    const pager = (label, title, delta) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn btn-secondary";
+    b.textContent = label;
+    b.title = title;
+    b.hidden = true;
+    b.addEventListener("click", () => { cur = Math.max(0, Math.min(pages.length - 1, cur + delta)); mountPages(); });
+    return b;
+  };
+  btnPrev = pager("‹", t("news.page_prev"), -1);
+  btnNext = pager("›", t("news.page_next"), 1);
+  pageLbl = document.createElement("span");
+  pageLbl.className = "paper-page-lbl";
+  pageLbl.hidden = true;
+  foot.append(btnPrev, pageLbl, btnNext, btnSave, btnShare, close);
 
   cardEl.append(scrollEl, foot);
   panel.append(cardEl);
@@ -360,6 +393,7 @@ export function showNews(on) {
     sig = "";
     entries = [];
     seen = 0;
+    cur = 0;
     first = true;
     ended = false;
     stick = true;

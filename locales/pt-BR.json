@@ -177,6 +177,8 @@
     "live_title": "Edição em andamento",
     "live_text": "A nação aguarda o desfecho. Placar das políticas: {a} {na} × {nb} {b}.",
     "save": "Salvar imagem",
+    "page_prev": "Página anterior",
+    "page_next": "Próxima página",
     "share": "Compartilhar",
     "loading_edition": "Imprimindo a edição final...",
     "edition_error": "Não consegui montar a edição final.",
@@ -291,27 +293,28 @@
         "O futuro da nação está em jogo. {target} é o único que sabe o que realmente acontece.",
         "O Presidente espiou o que estava por vir. O que ele fará com essa informação?"
       ],
-      "end_policies": [
-        "FIM DE JOGO: As políticas definiram o destino da nação! A vitória foi selada.",
-        "A batalha política terminou. O futuro do nosso país foi escrito definitvamente hoje.",
-        "O povo falou através das urnas e das leis. A nação tem um vencedor claro.",
-        "As políticas promulgadas decidiram o rumo da história. A democracia prevaleceu!",
-        "O resultado das políticas é inegável: a nação se curva a um novo capítulo de sua história."
+      "end_policies_a": [
+        "O povo falou nas urnas e nas leis: a nação tem um vencedor claro.",
+        "A batalha política terminou, e o futuro do país foi escrito hoje.",
+        "O bom senso venceu no parlamento. A República respira.",
+        "As leis certas chegaram a tempo. A democracia segue de pé."
+      ],
+      "end_policies_b": [
+        "A nação se curva a um novo capítulo da sua história. Ninguém ousa protestar.",
+        "As leis foram escritas e as portas, trancadas. O regime agora é oficial.",
+        "O parlamento aplaude de pé, por medo ou por convicção. Difícil dizer.",
+        "A liberdade foi arquivada, com carimbo e tudo."
       ],
       "end_leader_elected": [
-        "GOLPE MORTAL! O Ditador foi eleito Chanceler! A tirania assume o controle absoluto e a democracia MOCREU!",
-        "A TORDILHA CAIU! Ninguém percebeu a tempo e o Ditador {target} foi coroado no poder supremo!",
-        "TRAGÉDIA NACIONAL! A nação caiu na armadilha: o Ditador assumiu o comando e as luzes da liberdade se apagam!",
-        "O POVO CHOROU! O Ditador {target} foi eleito Chanceler e a democracia se despedaçou em silêncio!",
-        "A NAÇÃO SE CURVOU! O Ditador {target} triunfou e a esperança da liberdade se perdeu nas sombras do autoritarismo!"
+        "Chanceler eleito, {target} revela-se {leader} e toma a nação de assalto",
+        "{target} sobe ao poder pelo voto e revela-se {leader}",
+        "Era ele o tempo todo: {target}, eleito Chanceler, é {leader}"
       ],
       "end_leader_killed": [
-        "A DEMOCRACIA VENCEU! O Ditador {target} foi executado e o terror do autoritarismo ruiu de vez!",
-        "O MONSTRO FOI ELIMINADO! O tiro fatal derrubou o Ditador e salvou nossa República do abismo!",
-        "VITÓRIA DA LIBERDADE! A ameaça ditatorial foi erradicada e o povo volta a sorrir com esperança!",
-        "A LIBERDADE É PRESERVADA! O Ditador {target} foi eliminado e a democracia renasce com força!",
-        "O POVO CELEBRA! A execução do Ditador {target} marca o fim da tirania e o início de uma nova era!"
-      ]
+        "{leader} cai: {target} é executado e a tirania chega ao fim",
+        "Execução põe fim ao regime: {target} era {leader}",
+        "A nação respira: {target}, {leader}, não governa mais"
+        ]
     }
   }
 }

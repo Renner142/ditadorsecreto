@@ -7,6 +7,8 @@ const H = 1600;
 const M = 56;
 const FOOT = 44;
 const GAP = 44;
+const INSET = 14; // recuo do texto, pra faixa lateral do partido
+const SHOW_END_COMMENT = false; // true = mostra o comentário sob a manchete
 const SERIF = 'Georgia, "Times New Roman", serif';
 const DISPLAY = '"Cinzel", Georgia, "Times New Roman", serif';
 const INK = "#4a4132";
@@ -27,7 +29,7 @@ function teamColors() {
   const get = (name, fallback) => cs.getPropertyValue(name).trim() || fallback;
   const rawA = get("--color-team-a", "#2c7bb6");
   const rawB = get("--color-team-b", "#b3202a");
-  return { rawA, rawB, a: darken(rawA, 0.25), b: darken(rawB, 0.25) };
+  return { rawA, rawB, a: darken(rawA, 0.25), b: darken(rawB, 0.25), aDeep: darken(rawA, 0.5), bDeep: darken(rawB, 0.5) };
 }
 
 const colorFor = (cls = "", TEAM) =>
@@ -196,7 +198,7 @@ function drawMasthead(ctx, y0, big) {
 
   if (big) {
     const side = Math.min(120, Math.floor((content * 0.62) / per));
-    const st = { size: 30, family: SERIF, italic: true, lh: 1.3 };
+    const st = { size: 26, family: SERIF, italic: true, lh: 1.3 };
     if (side >= 72) { // nome de um lado, lema do outro (como no exemplo)
       ctx.font = `700 ${side}px ${DISPLAY}`;
       const nameW = ctx.measureText(name).width;
@@ -209,47 +211,74 @@ function drawMasthead(ctx, y0, big) {
       const size = Math.min(110, Math.floor(content / per));
       ctx.font = `700 ${size}px ${DISPLAY}`;
       ctx.fillText(name, M + (content - ctx.measureText(name).width) / 2, y);
-      y += size * 1.05 + 6;
+      y += size * 1.02;
       const L = layoutText(ctx, [{ text: tag }], content, st);
-      y += drawLines(ctx, L, M, y, content, st, "center", INK2) + 14;
+      y += drawLines(ctx, L, M, y, content, st, "center", INK2) + 8;
     }
   } else {
-    const size = Math.min(60, Math.floor(content / per));
+    const size = Math.min(92, Math.floor(content / per));
     ctx.font = `700 ${size}px ${DISPLAY}`;
     ctx.fillText(name, M + (content - ctx.measureText(name).width) / 2, y);
     y += size * 1.05 + 12;
   }
 
-  const bar = big ? 18 : 12;
+  const bar = big ? 12 : 10;
   ctx.fillStyle = "rgba(110,101,82,.85)";
   ctx.fillRect(M, y, content, bar);
-  return y + bar + 22;
+  return y + bar + 14;
 }
 
-function drawMain(ctx, y0, end, TEAM) {
+function drawMain(ctx, y0, end, imgs, TEAM) {
   const content = W - 2 * M;
-  const color = end.team === "a" ? TEAM.a : TEAM.b;
-  const headParts = segs(end.head, end.vars, TEAM);
-  let size = 70;
+  const dark = end.team === "a" ? TEAM.a : TEAM.b;
+  const logo = imgs[end.team];
+  const PAD = 24;
+  const LOGO = 96;
+  const textW = content - PAD * 2 - (logo ? LOGO + 24 : 0);
+  const parts = segs(end.head, end.vars, TEAM).map((s) => ({ ...s, color: null })); // tudo claro sobre a faixa colorida
+  let size = 64;
   let st;
   let L;
   do {
-    st = { size, family: DISPLAY, weight: 700, upper: true, lh: 1.12 };
-    L = layoutText(ctx, headParts, content, st);
+    st = { size, family: DISPLAY, weight: 700, upper: true, lh: 1.1 };
+    L = layoutText(ctx, parts, textW, st);
     size -= 4;
-  } while (L.lines.length > 3 && size >= 40);
-  let y = y0 + drawLines(ctx, L, M, y0, content, st, "center", color) + 16;
-  if (end.comment) {
-    const cst = { size: 30, family: SERIF, lh: 1.38 };
-    const cL = layoutText(ctx, segs(end.comment, end.vars, TEAM), content, cst);
-    y += drawLines(ctx, cL, M, y, content, cst, "center", INK) + 8;
+  } while (L.lines.length > 3 && size >= 36);
+  const boxH = Math.max(L.h, logo ? LOGO : 0) + PAD * 2;
+
+  rr(ctx, M, y0, content, boxH, 12);
+  ctx.fillStyle = dark;
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "rgba(245,236,213,.55)";
+  rr(ctx, M + 7, y0 + 7, content - 14, boxH - 14, 8);
+  ctx.stroke();
+
+  let tx = M + PAD;
+  if (logo) {
+    const cx = M + PAD + LOGO / 2;
+    const cy = y0 + boxH / 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, LOGO / 2, 0, Math.PI * 2);
+    ctx.fillStyle = "#f1e7cc";
+    ctx.fill();
+    drawContain(ctx, logo, cx - LOGO * 0.37, cy - LOGO * 0.37, LOGO * 0.74, LOGO * 0.74);
+    tx += LOGO + 24;
   }
-  return y + 14;
+  drawLines(ctx, L, tx, y0 + (boxH - L.h) / 2, textW, st, "center", "#f5ecd5");
+  let y = y0 + boxH + 16;
+
+  if (SHOW_END_COMMENT && end.comment) {
+    const cst = { size: 26, family: SERIF, italic: true, lh: 1.35 };
+    const cL = layoutText(ctx, segs(end.comment, end.vars, TEAM), content, cst);
+    y += drawLines(ctx, cL, M, y, content, cst, "center", INK) + 6;
+  }
+  return y + 6;
 }
 
 function drawRoster(ctx, y0, rows, imgs, TEAM) {
   const content = W - 2 * M;
-  const PH = 46, GX = 12, GY = 12, PAD = 14, LOGO = 30;
+  const PH = 40, GX = 10, GY = 10, PAD = 12, LOGO = 26;
   ctx.font = `700 21px ${SERIF}`;
   const pills = rows.map((r) => {
     const text = `${r.name} · ${r.role === "leader" ? "★ " : ""}${r.label}${r.dead ? " ☠" : ""}`;
@@ -270,7 +299,7 @@ function drawRoster(ctx, y0, rows, imgs, TEAM) {
     let x = M + (content - ln.w) / 2;
     for (const p of ln.items) {
       const raw = p.team === "a" ? TEAM.rawA : p.team === "b" ? TEAM.rawB : "#888";
-      rr(ctx, x, y, p.w, PH, 23);
+      rr(ctx, x, y, p.w, PH, PH / 2);
       ctx.globalAlpha = 0.24;
       ctx.fillStyle = raw;
       ctx.fill();
@@ -297,37 +326,36 @@ function drawSummary(ctx, y0, data, imgs, TEAM) {
   const content = W - 2 * M;
   ctx.fillStyle = "rgba(93,84,70,.5)";
   ctx.fillRect(M, y0, content, 3);
-  let y = y0 + 20;
+  let y = y0 + 14;
 
-  const LOGO = 96;
+  const LOGO = 76;
   for (const side of ["a", "b"]) {
     const left = side === "a";
     const im = imgs[side];
     if (im) drawContain(ctx, im, left ? M : W - M - LOGO, y, LOGO, LOGO);
-    const tx = left ? M + (im ? LOGO + 16 : 0) : W - M - (im ? LOGO + 16 : 0);
+    const tx = left ? M + (im ? LOGO + 14 : 0) : W - M - (im ? LOGO + 14 : 0);
     ctx.textAlign = left ? "left" : "right";
     ctx.textBaseline = "top";
-    ctx.font = `700 26px ${DISPLAY}`;
+    ctx.font = `700 24px ${DISPLAY}`;
     ctx.fillStyle = INK2;
-    ctx.fillText((themeGet(`teams.${side}.name`) || "").toUpperCase(), tx, y + 8);
-    ctx.font = `700 60px ${DISPLAY}`;
+    ctx.fillText((themeGet(`teams.${side}.name`) || "").toUpperCase(), tx, y + 4);
+    ctx.font = `700 48px ${DISPLAY}`;
     ctx.fillStyle = TEAM[side];
-    ctx.fillText(`${data.score[side]}/${RULES.winPolicies[side]}`, tx, y + 38);
+    ctx.fillText(`${data.score[side]}/${RULES.winPolicies[side]}`, tx, y + 30);
   }
   ctx.textAlign = "center";
-  ctx.font = `700 48px ${DISPLAY}`;
+  ctx.font = `700 40px ${DISPLAY}`;
   ctx.fillStyle = INK2;
-  ctx.fillText("×", W / 2, y + 30);
+  ctx.fillText("×", W / 2, y + 22);
   ctx.textAlign = "left";
-  y += LOGO + 20;
+  y += LOGO + 14;
 
   y = drawRoster(ctx, y, data.rows, imgs, TEAM);
   ctx.fillStyle = "rgba(93,84,70,.5)";
-  ctx.fillRect(M, y + 2, content, 3);
-  return y + 22;
+  ctx.fillRect(M, y, content, 3);
+  return y + 16;
 }
 
-// ---------- acontecimentos em duas colunas ----------
 function buildItems(data) {
   const items = [];
   let rejected = 0;
@@ -338,24 +366,29 @@ function buildItems(data) {
   if (rejected) {
     items.push({
       k: "summary",
-      head: t("news.summary_head"),
-      comment: t(rejected === 1 ? "news.summary_one" : "news.summary_many", { n: rejected }),
+      head: t(rejected === 1 ? "news.summary_one" : "news.summary_many", { n: rejected }),
+      comment: "",
       vars: {},
-      minor: false,
+      minor: true,
     });
   }
   return items;
 }
 
-function measureItem(ctx, it, colW, sc, TEAM) {
+function measureItem(ctx, it, colW, sc, TEAM, compact) {
+  const w = colW - INSET;
   const headSt = { size: (it.minor ? 21 : 26) * sc, family: DISPLAY, weight: 700, upper: true, lh: 1.15 };
   const cmtSt = { size: 22 * sc, family: SERIF, italic: true, lh: 1.3 };
-  const hL = layoutText(ctx, segs(it.head, it.vars, TEAM), colW, headSt);
-  const cL = it.comment && !it.minor ? layoutText(ctx, segs(it.comment, it.vars, TEAM), colW, cmtSt) : null;
-  return { hL, cL, headSt, cmtSt, sc, h: hL.h + (cL ? 8 * sc + cL.h : 0) + 24 * sc };
+  const hL = layoutText(ctx, segs(it.head, it.vars, TEAM), w, headSt);
+  const showCmt = it.comment && !it.minor && !compact;
+  const cL = showCmt ? layoutText(ctx, segs(it.comment, it.vars, TEAM), w, cmtSt) : null;
+  return {
+    hL, cL, headSt, cmtSt, sc, team: it.team || null,
+    h: hL.h + (cL ? 8 * sc + cL.h : 0) + (compact ? 14 : 22) * sc,
+  };
 }
 
-function flow(ctx, items, start, area, sc, TEAM) {
+function flow(ctx, items, start, area, sc, TEAM, compact) {
   const colW = (area.w - GAP) / 2;
   const placed = [];
   const used = [0, 0];
@@ -363,7 +396,7 @@ function flow(ctx, items, start, area, sc, TEAM) {
   let y = 0;
   let i = start;
   for (; i < items.length; i++) {
-    const m = measureItem(ctx, items[i], colW, sc, TEAM);
+    const m = measureItem(ctx, items[i], colW, sc, TEAM, compact);
     if (y > 0 && y + m.h > area.h) {
       if (col === 0) { col = 1; y = 0; } else break;
     }
@@ -374,14 +407,21 @@ function flow(ctx, items, start, area, sc, TEAM) {
   return { placed, next: i, used: Math.max(used[0], used[1]), colW, hasRight: used[1] > 0 };
 }
 
-function drawFlow(ctx, r, area) {
+function drawFlow(ctx, r, area, TEAM) {
   for (const p of r.placed) {
     const x = area.x + p.col * (r.colW + GAP);
-    let y = area.y + p.y;
-    y += drawLines(ctx, p.m.hL, x, y, r.colW, p.m.headSt, "center", INK2);
+    const top = area.y + p.y;
+    const tx = x + INSET;
+    const tw = r.colW - INSET;
+    const body = p.m.hL.h + (p.m.cL ? 8 * p.m.sc + p.m.cL.h : 0);
+    if (p.m.team) { // faixa lateral na cor do partido
+      ctx.fillStyle = TEAM[p.m.team];
+      ctx.fillRect(x, top + 2, 6, body - 2);
+    }
+    let y = top + drawLines(ctx, p.m.hL, tx, top, tw, p.m.headSt, "center", INK2);
     if (p.m.cL) {
       y += 8 * p.m.sc;
-      drawLines(ctx, p.m.cL, x, y, r.colW, p.m.cmtSt, "center", INK);
+      drawLines(ctx, p.m.cL, tx, y, tw, p.m.cmtSt, "center", p.m.team ? TEAM[`${p.m.team}Deep`] : INK);
     }
   }
   if (r.hasRight) { // filete no meio, como no jornal de exemplo
@@ -431,19 +471,21 @@ export async function renderEdition(data) {
     let y = M;
     if (p === 0) {
       y = drawMasthead(ctx, y, true);
-      if (data.end) y = drawMain(ctx, y, data.end, TEAM);
+      if (data.end) y = drawMain(ctx, y, data.end, imgs, TEAM);
       y = drawSummary(ctx, y, data, imgs, TEAM);
     } else {
       y = drawMasthead(ctx, y, false);
     }
 
     const area = { x: M, y, w: W - 2 * M, h: H - M - FOOT - y };
-    let r = null;
-    for (let sc = 1; sc >= 0.72; sc -= 0.04) { // diminui o texto até caber
-      r = flow(ctx, items, start, area, sc, TEAM);
-      if (r.next >= items.length) break;
+        let r = null;
+    outer: for (const compact of [false, true]) { // primeiro diminui o texto, depois tira os comentários
+      for (const sc of [1, 0.9, 0.8, 0.72]) {
+        r = flow(ctx, items, start, area, sc, TEAM, compact);
+        if (r.next >= items.length) break outer;
+      }
     }
-    drawFlow(ctx, r, area);
+    drawFlow(ctx, r, area, TEAM);
     pages.push({ canvas, ctx });
     start = r.next;
     if (start >= items.length) break;
