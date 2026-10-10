@@ -197,28 +197,28 @@
       "special": "{president} convoca eleição especial e entrega a presidência a {target}",
       "peek": "{president} consulta os arquivos e espia as próximas políticas",
       "end_policies_a": [
-        "{party} VENCEM: as leis salvam a República",
-        "Vitória dos {party}: a democracia está garantida",
+        "As leis salvam a República",
+        "A democracia está garantida",
         "{party} vencem nas urnas e nas leis",
-        "A República resiste: {party} vencem a disputa"
+        "Os{party} vencem a disputa"
       ],
       "end_policies_b": [
-        "{party} VENCEM: o regime está consolidado",
-        "Vitória dos {party}: a nação é deles",
-        "{party} vencem e assumem o controle absoluto",
-        "Leis aprovadas, poder tomado: {party} vencem"
+        "O regime dos {party} foi consolidado",
+        "a nação é dos {party}",
+        "{party} assumem o controle",
+        "Poder tomado: {party} vencem"
       ],
       "end_leader_elected": [
-        "{party} VENCEM: {target} era {leader} e foi eleito Chanceler",
-        "Vitória dos {party}: eleito Chanceler, {target} revela-se {leader}",
-        "{party} vencem pelo voto: {leader} era {target}",
-        "{party} tomam o poder: o Chanceler eleito é {leader}"
+        "{party} vencem: {leader} é eleito",
+        "{target} era {leader}: {party} vencem",
+        "Eleito, {target} é {leader}. {party} vencem",
+        "{leader} no poder: {party} vencem"
       ],
       "end_leader_killed": [
-        "{party} VENCEM: {target} era {leader} e foi executado",
-        "Vitória dos {party}: execução derruba {leader}",
-        "{party} vencem: {leader} cai, era {target}",
-        "{party} derrubam o regime: {target} era {leader}"
+        "{party} vencem: {leader} foi executado",
+        "{target} era {leader}: {party} vencem",
+        "{leader} cai e {party} vencem",
+        "Execução derruba {leader}: {party} vencem"
       ]
     },
     "comment": {
