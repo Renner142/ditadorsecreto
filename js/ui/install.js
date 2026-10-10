@@ -22,8 +22,10 @@ window.addEventListener("appinstalled", () => { deferred = null; refresh(); });
 function refresh() {
   if (!row) return;
   const installed = standalone();
+  const touch = window.matchMedia?.("(pointer: coarse)").matches;
   btn.hidden = installed || !deferred;
-  hint.hidden = installed || !!deferred || !isIos(); // iPhone não tem botão: só o passo a passo
+  hint.hidden = installed || !!deferred || !(isIos() || touch);
+  hint.textContent = t(isIos() ? "install.ios" : "install.menu");
   row.hidden = btn.hidden && hint.hidden;
 }
 

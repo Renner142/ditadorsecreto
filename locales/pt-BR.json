@@ -327,6 +327,7 @@
   },
     "install": {
     "button": "Instalar o app",
-    "ios": "No iPhone: toque em Compartilhar e depois em Adicionar à Tela de Início."
+    "ios": "No iPhone: toque em Compartilhar e depois em Adicionar à Tela de Início.",
+    "menu": "Para instalar: abra o menu do navegador (⋮) e escolha Instalar app ou Adicionar à tela inicial."
   }
 }
