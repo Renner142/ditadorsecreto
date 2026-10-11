@@ -109,7 +109,3 @@ input:focus {
 /* votos revelados */
 .vote-list li { animation: fadeUp 0.3s ease both; }
 
-/* quem tem aversão a movimento */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-}

@@ -46,7 +46,7 @@ export async function startHost(code) {
       .then(async () => {
         const next = reduce(state, action, RULES);
         if (next === state) {
-          console.warn("[host] ação recusada:", action, "fase:", state.phase);
+          console.debug("[host] ação recusada:", action);
         } else {
           state = next;
           await update(ref(db), { ...stateToUpdates(code, state), ...handUpdates(code, state) });
