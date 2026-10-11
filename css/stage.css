@@ -63,3 +63,14 @@
   25% { translate: -2px 1px; }
   75% { translate: 2px -1px; }
 }
+
+
+/* a tela clareia na cor do partido quando a política é revelada */
+.tint {
+  position: fixed; inset: 0; z-index: 95; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse at 50% 45%,
+    color-mix(in srgb, var(--glow) 70%, white) 0%, var(--glow) 55%, transparent 100%);
+  mix-blend-mode: screen;
+}
+.tint.on { animation: tint-glow 1.8s ease-in-out both; }
+@keyframes tint-glow { 0% { opacity: 0; } 30% { opacity: 0.55; } 100% { opacity: 0; } }

@@ -4,6 +4,7 @@ import { RULES } from "../config/game-config.js";
 import { playSfx } from "../audio/sfx.js";
 import { policyFace } from "./cards.js";
 import { buildToken, applyRole, coverToken, uncoverToken } from "./token.js";
+import { flashTint } from "./tint.js";
 
 const timing = () => ({ introMs: 1400, afterShotMs: 700, suspenseMs: 1400, revealMs: 2400, ...(RULES.stageTimings || {}) });
 
@@ -140,7 +141,7 @@ export function stageLeaderElected({ name }) {
 
 // a política aparece virada e é revelada depois do suspense (vence ou não)
 // level 1 = falta uma pra algum time; level 2 = falta uma pra os dois times
-export function stagePolicyWin({ team, wins = true, level = 1 }) {
+export function stagePolicyWin({ team, wins = true, level = 1, onReveal = null }) {
   return session(async () => {
     const tm = timing();
     const big = level >= 2;
@@ -161,6 +162,8 @@ export function stagePolicyWin({ team, wins = true, level = 1 }) {
       await sleep(tm.suspenseMs);
     }
 
+    flashTint(team);   // a tela clareia na cor do partido
+    onReveal?.();      // só agora o roadmap atualiza
     c.replaceChildren(policyFace(team)); // a mesma carta do jogo, com o ícone
     c.classList.add("revealed", "flip");
     title.textContent = wins

@@ -19,6 +19,7 @@ import { buildToken } from "./token.js";
 import { showNews, updateNews } from "./news.js";
 import { buzz } from "./haptics.js";
 import { updateDeck, hideDeck } from "./deckcount.js";
+import { flashTint } from "./tint.js";
 
 
 const $ = (id) => document.getElementById(id);
@@ -74,8 +75,28 @@ export function showBoard(user, code, info, hooks = {}) {
   let latest = null;
   let lastTurnKey = "";
   let firstRead = true;
+  let held = null;         // trilhas mostradas enquanto uma política está em suspense
+  let prevElection = null;
   let chain = Promise.resolve(); // as cerimônias rodam uma de cada vez
   const seen = {};
+
+
+  function paintTracks() {
+    if (!latest) return;
+    const s = latest.s;
+    const v = held
+      ? { ...s, tracks: { a: held.a, b: held.b }, electionTracker: held.electionTracker }
+      : s;
+    renderTracks(v);
+    renderTracker(v);
+    renderMiniRoad(v);
+  }
+
+  function releaseHold() {
+    if (!held) return;
+    held = null;
+    paintTracks();
+  }
 
   function draw() {
     if (!latest) return;
@@ -178,13 +199,14 @@ export function showBoard(user, code, info, hooks = {}) {
         } else if (endNow && w.reason === "leader_elected") {
           await stageLeaderElected({ name: nm(s.candidate) });
         } else if (endNow && w.reason === "policies") {
-          await stagePolicyWin({ team: w.team, wins: true, level: tensionLevel || 1 });
+          await stagePolicyWin({ team: w.team, wins: true, level: tensionLevel || 1, onReveal: releaseHold });
         } else if (tensionPolicy) {
-          await stagePolicyWin({ team: tensionPolicy, wins: false, level: tensionLevel || 1 });
+          await stagePolicyWin({ team: tensionPolicy, wins: false, level: tensionLevel || 1, onReveal: releaseHold });
         }
       } catch (err) {
         console.error(err);
       }
+      releaseHold(); // garantia: se a cena foi pulada ou deu erro, o roadmap atualiza
       if (endNow) { // só agora os papéis são revelados, o fundo é tomado e a música toca
         ui.end = "done";
         playVictory(w.team);
@@ -244,15 +266,24 @@ export function showBoard(user, code, info, hooks = {}) {
     const endNow = !!s.winner && ui.end === null;
     if (endNow) ui.end = "holding";
 
+    // a política em suspense só entra no roadmap quando a carta é revelada
+    const policyCeremony = !!policyNow && (!!tensionPolicy || (endNow && s.winner?.reason === "policies"));
+    if (policyCeremony) {
+      held = {
+        a: s.tracks.a - (policyNow === "a" ? 1 : 0),
+        b: s.tracks.b - (policyNow === "b" ? 1 : 0),
+        electionTracker: s.lastVote?.chaos ? RULES.failedElectionsLimit : (prevElection ?? s.electionTracker),
+      };
+    } else if (policyNow) {
+      later(() => flashTint(policyNow), 400); // sem suspense: o roadmap atualiza na hora e a tela clareia
+    }
+    prevElection = s.electionTracker;
+
     cues(s, { voteChanged, enactedChanged, powerChanged, execNow, holdPolicySfx, tensionLevel });
     if (execNow || endNow || tensionPolicy) {
       ceremony(s, room.players, execNow, endNow, tensionPolicy, tensionLevel);
     }
-    renderTracks(s);
-    renderTracker(s);
-    renderDeadVeil(s, user.uid);
-    updateDeck(s);
-    renderMiniRoad(s);
+    paintTracks();
     renderHostBanner(s, user.uid);
     draw();
     renderLastVote(s, room.players);
