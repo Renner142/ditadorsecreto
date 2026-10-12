@@ -283,6 +283,8 @@ export function showBoard(user, code, info, hooks = {}) {
     if (execNow || endNow || tensionPolicy) {
       ceremony(s, room.players, execNow, endNow, tensionPolicy, tensionLevel);
     }
+    renderDeadVeil(s, user.uid);
+    updateDeck(s);
     paintTracks();
     renderHostBanner(s, user.uid);
     draw();
