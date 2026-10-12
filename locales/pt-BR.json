@@ -329,5 +329,10 @@
     "button": "Instalar o app",
     "ios": "No iPhone: toque em Compartilhar e depois em Adicionar à Tela de Início.",
     "menu": "Para instalar: abra o menu do navegador (⋮) e escolha Instalar app ou Adicionar à tela inicial."
+  },
+  "refresh": {
+    "button": "Atualizar o jogo",
+    "hint": "Baixa a versão mais recente (como Ctrl+Shift+R) e recarrega. Você volta pra mesma sala.",
+    "working": "Atualizando..."
   }
 }
