@@ -33,6 +33,7 @@ let stick = true; // true = o jornal acompanha as notícias novas (fica embaixo)
 let pages = [];
 let editionSig = "";
 let editionToken = 0;
+let editionTimer = 0;
 const shareOk = canShareFiles();
 
 const pickFrom = (raw, seed) => {
@@ -398,6 +399,8 @@ export function showNews(on) {
   ensure();
   btn.hidden = !on;
   if (!on) {
+    clearTimeout(editionTimer);
+    editionTimer = 0;
     closePanel();
     sig = "";
     entries = [];
@@ -413,6 +416,7 @@ export function showNews(on) {
     editionToken++;
     updateDot();
     syncFoot();
+    
   }
 }
 
@@ -452,7 +456,8 @@ export function updateNews(s, playersMap, isEnded) {
     seen = entries.length;
     if (!ended) { if (keep) toBottom(); else scrollEl.scrollTop = top; } // quem subiu pra reler não é puxado de volta
   }
-  if (ended) renderEditionView(); // já deixa a edição pronta, mesmo com o jornal fechado
+    // monta a edição depois da varredura do fim (desenhar a imagem no meio da animação trava)
+  if (ended && !editionTimer) editionTimer = setTimeout(() => { editionTimer = 0; renderEditionView(); }, 3500);
   updateDot();
   syncFoot();
 }

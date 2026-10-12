@@ -395,7 +395,7 @@ function renderSeats(user, info, s, players, intel, ui) {
   const nextOrder = s.winner ? {} : turnOrder(s);
   const box = $("seats");
   if (!box) return;
-  box.innerHTML = "";
+  const out = document.createElement("div");
   box.classList.add("ring");
   // o tamanho das bolinhas acompanha o tamanho da mesa (cqw), com reserva pra navegador antigo
   const cq = typeof CSS !== "undefined" && CSS.supports?.("width", "1cqw");
@@ -423,7 +423,7 @@ function renderSeats(user, info, s, players, intel, ui) {
     });
     const k = (i - me + n) % n; // você fica embaixo; os outros seguem no sentido horário
     tk.style.setProperty("--a", `${90 + (k * 360) / n}deg`);
-    box.append(tk);
+    out.append(tk);
   });
 
   // centro da mesa: sentido da ordem e o próximo presidente
@@ -444,8 +444,14 @@ function renderSeats(user, info, s, players, intel, ui) {
       nx.textContent = t("board.next_president", { name: players[nextUid]?.name ?? "?" });
       center.append(nx);
     }
-    box.append(center);
+    out.append(center);
   }
+  
+  // só troca o conteúdo se algo realmente mudou (evita repintar e reiniciar as animações)
+  const html = out.innerHTML + "|" + box.style.getPropertyValue("--tok");
+  if (box._sig === html) return;
+  box._sig = html;
+  box.replaceChildren(...out.childNodes);
 }
 
 function renderAction(user, code, s, players, mine, ui, openEnd) {

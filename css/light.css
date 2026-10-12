@@ -1,0 +1,29 @@
+/* ---- fundo: menos repintura ---- */
+body { background: var(--color-bg) !important; } /* o #bg já cobre: some o degradê escondido */
+#bg { contain: strict; }
+.bg-logo { filter: none; }
+
+/* ---- flash e luz: só opacidade, sem repintar a tela ---- */
+.stage.flash { animation: none; }
+.stage.flash::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: #fff; animation: stg-flash2 0.45s ease-out both;
+}
+@keyframes stg-flash2 { from { opacity: 0.9; } to { opacity: 0; } }
+
+.tint {
+  mix-blend-mode: normal;
+  background: radial-gradient(ellipse at 50% 45%,
+    color-mix(in srgb, var(--glow) 55%, #fff) 0%, var(--glow) 60%, transparent 100%);
+}
+@keyframes tint-glow { 0% { opacity: 0; } 30% { opacity: 0.5; } 100% { opacity: 0; } }
+
+/* ---- cerimônia: palco opaco e a mesa por baixo fica "desligada" ---- */
+.stage { background: radial-gradient(900px 500px at 50% 40%, #240c0c, transparent 70%), #080606; }
+body:has(#stage:not([hidden])) :is(#app, .mini-road, .deckbox, .dead-veil) { visibility: hidden; }
+
+/* ---- pulsos: poucos ciclos em vez de infinitos ---- */
+.tk.is-pres .tk-face, .tk.is-leader .tk-face, .tk-party.leader { animation-iteration-count: 2; will-change: auto; }
+.action-panel.your-turn { animation-iteration-count: 3; }
+.rc-arrow { animation: none; }
+.dead-veil { text-shadow: none; }
