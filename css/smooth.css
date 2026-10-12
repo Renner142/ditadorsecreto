@@ -1,0 +1,26 @@
+/* ---- animações mais leves ---- */
+
+/* o blur do fundo é caro e os painéis já são quase opacos: sem diferença visível */
+#action, .deckbox, .mini-road, .host-banner, .modal, .stage {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* pulsos que animavam sombra (repinta a cada quadro) passam a animar brilho (roda na placa de vídeo) */
+@keyframes tk-pulse { 50% { filter: brightness(1.3); } }
+@keyframes leader-pulse { 50% { filter: brightness(1.35); } }
+@keyframes tk-leader-tag { 50% { filter: brightness(1.3); } }
+@keyframes pulse { 50% { filter: brightness(1.18); } }
+.tk.is-pres .tk-face, .tk.is-leader .tk-face, .tk-party.leader { will-change: filter; }
+
+/* suspense maior: a sombra fica fixa e só a opacidade pulsa */
+.stage.tension { animation: none; }
+.stage.tension::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  box-shadow: inset 0 0 160px 40px rgb(130 10 10 / 0.55);
+  animation: tension-pulse 1.1s ease-in-out infinite;
+}
+@keyframes tension-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+
+/* o fundo fixo do corpo força repintura; o #bg já cobre */
+body { background-attachment: scroll; }
